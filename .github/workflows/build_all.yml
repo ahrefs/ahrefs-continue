@@ -38,12 +38,13 @@ jobs:
           node-version: "21.7.3"
           
       - name: Install dependencies
-        run: 
+        run: |
           if [ "${{ matrix.os }}" = "win32" ]; then
             pwsh install-dependencies.ps1
           else
             bash install-dependencies.sh
           fi
+        shell: bash
 
       - name: Run build script
         run: node extensions/vscode/scripts/prepackage.js --target ${{ matrix.os }}-${{ matrix.arch }}
