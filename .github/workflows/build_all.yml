@@ -41,8 +41,9 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4.0.2
         with:
-          node-version: "21.7.3"
-          
+          node-version: "21"
+          registry-url: "https://registry.npmjs.org/"
+      
       - name: Install dependencies
         run: |
           if [ "${{ matrix.os }}" = "win32" ]; then
@@ -53,7 +54,7 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: node extensions/vscode/scripts/prepackage.js --target ${{ matrix.os }}-${{ matrix.arch }}
+        run: node extensions/vscode/scripts/prepackage.js
 
       - name: Archive build artifacts
         uses: actions/download-artifact@v4.1.7
