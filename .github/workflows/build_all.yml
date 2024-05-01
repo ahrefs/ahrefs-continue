@@ -1,0 +1,47 @@
+name: Build Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} for ${{ matrix.arch }}
+    runs-on: ${{ matrix.github-runner }}
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: x64
+            github-runner: ubuntu-latest
+          - os: linux
+            arch: arm64
+            github-runner: ubuntu-latest
+          - os: darwin
+            arch: x64
+            github-runner: macos-latest
+          - os: darwin
+            arch: arm64
+            github-runner: macos-latest
+          - os: win32
+            arch: x64
+            github-runner: windows-latest
+          - os: win32
+            arch: arm64
+            github-runner: windows-latest
+
+    steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: "21.7.3"
+          
+      - name: Install dependencies
+        run: npm run install-dependencies.sh
+
+      - name: Run build script
+        run: node extensions/vscode/scripts/prepackage.js --target ${{ matrix.os }}-${{ matrix.arch }}
+
+      - name: Archive build artifacts
+        uses: actions/download-artifact@v4.1.7
