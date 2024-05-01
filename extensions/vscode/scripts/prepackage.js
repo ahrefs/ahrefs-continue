@@ -62,17 +62,6 @@ const exe = os === "win32" ? ".exe" : "";
     "config_schema.json",
     path.join("..", "..", "docs", "static", "schemas", "config.json"),
   );
-  fs.copyFileSync(
-    "config_schema.json",
-    path.join(
-      "..",
-      "intellij",
-      "src",
-      "main",
-      "resources",
-      "config_schema.json",
-    ),
-  );
   // Modify and copy for .continuerc.json
   const schema = JSON.parse(fs.readFileSync("config_schema.json", "utf8"));
   schema.definitions.SerializedContinueConfig.properties.mergeBehavior = {
@@ -113,39 +102,6 @@ const exe = os === "win32" ? ".exe" : "";
     "resources",
     "webview",
   );
-
-  const indexHtmlPath = path.join(intellijExtensionWebviewPath, "index.html");
-  fs.copyFileSync(indexHtmlPath, "tmp_index.html");
-  rimrafSync(intellijExtensionWebviewPath);
-  fs.mkdirSync(intellijExtensionWebviewPath, { recursive: true });
-
-  await new Promise((resolve, reject) => {
-    ncp("dist", intellijExtensionWebviewPath, (error) => {
-      if (error) {
-        console.warn(
-          "[error] Error copying React app build to Intellij extension: ",
-          error,
-        );
-        reject(error);
-      }
-      resolve();
-    });
-  });
-
-  // Put back index.html
-  if (fs.existsSync(indexHtmlPath)) {
-    rimrafSync(indexHtmlPath);
-  }
-  fs.copyFileSync("tmp_index.html", indexHtmlPath);
-  fs.unlinkSync("tmp_index.html");
-
-  // Copy over other misc. files
-  fs.copyFileSync(
-    "../extensions/vscode/gui/onigasm.wasm",
-    path.join(intellijExtensionWebviewPath, "onigasm.wasm"),
-  );
-
-  console.log("[info] Copied gui build to Intellij extension");
 
   // Then copy over the dist folder to the VSCode extension //
   const vscodeGuiPath = path.join("../extensions/vscode/gui");
@@ -381,10 +337,9 @@ function validateFilesPresent() {
 
     // onnx runtime bindngs
     `bin/napi-v3/${os}/${arch}/onnxruntime_binding.node`,
-    `bin/napi-v3/${os}/${arch}/${
-      os === "darwin"
-        ? "libonnxruntime.1.14.0.dylib"
-        : os === "linux"
+    `bin/napi-v3/${os}/${arch}/${os === "darwin"
+      ? "libonnxruntime.1.14.0.dylib"
+      : os === "linux"
         ? "libonnxruntime.so.1.14.0"
         : "onnxruntime.dll"
     }`,
@@ -421,17 +376,15 @@ function validateFilesPresent() {
 
     // out/node_modules (to be accessed by extension.js)
     `out/node_modules/@vscode/ripgrep/bin/rg${exe}`,
-    `out/node_modules/@esbuild/${
-      target === "win32-arm64"
-        ? "esbuild.exe"
-        : target === "win32-x64"
+    `out/node_modules/@esbuild/${target === "win32-arm64"
+      ? "esbuild.exe"
+      : target === "win32-x64"
         ? "win32-x64/esbuild.exe"
         : `${target}/bin/esbuild`
     }`,
-    `out/node_modules/@lancedb/vectordb-${
-      os === "win32"
-        ? "win32-x64-msvc"
-        : `${target}${os === "linux" ? "-gnu" : ""}`
+    `out/node_modules/@lancedb/vectordb-${os === "win32"
+      ? "win32-x64-msvc"
+      : `${target}${os === "linux" ? "-gnu" : ""}`
     }/index.node`,
     `out/node_modules/esbuild/lib/main.js`,
     `out/node_modules/esbuild/bin/esbuild`,
