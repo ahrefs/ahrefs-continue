@@ -32,18 +32,18 @@ jobs:
             github-runner: windows-latest
 
     steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: ">=20.11.0"
+          registry-url: "https://registry.npmjs.org/"
+          cache: 'npm'
+      
       - name: Checkout repo
         uses: actions/checkout@v4
         with: 
           ref: 'main'
           fetch-depth: 0
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4.0.2
-        with:
-          node-version: "21"
-          registry-url: "https://registry.npmjs.org/"
-          cache: 'npm'
       
       - name: Install dependencies
         run: |
