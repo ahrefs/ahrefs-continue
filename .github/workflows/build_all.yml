@@ -32,9 +32,10 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: cd extensions/vscode && npm install vsce && mkdir build && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }}
+        run: cd extensions/vscode && npm install vsce && mkdir build && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }} && cd build && echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: extensions/vscode/build/*.vsix
+          name: ${{ env.VSIX_FILE }}
+          path: extensions/vscode/build/${{ env.VSIX_FILE }}
