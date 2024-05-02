@@ -32,11 +32,13 @@ echo "Installing binary dependencies..."
 pushd binary
 npm install
 npm run build
+npm install -g @vscode/vsce
+npm install -g yarn
 
 
 # echo "Packaging extension..."
 # # VSCode Extension (will also package GUI)
 # pushd extensions/vscode
 # npm install vsce
-# npx @vscode/vsce package
+# npx @vscode/vsce package  
 # popd
