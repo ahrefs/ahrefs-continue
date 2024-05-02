@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: bash install-dependencies.sh
+        run: bash install-dependencies.sh && npm install vsce
         shell: bash
 
       - name: Publish to Visual Studio Marketplace
