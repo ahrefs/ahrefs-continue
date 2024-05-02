@@ -37,10 +37,19 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build patch
+        run: |
+          os_name="${{ matrix.os }}"
+          if [ "$os_name" == "windows-latest" ]; then
+            os_suffix="win32"
+          elif [ "$os_name" == "macos-latest" ]; then
+            os_suffix="darwin"
+          elif [ "$os_name" == "ubuntu-latest" ]; then
+            os_suffix="linux"
+          fi
+          cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out build/ patch
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ahrefs-continue-patch.vsix
-          path: extensions/vscode/build
+          name: ahrefs-continue-$os_suffix.vsix
+          path: extensions/vscode/build/*.vsix
