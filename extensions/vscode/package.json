@@ -453,7 +453,8 @@
     "ovsx": "^0.8.3",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "vsce": "^2.15.0"
   },
   "dependencies": {
     "@electron/rebuild": "^3.2.10",
