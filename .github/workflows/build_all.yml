@@ -8,10 +8,6 @@ on:
 jobs:
   build:
     name: Package Extension
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ win32-x64, win32-ia32, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -31,11 +27,10 @@ jobs:
         run: bash install-dependencies.sh
         shell: bash
 
-      - name: Run build script
-        run: cd extensions/vscode && npm install vsce && mkdir build && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }} && cd build && echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
-
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Publish to Visual Studio Marketplace
+        uses: HaaLeo/publish-vscode-extension@v1
         with:
-          name: ${{ env.VSIX_FILE }}
-          path: extensions/vscode/build/${{ env.VSIX_FILE }}
+          pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+          registryUrl: https://marketplace.visualstudio.com
+          packagePath: extensions/vscode
+          target: "win32-x64 win32-ia32 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64"
