@@ -32,7 +32,7 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }}
+        run: cd extensions/vscode && npm install vsce && mkdir build && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }}
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
