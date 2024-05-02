@@ -7,12 +7,12 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
+    name: Package Extension
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, ubuntu-latest, macos-latest ]
-    runs-on: ${{ matrix.os }}
+        platform: [ win32-x64, win32-ia32, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64 ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -28,28 +28,13 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            pwsh install-dependencies.ps1
-          else
-            bash install-dependencies.sh
-          fi
+        run: bash install-dependencies.sh
         shell: bash
 
       - name: Run build script
-        run: |
-          os_name="${{ matrix.os }}"
-          if [ "$os_name" == "windows-latest" ]; then
-            os_suffix="win32"
-          elif [ "$os_name" == "macos-latest" ]; then
-            os_suffix="darwin"
-          elif [ "$os_name" == "ubuntu-latest" ]; then
-            os_suffix="linux"
-          fi
-          cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out build/ patch
+        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build --target ${{ matrix.platform }}
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ahrefs-continue-$os_suffix.vsix
           path: extensions/vscode/build/*.vsix
