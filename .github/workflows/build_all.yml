@@ -60,5 +60,5 @@ jobs:
       - name: Archive build artifacts
         uses: actions/download-artifact@v4.1.7
         with:
-          name: ahrefs-continue-build.vsix
-          path: extensions/vscode/build/ahrefs-continue-patch.vsix
+          name: ahrefs-continue-patch.vsix
+          path: extensions/vscode/build
