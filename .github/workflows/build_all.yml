@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
@@ -37,10 +37,10 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build ${{ matrix.os }}
+        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build patch
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ahrefs-continue-${{ matrix.os }}.vsix
+          name: ahrefs-continue-patch.vsix
           path: extensions/vscode/build
