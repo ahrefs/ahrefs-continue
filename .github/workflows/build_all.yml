@@ -7,29 +7,29 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }} for ${{ matrix.arch }}
-    runs-on: ${{ matrix.github-runner }}
-    strategy:
-      matrix:
-        include:
-          - os: linux
-            arch: x64
-            github-runner: ubuntu-latest
-          - os: linux
-            arch: arm64
-            github-runner: ubuntu-latest
-          - os: darwin
-            arch: x64
-            github-runner: macos-latest
-          - os: darwin
-            arch: arm64
-            github-runner: macos-latest
-          - os: win32
-            arch: x64
-            github-runner: windows-latest
-          - os: win32
-            arch: arm64
-            github-runner: windows-latest
+    name: Build on darwin-x64
+    runs-on: macos-latest
+    # strategy:
+    #   matrix:
+    #     include:
+    #       - os: linux
+    #         arch: x64
+    #         github-runner: ubuntu-latest
+    #       - os: linux
+    #         arch: arm64
+    #         github-runner: ubuntu-latest
+    #       - os: darwin
+    #         arch: x64
+    #         github-runner: macos-latest
+    #       - os: darwin
+    #         arch: arm64
+    #         github-runner: macos-latest
+    #       - os: win32
+    #         arch: x64
+    #         github-runner: windows-latest
+    #       - os: win32
+    #         arch: arm64
+    #         github-runner: windows-latest
 
     steps:
       - name: Checkout repo
