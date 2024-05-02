@@ -28,6 +28,11 @@ pushd gui
 npm run build
 popd
 
+echo "Installing binary dependencies..."
+pushd binary
+npm install
+npm run build
+
 
 # echo "Packaging extension..."
 # # VSCode Extension (will also package GUI)
