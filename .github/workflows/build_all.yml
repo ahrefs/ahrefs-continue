@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ win32-x64, win32-ia32, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64 ]
+        platform: [ win32-x64, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -34,7 +34,8 @@ jobs:
       - name: Run build script
         run: |
           cd extensions/vscode 
-          npm install vsce && mkdir build 
+          mkdir build 
+          
           npx @vscode/vsce package --out ./build --target ${{ matrix.platform }} 
           cd build 
           echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
