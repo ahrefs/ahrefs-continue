@@ -32,18 +32,18 @@ jobs:
             github-runner: windows-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with: 
+          ref: 'main'
+          fetch-depth: 0
+      
       - name: Setup Node.js environment
         uses: actions/setup-node@v4.0.2
         with:
           node-version: ">=20.11.0"
           registry-url: "https://registry.npmjs.org/"
           cache: 'npm'
-      
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with: 
-          ref: 'main'
-          fetch-depth: 0
       
       - name: Install dependencies
         run: |
@@ -55,7 +55,10 @@ jobs:
         shell: bash
 
       - name: Run build script
-        run: node extensions/vscode/scripts/prepackage.js
+        run: cd extensions/vscode && npm install vsce && npx @vscode/vsce package --out ./build patch
 
       - name: Archive build artifacts
         uses: actions/download-artifact@v4.1.7
+        with:
+          name: ahrefs-continue-build.vsix
+          path: extensions/vscode/build/ahrefs-continue-patch.vsix
