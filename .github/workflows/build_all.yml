@@ -44,7 +44,7 @@ jobs:
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             pwsh install-dependencies.ps1
           else
-            bash /install-dependencies.sh
+            bash install-dependencies.sh
           fi
 
       - name: Run build script
