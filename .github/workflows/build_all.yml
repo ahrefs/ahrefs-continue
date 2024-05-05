@@ -39,13 +39,15 @@ jobs:
           registry-url: "https://registry.npmjs.org/"
           cache: 'npm'
       
-      - name: Install dependencies
-        run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            pwsh install-dependencies.ps1
-          else
-            bash install-dependencies.sh
-          fi
+      - name: Install dependencies on Windows
+        if: startsWith(matrix.os, 'windows')
+        run: .\install-dependencies.ps1
+        shell: pwsh
+      
+      - name: Install dependencies on Unix
+        if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'linux')
+        run: ./install-dependencies.sh
+        shell: bash
 
       - name: Run build script
         run: |
