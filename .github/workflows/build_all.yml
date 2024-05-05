@@ -14,22 +14,16 @@ jobs:
         include:
           - os: windows-latest
             arch: win32-x64
-            shell: pwsh
           - os: windows-latest
             arch: win32-arm64
-            shell: pwsh
           - os: macos-latest
             arch: darwin-x64
-            shell: bash
           - os: macos-latest
             arch: darwin-arm64
-            shell: bash
           - os: linux-latest
             arch: linux-x64
-            shell: bash
           - os: linux-latest
             arch: linux-arm64
-            shell: bash
 
     steps:
       - name: Checkout repo
@@ -48,11 +42,10 @@ jobs:
       - name: Install dependencies
         run: |
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            ./install-dependencies.ps1
+            pwsh install-dependencies.ps1
           else
-            ./install-dependencies.sh
+            bash /install-dependencies.sh
           fi
-        shell: ${{ matrix.shell }}
 
       - name: Run build script
         run: |
