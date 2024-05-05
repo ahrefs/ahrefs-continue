@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
       
       - name: Install dependencies on Unix
-        if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'linux')
+        if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
         run: ./install-dependencies.sh
         shell: bash
 
