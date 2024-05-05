@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build on darwin-x64
+    name: Build on darwin-arm64
     runs-on: macos-latest
 
     steps:
@@ -36,8 +36,9 @@ jobs:
       - name: Run build script
         run: |
           cd extensions/vscode 
-          npm run prepackage --target "darwin-arm64"
-          npm run package --target "darwin-arm64"
+          node scripts/prepackage --target "darwin-arm64"
+          mkdir build
+          node_modules/@vscode/vsce/vsce package --out ./build --target "darwin-arm64" 
           cd build 
           echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
 
