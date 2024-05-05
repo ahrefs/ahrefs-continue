@@ -7,12 +7,9 @@ on:
 
 jobs:
   build:
-    name: Package Extension
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ win32-x64, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64 ]
-    runs-on: ubuntu-latest
+    name: Build on darwin-x64
+    runs-on: macos-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -28,22 +25,21 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: bash install-dependencies.sh
+        run: |
+          if [ "${{ matrix.os }}" = "win32" ]; then
+            pwsh install-dependencies.ps1
+          else
+            bash install-dependencies.sh
+          fi
         shell: bash
 
       - name: Run build script
         run: |
-          cd extensions/vscode 
-          mkdir build 
-          
-          node_modules/@vscode/vsce/vsce package --out ./build --target ${{ matrix.platform }} 
-          cd build 
-          echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
-      
-      - name: Publish Extension
-        run: |
-          cd extensions/vscode/build
-          ../node_modules/@vscode/vsce/vsce publish --pat ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ${{ env.VSIX_FILE }}
+        cd extensions/vscode 
+        npm run prepackage 
+        npm run package
+        cd build 
+        echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
