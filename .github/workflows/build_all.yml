@@ -7,8 +7,23 @@ on:
 
 jobs:
   build:
-    name: Build on darwin-arm64
-    runs-on: macos-latest
+    name: Build on ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            arch: win32-x64
+          - os: windows
+            arch: win32-arm64
+          - os: macos
+            arch: darwin-x64
+          - os: macos
+            arch: darwin-arm64
+          - os: linux
+            arch: linux-x64
+          - os: linux
+            arch: linux-arm64
 
     steps:
       - name: Checkout repo
@@ -26,21 +41,26 @@ jobs:
       
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.os }}" = "win32" ]; then
+          if [ "${{ matrix.os }}" = "windows" ]; then
             pwsh install-dependencies.ps1
           else
             bash install-dependencies.sh
           fi
-        shell: bash
+        shell: ${{ matrix.os == 'windows' && 'pwsh' || 'bash' }}
 
       - name: Run build script
         run: |
           cd extensions/vscode 
-          node scripts/prepackage --target "darwin-arm64"
-          mkdir build
-          node_modules/@vscode/vsce/vsce package --out ./build --target "darwin-arm64" 
+          node scripts/prepackage --target "${{ matrix.arch }}"
+          mkdir -p build
+          node_modules/@vscode/vsce/vsce package --out ./build --target "${{ matrix.arch }}" 
           cd build 
           echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+      
+      - name: Publish Extension
+        run: |
+          cd extensions/vscode/build
+          ../node_modules/@vscode/vsce/vsce publish --pat ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ${{ env.VSIX_FILE }}
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
