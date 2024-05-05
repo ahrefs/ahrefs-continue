@@ -8,21 +8,22 @@ on:
 jobs:
   build:
     name: Build on ${{ matrix.os }}-${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: windows
+          - os: windows-latest
             arch: win32-x64
-          - os: windows
+          - os: windows-latest
             arch: win32-arm64
-          - os: macos
+          - os: macos-14
             arch: darwin-x64
-          - os: macos
+          - os: macos-14-arm64
             arch: darwin-arm64
-          - os: linux
+          - os: linux-latest
             arch: linux-x64
-          - os: linux
+          - os: linux-latest
             arch: linux-arm64
 
     steps:
