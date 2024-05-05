@@ -17,9 +17,9 @@ jobs:
             arch: win32-x64
           - os: windows-latest
             arch: win32-arm64
-          - os: macos-14
+          - os: macos-12-x64
             arch: darwin-x64
-          - os: macos-14-arm64
+          - os: macos-14
             arch: darwin-arm64
           - os: linux-latest
             arch: linux-x64
