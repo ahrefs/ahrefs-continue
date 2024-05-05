@@ -23,8 +23,6 @@ jobs:
             arch: darwin-arm64
           - os: ubuntu-22.04
             arch: linux-x64
-          - os: arm64-ubuntu-22.04
-            arch: linux-arm64
 
     steps:
       - name: Checkout repo
