@@ -12,17 +12,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-latest
+          - os: windows
             arch: win32-x64
-          - os: windows-latest
+          - os: windows
             arch: win32-arm64
-          - os: macos-latest
+          - os: macos
             arch: darwin-x64
-          - os: macos-latest
+          - os: macos
             arch: darwin-arm64
-          - os: linux-latest
+          - os: linux
             arch: linux-x64
-          - os: linux-latest
+          - os: linux
             arch: linux-arm64
 
     steps:
