@@ -35,11 +35,11 @@ jobs:
 
       - name: Run build script
         run: |
-        cd extensions/vscode 
-        npm run prepackage 
-        npm run package
-        cd build 
-        echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+          cd extensions/vscode 
+          npm run prepackage 
+          npm run package
+          cd build 
+          echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
