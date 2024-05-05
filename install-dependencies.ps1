@@ -80,7 +80,6 @@ Write-Output "`nInstalling GUI extension dependencies..." -ForegroundColor White
 Push-Location gui
 npm install
 npm link @continuedev/core
-npm run build
 Pop-Location
 
 # VSCode Extension (will also package GUI)
@@ -90,9 +89,11 @@ Push-Location extensions/vscode
 # This does way too many things inline but is the common denominator between many of the scripts
 npm install
 npm link @continuedev/core
+Pop-Location
 
-npm run package
-
+Write-Output "`nBuilding GUI..." -ForegroundColor White
+Push-Location gui
+npm run build
 Pop-Location
 
 
