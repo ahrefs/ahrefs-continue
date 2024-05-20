@@ -59,10 +59,9 @@ jobs:
           echo "Finished Packaging extension..."
           echo "Listing build..."
           ls build
-          echo "Listing current dir..."
-          ls
-          cd build 
-          echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+          cd build
+          $VSIX_FILE = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
+          echo "VSIX_FILE=$VSIX_FILE" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
       
       - name: Run build script for Linux
@@ -72,8 +71,7 @@ jobs:
           node scripts/prepackage --target "${{ matrix.arch }}"
           mkdir build
           node_modules/@vscode/vsce/vsce package --out ./build --target "${{ matrix.arch }}" 
-          cd build 
-          echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+          cd build && echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
         shell: bash
       
       - name: Publish Extension
