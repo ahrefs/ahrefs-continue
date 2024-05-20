@@ -52,7 +52,7 @@ jobs:
         run: |
           cd extensions/vscode 
           node scripts/prepackage --target "${{ matrix.arch }}"
-          mkdir -p build
+          mkdir build
           node_modules/@vscode/vsce/vsce package --out ./build --target "${{ matrix.arch }}" 
           cd build 
           echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
