@@ -48,7 +48,25 @@ jobs:
         run: ./install-dependencies.sh
         shell: bash
 
-      - name: Run build script
+      - name: Run build script for Windows
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          npm install -g @vscode/vsce
+          cd extensions/vscode 
+          node scripts/prepackage --target "${{ matrix.arch }}"
+          mkdir build
+          vsce package --out .\build --target "${{ matrix.arch }}" 
+          echo "Finished Packaging extension..."
+          echo "Listing build..."
+          ls build
+          echo "Listing current dir..."
+          ls
+          cd build 
+          echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+        shell: pwsh
+      
+      - name: Run build script for Linux
+        if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
         run: |
           cd extensions/vscode 
           node scripts/prepackage --target "${{ matrix.arch }}"
@@ -56,6 +74,7 @@ jobs:
           node_modules/@vscode/vsce/vsce package --out ./build --target "${{ matrix.arch }}" 
           cd build 
           echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
+        shell: bash
       
       - name: Publish Extension
         run: |
