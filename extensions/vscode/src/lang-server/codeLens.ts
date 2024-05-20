@@ -21,7 +21,7 @@ class VerticalPerLineCodeLensProvider implements vscode.CodeLensProvider {
       string,
       VerticalDiffCodeLens[]
     >,
-  ) {}
+  ) { }
 
   public provideCodeLenses(
     document: vscode.TextDocument,
@@ -45,33 +45,31 @@ class VerticalPerLineCodeLensProvider implements vscode.CodeLensProvider {
         codeLenses.push(
           new vscode.CodeLens(range, {
             title: `Accept All (${getMetaKeyLabel()}⇧↩)`,
-            command: "continue.acceptVerticalDiffBlock",
+            command: "ahrefs-continue.acceptVerticalDiffBlock",
             arguments: [filepath, i],
           }),
           new vscode.CodeLens(range, {
             title: `Reject All (${getMetaKeyLabel()}⇧⌫)`,
-            command: "continue.rejectVerticalDiffBlock",
+            command: "ahrefs-continue.rejectVerticalDiffBlock",
             arguments: [filepath, i],
           }),
         );
       }
       codeLenses.push(
         new vscode.CodeLens(range, {
-          title: `Accept${
-            codeLenses.length === 2
-              ? ` (${getAltOrOption()}${getMetaKeyLabel()}Y)`
-              : ""
-          }`,
-          command: "continue.acceptVerticalDiffBlock",
+          title: `Accept${codeLenses.length === 2
+            ? ` (${getAltOrOption()}${getMetaKeyLabel()}Y)`
+            : ""
+            }`,
+          command: "ahrefs-continue.acceptVerticalDiffBlock",
           arguments: [filepath, i],
         }),
         new vscode.CodeLens(range, {
-          title: `Reject${
-            codeLenses.length === 2
-              ? ` (${getAltOrOption()}${getMetaKeyLabel()}N)`
-              : ""
-          }`,
-          command: "continue.rejectVerticalDiffBlock",
+          title: `Reject${codeLenses.length === 2
+            ? ` (${getAltOrOption()}${getMetaKeyLabel()}N)`
+            : ""
+            }`,
+          command: "ahrefs-continue.rejectVerticalDiffBlock",
           arguments: [filepath, i],
         }),
       );
@@ -109,12 +107,12 @@ class SuggestionsCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: "Accept",
-          command: "continue.acceptSuggestion",
+          command: "ahrefs-continue.acceptSuggestion",
           arguments: [suggestion],
         }),
         new vscode.CodeLens(range, {
           title: "Reject",
-          command: "continue.rejectSuggestion",
+          command: "ahrefs-continue.rejectSuggestion",
           arguments: [suggestion],
         }),
       );
@@ -153,17 +151,17 @@ class DiffViewerCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: `Accept All ✅ (${getMetaKeyLabel()}⇧↩)`,
-          command: "continue.acceptDiff",
+          command: "ahrefs-continue.acceptDiff",
           arguments: [document.uri.fsPath],
         }),
         new vscode.CodeLens(range, {
           title: `Reject All ❌ (${getMetaKeyLabel()}⇧⌫)`,
-          command: "continue.rejectDiff",
+          command: "ahrefs-continue.rejectDiff",
           arguments: [document.uri.fsPath],
         }),
         // new vscode.CodeLens(range, {
         //   title: `Further Edit ✏️ (${getMetaKeyLabel()}⇧M)`,
-        //   command: "continue.focusContinueInputWithEdit",
+        //   command: "ahrefs-continue.focusContinueInputWithEdit",
         // })
       );
       return codeLenses;
@@ -195,7 +193,7 @@ class ConfigPyCodeLensProvider implements vscode.CodeLensProvider {
       // codeLenses.push(
       //   new vscode.CodeLens(range, {
       //     title: `+ Add a Model`,
-      //     command: "continue.addModel",
+      //     command: "ahrefs-continue.addModel",
       //   })
       // );
     }
@@ -214,7 +212,7 @@ class ConfigPyCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: `✏️ Edit in UI`,
-          command: "continue.openSettingsUI",
+          command: "ahrefs-continue.openSettingsUI",
         }),
       );
     }
@@ -233,7 +231,7 @@ const actions: TutorialCodeLensItems[] = [
     commands: [
       {
         title: `Do it for me`,
-        command: "continue.focusContinueInput",
+        command: "ahrefs-continue.focusContinueInput",
       },
     ],
   },
@@ -242,12 +240,12 @@ const actions: TutorialCodeLensItems[] = [
     commands: [
       {
         title: `"what does this code do?"`,
-        command: "continue.sendMainUserInput",
+        command: "ahrefs-continue.sendMainUserInput",
         arguments: ["what does this code do?"],
       },
       {
         title: `"what is an alternative to this?"`,
-        command: "continue.sendMainUserInput",
+        command: "ahrefs-continue.sendMainUserInput",
         arguments: ["what is an alternative to this?"],
       },
     ],
@@ -257,12 +255,12 @@ const actions: TutorialCodeLensItems[] = [
     commands: [
       {
         title: `"/edit make this more efficient"`,
-        command: "continue.sendMainUserInput",
+        command: "ahrefs-continue.sendMainUserInput",
         arguments: ["/edit make this more efficient"],
       },
       {
         title: `"/edit write comments for this function"`,
-        command: "continue.sendMainUserInput",
+        command: "ahrefs-continue.sendMainUserInput",
         arguments: ["/edit write comments for this function"],
       },
     ],
@@ -272,11 +270,11 @@ const actions: TutorialCodeLensItems[] = [
     commands: [
       {
         title: "Run the file",
-        command: "continue.sendToTerminal",
+        command: "ahrefs-continue.sendToTerminal",
         arguments: [
           "python " +
-            path.join(getExtensionUri().fsPath, "continue_tutorial.py") +
-            "\n",
+          path.join(getExtensionUri().fsPath, "continue_tutorial.py") +
+          "\n",
         ],
       },
     ],
@@ -286,7 +284,7 @@ const actions: TutorialCodeLensItems[] = [
     commands: [
       {
         title: "Debug the error",
-        command: "continue.debugTerminal",
+        command: "ahrefs-continue.debugTerminal",
       },
     ],
   },
@@ -326,7 +324,7 @@ class TutorialCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: "Highlight the function",
-          command: "continue.selectRange",
+          command: "ahrefs-continue.selectRange",
           arguments: [lineOf11 + 3, lineOf11 + 11],
         }),
       );
@@ -339,7 +337,7 @@ class TutorialCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: "Highlight the function",
-          command: "continue.selectRange",
+          command: "ahrefs-continue.selectRange",
           arguments: [lineOf21 + 3, lineOf21 + 14],
         }),
       );
@@ -361,7 +359,7 @@ class TutorialCodeLensProvider implements vscode.CodeLensProvider {
       codeLenses.push(
         new vscode.CodeLens(range, {
           title: `Begin Section`,
-          command: "continue.foldAndUnfold",
+          command: "ahrefs-continue.foldAndUnfold",
           arguments: [linesToFold, [lineOfRegion, lineOfRegion + 1]],
         }),
       );
