@@ -74,7 +74,14 @@ jobs:
           cd build && echo "VSIX_FILE=$(ls *.vsix)" >> $GITHUB_ENV
         shell: bash
       
-      - name: Publish Extension
+      - name: Publish Extension for Windows
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          cd extensions/vscode/build
+          vsce publish --pat ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ${{ env.VSIX_FILE }}
+      
+      - name: Publish Extension for Linux
+        if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
         run: |
           cd extensions/vscode/build
           ../node_modules/@vscode/vsce/vsce publish --pat ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ${{ env.VSIX_FILE }}
