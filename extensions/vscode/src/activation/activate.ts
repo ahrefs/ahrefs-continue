@@ -14,7 +14,7 @@ function showRefactorMigrationMessage(
   // Only if the vscode setting continue.manuallyRunningSserver is true
   const manuallyRunningServer =
     vscode.workspace
-      .getConfiguration("continue")
+      .getConfiguration("ahrefs-continue")
       .get<boolean>("manuallyRunningServer") || false;
   if (
     manuallyRunningServer &&

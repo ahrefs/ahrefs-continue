@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 const statusBarItemText = (enabled: boolean | undefined) =>
-  enabled ? "$(check) Continue" : "$(circle-slash) Continue";
+  enabled ? "$(check) Ahrefs-Continue" : "$(circle-slash) Ahrefs-Continue";
 
 const statusBarItemTooltip = (enabled: boolean | undefined) =>
   enabled ? "Tab autocomplete is enabled" : "Click to enable tab autocomplete";
@@ -32,16 +32,16 @@ export function setupStatusBar(
   }
 
   statusBarItem.text = loading
-    ? "$(loading~spin) Continue"
+    ? "$(loading~spin) Ahrefs-Continue"
     : statusBarItemText(enabled);
   statusBarItem.tooltip = statusBarItemTooltip(enabled);
-  statusBarItem.command = "continue.toggleTabAutocompleteEnabled";
+  statusBarItem.command = "ahrefs-continue.toggleTabAutocompleteEnabled";
 
   statusBarItem.show();
 
   vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("continue")) {
-      const config = vscode.workspace.getConfiguration("continue");
+    if (event.affectsConfiguration("ahrefs-continue")) {
+      const config = vscode.workspace.getConfiguration("ahrefs-continue");
       const enabled = config.get<boolean>("enableTabAutocomplete");
       setupStatusBar(enabled);
     }

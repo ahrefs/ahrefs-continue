@@ -1,7 +1,7 @@
 {
   "name": "ahrefs-continue",
   "icon": "media/a_ahrefs_logo.png",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/ahrefs/ahrefs-continue"
@@ -171,10 +171,29 @@
         "group": "Ahrefs-Continue"
       },
       {
+        "command": "ahrefs-continue.selectFilesAsContext",
+        "category": "Ahrefs-Continue",
+        "title": "Ahrefs-Continue: Select Files as Context",
+        "group": "Ahrefs-Continue"
+      },
+      {
         "command": "ahrefs-continue.newSession",
         "category": "Ahrefs-Continue",
         "title": "New Session",
         "icon": "$(add)",
+        "group": "Ahrefs-Continue"
+      },
+      {
+        "command": "ahrefs-continue.viewHistory",
+        "category": "Ahrefs-Continue",
+        "title": "View History",
+        "icon": "$(history)",
+        "group": "Ahrefs-Continue"
+      },
+      {
+        "command": "ahrefs-continue.toggleTabAutocompleteEnabled",
+        "category": "Ahrefs-Continue",
+        "title": "Toggle Autocomplete Enabled",
         "group": "Ahrefs-Continue"
       }
     ],
@@ -235,6 +254,11 @@
         "mac": "cmd+k cmd+m",
         "key": "ctrl+k ctrl+m",
         "when": "!terminalFocus"
+      },
+      {
+        "command": "ahrefs-continue.toggleTabAutocompleteEnabled",
+        "mac": "cmd+k cmd+a",
+        "key": "ctrl+k ctrl+a"
       }
     ],
     "submenus": [

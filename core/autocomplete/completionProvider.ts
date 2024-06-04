@@ -136,8 +136,24 @@ export async function getTabCompletion(
     start: pos,
     end: { line: fileLines.length - 1, character: Number.MAX_SAFE_INTEGER },
   });
-  const lineBelowCursor =
+  let lineBelowCursor =
     fileLines[Math.min(pos.line + 1, fileLines.length - 1)];
+
+    if (lineBelowCursor.trim() === "") {
+      let i = pos.line;
+      while (i >= 0 && fileLines[i].trim() === "") {
+        i--;
+      }
+      if (i >= 0) {
+        lineBelowCursor = fileLines[i];
+        const linesSkipped = pos.line - i;
+        for (let j = 0; j < linesSkipped; j++) {
+          if (fileLines[pos.line + j + 1] !== undefined) {
+            fileLines.push(fileLines[pos.line + j + 1] + "\n");
+          }
+        }
+      }
+    }
 
   let extrasSnippets = (await Promise.race([
     getDefinitionsFromLsp(

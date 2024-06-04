@@ -138,19 +138,19 @@ const commandsMap: (
     });
 
     if (!edit) {
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     }
   },
   "ahrefs-continue.focusContinueInput": async () => {
     if (!getFullScreenTab()) {
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     }
     sidebar.webviewProtocol?.request("focusContinueInput", undefined);
     addHighlightedCodeToContext(false, sidebar.webviewProtocol);
   },
   "ahrefs-continue.focusContinueInputWithoutClear": async () => {
     if (!getFullScreenTab()) {
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     }
     sidebar.webviewProtocol?.request(
       "focusContinueInputWithoutClear",
@@ -332,7 +332,7 @@ const commandsMap: (
 
   "ahrefs-continue.viewLogs": async () => {
     // Open ~/.continue/continue.log
-    const logFile = path.join(os.homedir(), ".continue", "continue.log");
+    const logFile = path.join(os.homedir(), ".ahrefs-continue", "ahrefs-continue.log");
     // Make sure the file/directory exist
     if (!fs.existsSync(logFile)) {
       fs.mkdirSync(path.dirname(logFile), { recursive: true });
@@ -344,24 +344,24 @@ const commandsMap: (
   },
   "ahrefs-continue.debugTerminal": async () => {
     const terminalContents = await ide.getTerminalContents();
-    vscode.commands.executeCommand("continue.continueGUIView.focus");
+    vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     sidebar.webviewProtocol?.request("userInput", {
       input: `I got the following error, can you please help explain how to fix it?\n\n${terminalContents.trim()}`,
     });
   },
   "ahrefs-continue.hideInlineTip": () => {
     vscode.workspace
-      .getConfiguration("continue")
+      .getConfiguration("ahrefs-continue")
       .update("showInlineTip", false, vscode.ConfigurationTarget.Global);
   },
 
   // Commands without keyboard shortcuts
   "ahrefs-continue.addModel": () => {
-    vscode.commands.executeCommand("continue.continueGUIView.focus");
+    vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     sidebar.webviewProtocol?.request("addModel", undefined);
   },
   "ahrefs-continue.openSettingsUI": () => {
-    vscode.commands.executeCommand("continue.continueGUIView.focus");
+    vscode.commands.executeCommand("ahrefs-continue.continueGUIView.focus");
     sidebar.webviewProtocol?.request("openSettings", undefined);
   },
   "ahrefs-continue.sendMainUserInput": (text: string) => {
@@ -369,9 +369,9 @@ const commandsMap: (
       input: text,
     });
   },
-  "ahrefs-continue.shareSession": () => {
-    sidebar.sendMainUserInput("/share");
-  },
+  // "ahrefs-continue.shareSession": () => {
+  //   sidebar.sendMainUserInput("/share");
+  // },
   "ahrefs-continue.selectRange": (startLine: number, endLine: number) => {
     if (!vscode.window.activeTextEditor) {
       return;
@@ -504,7 +504,7 @@ const commandsMap: (
     });
   },
   "ahrefs-continue.toggleTabAutocompleteEnabled": () => {
-    const config = vscode.workspace.getConfiguration("continue");
+    const config = vscode.workspace.getConfiguration("ahrefs-continue");
     const enabled = config.get("enableTabAutocomplete");
     config.update(
       "enableTabAutocomplete",
