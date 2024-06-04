@@ -69,7 +69,10 @@ export const defaultConfig: SerializedContinueConfig = {
     "useSuffix": true,
     "useCache": true,
     "multilineCompletions": "auto",
-    "debounceDelay": 50
+    "debounceDelay": 50,
+    "onlyMyCode": true,
+    "useOtherFiles": true,
+    "maxPromptTokens": 2048
   },
   "disableIndexing": true,
   "slashCommands": [
@@ -202,7 +205,10 @@ export const defaultConfigJetBrains: SerializedContinueConfig = {
     "useSuffix": true,
     "useCache": true,
     "multilineCompletions": "auto",
-    "debounceDelay": 50
+    "debounceDelay": 50,
+    "onlyMyCode": true,
+    "useOtherFiles": true,
+    "maxPromptTokens": 2048,
   },
   "disableIndexing": true,
   "slashCommands": [

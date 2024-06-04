@@ -38,8 +38,6 @@ select the code and toggle the Continue input box"""
 
 
 """Step 1: Highlight this code"""
-
-
 def mysterious_function(x):
     n = len(x)
     for i in range(n):

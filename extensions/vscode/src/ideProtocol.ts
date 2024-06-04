@@ -65,7 +65,7 @@ class VsCodeIde implements IDE {
       version: vscode.version,
       remoteName: vscode.env.remoteName || "local",
       extensionVersion:
-        vscode.extensions.getExtension("continue.continue")?.packageJSON
+        vscode.extensions.getExtension("ahrefs-continue.ahrefs-continue")?.packageJSON
           .version,
     });
   }
@@ -100,7 +100,7 @@ class VsCodeIde implements IDE {
   async isTelemetryEnabled(): Promise<boolean> {
     return (
       (await vscode.workspace
-        .getConfiguration("continue")
+        .getConfiguration("ahrefs-continue")
         .get("telemetryEnabled")) ?? true
     );
   }
@@ -153,7 +153,7 @@ class VsCodeIde implements IDE {
     for (const workspaceDir of workspaceDirs) {
       const files = await vscode.workspace.fs.readDirectory(workspaceDir);
       for (const [filename, type] of files) {
-        if (type === vscode.FileType.File && filename === ".continuerc.json") {
+        if (type === vscode.FileType.File && filename === ".ahrefs-continuerc.json") {
           const contents = await this.ideUtils.readFile(
             vscode.Uri.joinPath(workspaceDir, filename).fsPath,
           );

@@ -8,7 +8,7 @@ import Types from "../config/types";
 
 export function getContinueGlobalPath(): string {
   // This is ~/.continue on mac/linux
-  const continuePath = path.join(os.homedir(), ".continue");
+  const continuePath = path.join(os.homedir(), ".ahrefs-continue");
   if (!fs.existsSync(continuePath)) {
     fs.mkdirSync(continuePath);
   }
