@@ -209,7 +209,7 @@ export function getPathToRemoteConfig(remoteConfigServerUrl: URL): string {
 }
 
 export function getConfigJsonPathForRemote(remoteConfigServerUrl: URL): string {
-  return path.join(getPathToRemoteConfig(remoteConfigServerUrl), "config.json");
+  return path.join(getPathToRemoteConfig(remoteConfigServerUrl), "ahrefs-continue-config.json");
 }
 
 export function getConfigJsPathForRemote(remoteConfigServerUrl: URL): string {

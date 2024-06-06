@@ -43,6 +43,7 @@ import {
   getContinueDotEnv,
   migrate,
 } from "../util/paths";
+import { editConfigJson } from "../util/paths";
 const { execSync } = require("child_process");
 
 function resolveSerializedConfig(filepath: string): SerializedContinueConfig {
@@ -67,18 +68,32 @@ function resolveSerializedConfig(filepath: string): SerializedContinueConfig {
   return JSON.parse(content);
 }
 
+async function fetchRemoteConfig(url: string): Promise<any> {
+  try {
+      const response = await fetch(url);
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+      return data;
+  } catch (error) {
+      console.error('Error fetching data: ', error);
+      return null;
+  }
+}
+
 const configMergeKeys = {
   models: (a: any, b: any) => a.title === b.title,
-  contextProviders: (a: any, b: any) => a.name === b.name,
-  slashCommands: (a: any, b: any) => a.name === b.name,
-  customCommands: (a: any, b: any) => a.name === b.name,
+  commandModels: (a: any, b: any) => a.title === b.title,
+  tabAutoCompleteModels: (a: any, b: any) => a.title === b.title,
 };
 
-function loadSerializedConfig(
+async function loadSerializedConfig(
   workspaceConfigs: ContinueRcJson[],
   remoteConfigServerUrl: URL | undefined,
   ideType: IdeType,
-): SerializedContinueConfig {
+): Promise<SerializedContinueConfig> {
   const configPath = getConfigJsonPath(ideType);
   let config: SerializedContinueConfig;
   try {
@@ -120,14 +135,8 @@ function loadSerializedConfig(
   });
 
   if (remoteConfigServerUrl) {
-    try {
-      const remoteConfigJson = resolveSerializedConfig(
-        getConfigJsonPathForRemote(remoteConfigServerUrl),
-      );
-      config = mergeJson(config, remoteConfigJson, "merge", configMergeKeys);
-    } catch (e) {
-      console.warn("Error loading remote config: ", e);
-    }
+    const remoteConfigJson = await fetchRemoteConfig(remoteConfigServerUrl.href);
+    config = mergeJson(config, remoteConfigJson, "merge", configMergeKeys);
   }
 
   for (const workspaceConfig of workspaceConfigs) {
@@ -138,7 +147,6 @@ function loadSerializedConfig(
       configMergeKeys,
     );
   }
-
   return config;
 }
 
@@ -428,11 +436,16 @@ async function loadFullConfigNode(
   remoteConfigServerUrl: URL | undefined,
   ideType: IdeType,
 ): Promise<ContinueConfig> {
-  let serialized = loadSerializedConfig(
+  let serialized = await loadSerializedConfig(
     workspaceConfigs,
     remoteConfigServerUrl,
     ideType,
   );
+
+  editConfigJson( (input) => {
+    return serialized
+  })
+
   let intermediate = serializedToIntermediateConfig(serialized);
 
   const configJsContents = await buildConfigTs();
