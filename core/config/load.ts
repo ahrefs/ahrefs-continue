@@ -86,7 +86,7 @@ async function fetchRemoteConfig(url: string): Promise<any> {
 const configMergeKeys = {
   models: (a: any, b: any) => a.title === b.title,
   commandModels: (a: any, b: any) => a.title === b.title,
-  tabAutoCompleteModels: (a: any, b: any) => a.title === b.title,
+  tabAutocompleteModels: (a: any, b: any) => a.title === b.title,
 };
 
 async function loadSerializedConfig(
