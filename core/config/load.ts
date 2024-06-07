@@ -136,7 +136,7 @@ async function loadSerializedConfig(
 
   if (remoteConfigServerUrl) {
     const remoteConfigJson = await fetchRemoteConfig(remoteConfigServerUrl.href);
-    config = mergeJson(config, remoteConfigJson, "merge", configMergeKeys);
+    config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
   }
 
   for (const workspaceConfig of workspaceConfigs) {
