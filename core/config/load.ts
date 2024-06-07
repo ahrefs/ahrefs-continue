@@ -70,16 +70,16 @@ function resolveSerializedConfig(filepath: string): SerializedContinueConfig {
 
 async function fetchRemoteConfig(url: string): Promise<any> {
   try {
-      const response = await fetch(url);
-      if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log(data);
-      return data;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(data);
+    return data;
   } catch (error) {
-      console.error('Error fetching data: ', error);
-      return null;
+    console.error('Error fetching data: ', error);
+    return null;
   }
 }
 
@@ -442,7 +442,7 @@ async function loadFullConfigNode(
     ideType,
   );
 
-  editConfigJson( (input) => {
+  editConfigJson((input) => {
     return serialized
   })
 
@@ -465,21 +465,21 @@ async function loadFullConfigNode(
   }
 
   // Remote config.js
-  if (remoteConfigServerUrl) {
-    try {
-      const configJsPathForRemote = getConfigJsPathForRemote(
-        remoteConfigServerUrl,
-      );
-      const module = await require(configJsPathForRemote);
-      delete require.cache[require.resolve(configJsPathForRemote)];
-      if (!module.modifyConfig) {
-        throw new Error("config.ts does not export a modifyConfig function.");
-      }
-      intermediate = module.modifyConfig(intermediate);
-    } catch (e) {
-      console.log("Error loading remotely set config.js: ", e);
-    }
-  }
+  // if (remoteConfigServerUrl) {
+  //   try {
+  //     const configJsPathForRemote = getConfigJsPathForRemote(
+  //       remoteConfigServerUrl,
+  //     );
+  //     const module = await require(configJsPathForRemote);
+  //     delete require.cache[require.resolve(configJsPathForRemote)];
+  //     if (!module.modifyConfig) {
+  //       throw new Error("config.ts does not export a modifyConfig function.");
+  //     }
+  //     intermediate = module.modifyConfig(intermediate);
+  //   } catch (e) {
+  //     console.log("Error loading remotely set config.js: ", e);
+  //   }
+  // }
 
   const finalConfig = await intermediateToFinalConfig(intermediate, readFile);
   return finalConfig;
