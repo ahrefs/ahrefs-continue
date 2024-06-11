@@ -45,7 +45,6 @@ export async function activateExtension(context: vscode.ExtensionContext) {
   getTsConfigPath();
 
   // Register commands and providers
-  registerQuickFixProvider();
   setupInlineTips(context);
   showRefactorMigrationMessage(context);
 
