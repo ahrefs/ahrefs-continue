@@ -9,6 +9,7 @@ const openGUITypes: (keyof ReverseWebviewProtocol)[] = [
   "focusContinueInput",
   "focusContinueInputWithoutClear",
   "newSession",
+  "sendSessionChatHistory"
 ];
 
 export const useNavigationListener = () => {

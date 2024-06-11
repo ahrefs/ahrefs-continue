@@ -171,6 +171,12 @@
         "group": "Ahrefs-Continue"
       },
       {
+        "command": "ahrefs-continue.saveChatSession",
+        "category": "Ahrefs-Continue",
+        "title": "Save Chat Session",
+        "group": "Ahrefs-Continue"
+      },
+      {
         "command": "ahrefs-continue.selectFilesAsContext",
         "category": "Ahrefs-Continue",
         "title": "Ahrefs-Continue: Select Files as Context",
