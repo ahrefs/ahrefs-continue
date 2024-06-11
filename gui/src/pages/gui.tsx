@@ -42,7 +42,7 @@ import {
 } from "../redux/slices/uiStateSlice";
 import { RootState } from "../redux/store";
 import { getMetaKeyLabel, isMetaEquivalentKeyPressed } from "../util";
-import { isJetBrains } from "../util/ide";
+import { isJetBrains, ideRequest } from "../util/ide";
 import { getLocalStorage, setLocalStorage } from "../util/localStorage";
 
 const TopGuiDiv = styled.div`
@@ -336,6 +336,13 @@ function GUI(props: GUIProps) {
       mainTextInputRef.current?.focus?.();
     },
     [saveSession],
+  );
+  
+  useWebviewListener(
+    "sendSessionChatHistory",
+    async () => {
+      ideRequest("saveSessionChatHistory", { "chatHistory" : state.history, "defaultTitle" : state.defaultModelTitle} );
+    }
   );
 
   const isLastUserInput = useCallback(

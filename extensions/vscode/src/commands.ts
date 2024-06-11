@@ -3,7 +3,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { IDE } from "core";
+import { IDE, ContinueSDK } from "core";
 import { AutocompleteOutcome } from "core/autocomplete/completionProvider";
 import { ConfigHandler } from "core/config/handler";
 import { logDevData } from "core/util/devdata";
@@ -369,9 +369,9 @@ const commandsMap: (
       input: text,
     });
   },
-  // "ahrefs-continue.shareSession": () => {
-  //   sidebar.sendMainUserInput("/share");
-  // },
+  "ahrefs-continue.saveChatSession": () => {
+    sidebar.webviewProtocol.request("sendSessionChatHistory", undefined);
+  },
   "ahrefs-continue.selectRange": (startLine: number, endLine: number) => {
     if (!vscode.window.activeTextEditor) {
       return;

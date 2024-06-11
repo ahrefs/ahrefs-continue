@@ -19,11 +19,12 @@ import {
   WebviewProtocol,
 } from "core/web/webviewProtocol";
 import fs from "fs";
-import path from "path";
+import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
 import { VerticalPerLineDiffManager } from "./diff/verticalPerLine/manager";
 import { getExtensionUri } from "./util/vscode";
+import { stripImages } from "../../../core/llm/countTokens";
 
 async function showTutorial() {
   const tutorialPath = path.join(
@@ -248,6 +249,36 @@ export class VsCodeWebviewProtocol {
     this.on("saveFile", async (msg) => {
       return await ide.saveFile(msg.data.filepath);
     });
+    this.on("saveSessionChatHistory", async (msg) => {
+      const datetime = new Date();
+      const year = datetime.getFullYear();
+      const month = String(datetime.getMonth() + 1).padStart(2, '0');
+      const day = String(datetime.getDate()).padStart(2, '0');
+      const hours = String(datetime.getHours()).padStart(2, '0');
+      const minutes = String(datetime.getMinutes()).padStart(2, '0');
+      const seconds = String(datetime.getSeconds()).padStart(2, '0');
+
+      const datetime_filename = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+
+      let content = `This is a session transcript from Ahrefs-Continue on ${datetime.toLocaleString()}.`;
+
+      for (const m of msg.data.chatHistory) {
+        content += `\n\n## ${
+          m.message.role === "user" ? "User" : `Ahrefs-Continue: ${msg.data.defaultTitle}`
+        }\n\n${stripImages(m.message.content)}`;
+      }
+
+      const continueDir = await ide.getContinueDir();
+      const savedSessionsPath = `${continueDir}/saved_sessions`
+      if (!fs.existsSync(savedSessionsPath)) {
+        fs.mkdirSync(savedSessionsPath);
+      }
+      const path = `${savedSessionsPath}/${datetime_filename}_session.md`;
+      await ide.writeFile(path, content);
+      await ide.openFile(path);
+
+      vscode.window.showInformationMessage(`Chat session saved to ${path}`);
+    })
     this.on("readFile", async (msg) => {
       return await ide.readFile(msg.data.filepath);
     });

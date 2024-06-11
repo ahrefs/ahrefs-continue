@@ -1,4 +1,6 @@
+import { Message } from "ollama";
 import {
+  ChatHistory,
   ContextItemWithId,
   ContextSubmenuItem,
   ContinueRcJson,
@@ -100,6 +102,7 @@ export type WebviewProtocol = Protocol &
       },
       void,
     ];
+    saveSessionChatHistory: [ { chatHistory: ChatHistory, defaultTitle: string }, void];
   };
 
 export type ReverseWebviewProtocol = {
@@ -133,4 +136,5 @@ export type ReverseWebviewProtocol = {
   setTheme: [{ theme: any }, void];
   setColors: [{ [key: string]: string }, void];
   "jetbrains/editorInsetRefresh": [undefined, void];
+  sendSessionChatHistory: [undefined, void]
 };
