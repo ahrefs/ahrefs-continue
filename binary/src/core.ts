@@ -13,6 +13,7 @@ import { streamDiffLines } from "core/util/verticalEdit";
 import { v4 as uuidv4 } from "uuid";
 import { IpcMessenger } from "./messenger";
 import { Protocol } from "./protocol";
+import * as vscode from "vscode";
 
 export class Core {
   private messenger: IpcMessenger;
@@ -53,8 +54,11 @@ export class Core {
     );
 
     const getLlm = async () => {
+      const ws_config = vscode.workspace.getConfiguration();
       const config = await this.configHandler.loadConfig();
-      return config.tabAutocompleteModel;
+      let completionModelName = ws_config.get("ahrefs-continue.completionModel", "")
+      let completionModel = config.tabAutocompleteModels.find((m) => m.title == completionModelName || m.model == completionModelName) || config.tabAutocompleteModels[0];
+      return this.configHandler.setupLlm(completionModel);
     };
     this.completionProvider = new CompletionProvider(
       this.configHandler,
