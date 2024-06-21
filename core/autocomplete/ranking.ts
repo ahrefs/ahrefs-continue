@@ -7,7 +7,7 @@ export type AutocompleteSnippet = RangeInFileWithContents & {
 };
 
 const rx = /[\s.,\/#!$%\^&\*;:{}=\-_`~()\[\]]/g;
-function getSymbolsForSnippet(snippet: string): Set<string> {
+export function getSymbolsForSnippet(snippet: string): Set<string> {
   const symbols = snippet
     .split(rx)
     .map((s) => s.trim())
