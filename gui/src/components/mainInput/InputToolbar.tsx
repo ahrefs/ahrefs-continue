@@ -13,6 +13,7 @@ import {
   vscForeground,
   vscInputBackground,
 } from "..";
+import { selectUseActiveFile } from "../../redux/selectors";
 import { defaultModelSelector } from "../../redux/selectors/modelSelectors";
 import { getMetaKeyLabel, isMetaEquivalentKeyPressed } from "../../util";
 
@@ -73,6 +74,7 @@ function InputToolbar(props: InputToolbarProps) {
   const [fileSelectHovered, setFileSelectHovered] = useState(false);
 
   const defaultModel = useSelector(defaultModelSelector);
+  const useActiveFile = useSelector(selectUseActiveFile);
 
   return (
     <StyledDiv hidden={props.hidden} onClick={props.onClick} id="input-toolbar">
@@ -138,6 +140,7 @@ function InputToolbar(props: InputToolbarProps) {
         onClick={(e) => {
           props.onEnter({
             useCodebase: true,
+            noContext: !useActiveFile,
           });
         }}
         className={"hover:underline cursor-pointer float-right"}
@@ -155,6 +158,7 @@ function InputToolbar(props: InputToolbarProps) {
         onClick={(e) => {
           props.onEnter({
             useCodebase: isMetaEquivalentKeyPressed(e),
+            noContext: useActiveFile ? e.altKey : !e.altKey,
           });
         }}
       >

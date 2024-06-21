@@ -8,6 +8,7 @@ import {
   InputModifiers,
   LLMReturnValue,
   MessageContent,
+  PromptLog,
   RangeInFile,
   SlashCommandDescription,
 } from "core";
@@ -64,11 +65,12 @@ function useChatHandler(dispatch: Dispatch) {
       next = await gen.next();
     }
 
-    let returnVal = next.value as LLMReturnValue;
+    let returnVal = next.value as PromptLog;
     if (returnVal) {
-      dispatch(
-        addPromptCompletionPair([[returnVal?.prompt, returnVal?.completion]]),
-      );
+      // dispatch(
+      //   addPromptCompletionPair([[returnVal?.prompt, returnVal?.completion]]),
+      // );
+      dispatch(addPromptCompletionPair([returnVal]));
     }
   }
 

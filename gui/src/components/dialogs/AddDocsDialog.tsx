@@ -1,3 +1,4 @@
+import { SiteIndexingConfig } from "core";
 import { usePostHog } from "posthog-js/react";
 import React, { useContext, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -15,9 +16,11 @@ const GridDiv = styled.div`
 `;
 
 function AddDocsDialog() {
+  const defaultMaxDepth = 3;
   const [docsUrl, setDocsUrl] = React.useState("");
   const [docsTitle, setDocsTitle] = React.useState("");
   const [urlValid, setUrlValid] = React.useState(false);
+  const [maxDepth, setMaxDepth] = React.useState<number | string>(""); // Change here
   const dispatch = useDispatch();
 
   const { addItem } = useContext(SubmenuContextProvidersContext);
@@ -58,7 +61,13 @@ function AddDocsDialog() {
         disabled={!docsUrl || !urlValid}
         className="ml-auto"
         onClick={() => {
-          postToIde("context/addDocs", { url: docsUrl, title: docsTitle });
+          const siteIndexingConfig: SiteIndexingConfig = {
+            startUrl: docsUrl,
+            rootUrl: docsUrl,
+            title: docsTitle,
+            maxDepth: typeof maxDepth === "string" ? defaultMaxDepth : maxDepth, // Ensure maxDepth is a number
+          };
+          postToIde("context/addDocs", siteIndexingConfig);
           setDocsTitle("");
           setDocsUrl("");
           dispatch(setShowDialog(false));
