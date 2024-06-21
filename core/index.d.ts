@@ -23,6 +23,11 @@ declare global {
   }
 }
 
+export interface LLMReturnValue {
+  prompt: string;
+  completion: string;
+}
+
 export interface ChunkWithoutID {
   content: string;
   startLine: number;
@@ -39,11 +44,7 @@ export interface Chunk extends ChunkWithoutID {
 export interface IndexingProgressUpdate {
   progress: number;
   desc: string;
-}
-
-export interface LLMReturnValue {
-  prompt: string;
-  completion: string;
+  status: "loading" | "indexing" | "done" | "failed" | "paused" | "disabled";
 }
 
 export type PromptTemplate =
@@ -64,7 +65,8 @@ export interface ILLM extends LLMOptions {
   contextLength: number;
   completionOptions: CompletionOptions;
   requestOptions?: RequestOptions;
-  promptTemplates?: Record<string, string>;
+  promptTemplates?: Record<string, PromptTemplate>;
+  _fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
   templateMessages?: (messages: ChatMessage[]) => string;
   writeLog?: (str: string) => Promise<void>;
   llmRequestHook?: (model: string, prompt: string) => any;
@@ -77,19 +79,23 @@ export interface ILLM extends LLMOptions {
   region?: string;
   projectId?: string;
 
-  _fetch?: (input: any, init?: any) => Promise<any>;
-
   complete(prompt: string, options?: LLMFullCompletionOptions): Promise<string>;
 
   streamComplete(
     prompt: string,
     options?: LLMFullCompletionOptions,
-  ): AsyncGenerator<string, LLMReturnValue>;
+  ): AsyncGenerator<string, PromptLog>;
+
+  streamFim(
+    prefix: string,
+    suffix: string,
+    options?: LLMFullCompletionOptions,
+  ): AsyncGenerator<string, PromptLog>;
 
   streamChat(
     messages: ChatMessage[],
     options?: LLMFullCompletionOptions,
-  ): AsyncGenerator<ChatMessage, LLMReturnValue>;
+  ): AsyncGenerator<ChatMessage, PromptLog>;
 
   chat(
     messages: ChatMessage[],
@@ -103,6 +109,8 @@ export interface ILLM extends LLMOptions {
   supportsCompletions(): boolean;
 
   supportsPrefill(): boolean;
+
+  supportsFim(): boolean;
 
   listModels(): Promise<string[]>;
 
@@ -124,6 +132,8 @@ export interface ContextProviderDescription {
   type: ContextProviderType;
 }
 
+export type FetchFunction = (url: string | URL, init?: any) => Promise<any>;
+
 export interface ContextProviderExtras {
   fullInput: string;
   embeddingsProvider: EmbeddingsProvider;
@@ -131,10 +141,12 @@ export interface ContextProviderExtras {
   llm: ILLM;
   ide: IDE;
   selectedCode: RangeInFile[];
+  fetch: FetchFunction;
 }
 
 export interface LoadSubmenuItemsArgs {
   ide: IDE;
+  fetch: FetchFunction;
 }
 
 export interface CustomContextProvider {
@@ -156,6 +168,13 @@ export interface ContextSubmenuItem {
   id: string;
   title: string;
   description: string;
+}
+
+export interface SiteIndexingConfig {
+  startUrl: string;
+  rootUrl: string;
+  title: string;
+  maxDepth?: number;
 }
 
 export interface IContextProvider {
@@ -255,6 +274,13 @@ export interface ContextItemWithId {
 
 export interface InputModifiers {
   useCodebase: boolean;
+  noContext: boolean;
+}
+
+export interface PromptLog {
+  completionOptions: CompletionOptions;
+  prompt: string;
+  completion: string;
 }
 
 export interface ChatHistoryItem {
@@ -262,7 +288,7 @@ export interface ChatHistoryItem {
   editorState?: any;
   modifiers?: InputModifiers;
   contextItems: ContextItemWithId[];
-  promptLogs?: [string, string][]; // [prompt, completion]
+  promptLogs?: PromptLog[];
 }
 
 export type ChatHistory = ChatHistoryItem[];
@@ -284,11 +310,12 @@ export interface LLMOptions {
   completionOptions?: CompletionOptions;
   requestOptions?: RequestOptions;
   template?: TemplateType;
-  promptTemplates?: Record<string, string>;
+  promptTemplates?: Record<string, PromptTemplate>;
   templateMessages?: (messages: ChatMessage[]) => string;
   writeLog?: (str: string) => Promise<void>;
   llmRequestHook?: (model: string, prompt: string) => any;
   apiKey?: string;
+  aiGatewaySlug?: string;
   apiBase?: string;
 
   useLegacyCompletionsEndpoint?: boolean;
@@ -311,7 +338,7 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
   }[Keys];
 
 export interface CustomLLMWithOptionals {
-  options?: LLMOptions;
+  options: LLMOptions;
   streamCompletion?: (
     prompt: string,
     options: CompletionOptions,
@@ -371,6 +398,13 @@ export interface IndexTag extends BranchAndDir {
   artifactId: string;
 }
 
+export enum FileType {
+  Unkown = 0,
+  File = 1,
+  Directory = 2,
+  SymbolicLink = 64,
+}
+
 export interface IDE {
   getIdeInfo(): Promise<IdeInfo>;
   getDiff(): Promise<string>;
@@ -383,7 +417,10 @@ export interface IDE {
     stackDepth: number,
   ): Promise<string[]>;
   getAvailableThreads(): Promise<Thread[]>;
-  listWorkspaceContents(directory?: string): Promise<string[]>;
+  listWorkspaceContents(
+    directory?: string,
+    useGitIgnore?: boolean,
+  ): Promise<string[]>;
   listFolders(): Promise<string[]>;
   getWorkspaceDirs(): Promise<string[]>;
   getWorkspaceConfigs(): Promise<ContinueRcJson[]>;
@@ -406,14 +443,21 @@ export interface IDE {
     stepIndex: number,
   ): Promise<void>;
   getOpenFiles(): Promise<string[]>;
+  getCurrentFile(): Promise<string | undefined>;
   getPinnedFiles(): Promise<string[]>;
   getSearchResults(query: string): Promise<string>;
   subprocess(command: string): Promise<[string, string]>;
   getProblems(filepath?: string | undefined): Promise<Problem[]>;
   getBranch(dir: string): Promise<string>;
-  getStats(directory: string): Promise<{ [path: string]: number }>;
   getTags(artifactId: string): Promise<IndexTag[]>;
   getRepoName(dir: string): Promise<string | undefined>;
+  errorPopup(message: string): Promise<void>;
+  infoPopup(message: string): Promise<void>;
+
+  getGitRootPath(dir: string): Promise<string | undefined>;
+  listDir(dir: string): Promise<[string, FileType][]>;
+  getLastModified(files: string[]): Promise<{ [path: string]: number }>;
+  getGitHubAuthToken(): Promise<string | undefined>;
 }
 
 // Slash Commands
@@ -428,6 +472,7 @@ export interface ContinueSDK {
   contextItems: ContextItemWithId[];
   selectedCode: RangeInFile[];
   config: ContinueConfig;
+  fetch: FetchFunction;
 }
 
 export interface SlashCommand {
@@ -435,10 +480,6 @@ export interface SlashCommand {
   description: string;
   params?: { [key: string]: any };
   run: (sdk: ContinueSDK) => AsyncGenerator<string | undefined>;
-
-  // If true, this command will be run in NodeJs and have access to the filesystem and other Node-only APIs
-  // You must make sure to dynamically import any Node-only dependencies in your command so that it doesn't break in the browser
-  runInNodeJs?: boolean;
 }
 
 // Config
@@ -474,7 +515,8 @@ type ContextProviderName =
   | "code"
   | "docs"
   | "gitlab-mr"
-  | "os";
+  | "os"
+  | "currentFile";
 
 type TemplateType =
   | "llama2"
@@ -491,12 +533,14 @@ type TemplateType =
   | "neural-chat"
   | "codellama-70b"
   | "llava"
-  | "gemma";
+  | "gemma"
+  | "llama3";
 
 type ModelProvider =
   | "openai"
   | "free-trial"
   | "anthropic"
+  | "cohere"
   | "together"
   | "ollama"
   | "huggingface-tgi"
@@ -504,7 +548,6 @@ type ModelProvider =
   | "llama.cpp"
   | "replicate"
   | "text-gen-webui"
-  | "google-palm"
   | "lmstudio"
   | "llamafile"
   | "gemini"
@@ -512,7 +555,11 @@ type ModelProvider =
   | "bedrock"
   | "deepinfra"
   | "flowise"
-  | "groq";
+  | "groq"
+  | "continue-proxy"
+  | "fireworks"
+  | "custom"
+  | "cloudflare";
 
 export type ModelName =
   | "AUTODETECT"
@@ -522,11 +569,20 @@ export type ModelName =
   | "gpt-4"
   | "gpt-3.5-turbo-0613"
   | "gpt-4-32k"
+  | "gpt-4o"
+  | "gpt-4-turbo"
   | "gpt-4-turbo-preview"
   | "gpt-4-vision-preview"
-  // Open Source
+  // Mistral
+  | "codestral-latest"
+  | "open-mistral-7b"
+  | "open-mixtral-8x7b"
+  | "open-mixtral-8x22b"
+  | "mistral-small-latest"
+  | "mistral-large-latest"
   | "mistral-7b"
   | "mistral-8x7b"
+  // Llama 2
   | "llama2-7b"
   | "llama2-13b"
   | "llama2-70b"
@@ -534,6 +590,10 @@ export type ModelName =
   | "codellama-13b"
   | "codellama-34b"
   | "codellama-70b"
+  // Llama 3
+  | "llama3-8b"
+  | "llama3-70b"
+  // Other Open-source
   | "phi2"
   | "phind-codellama-34b"
   | "wizardcoder-7b"
@@ -550,11 +610,13 @@ export type ModelName =
   | "claude-3-sonnet-20240229"
   | "claude-3-haiku-20240307"
   | "claude-2.1"
-  // Google PaLM
-  | "chat-bison-001"
+  // Cohere
+  | "command-r"
+  | "command-r-plus"
   // Gemini
   | "gemini-pro"
   | "gemini-1.5-pro-latest"
+  | "gemini-1.5-flash-latest"
   // Mistral
   | "mistral-tiny"
   | "mistral-small"
@@ -573,6 +635,7 @@ export interface RequestOptions {
   proxy?: string;
   headers?: { [key: string]: string };
   extraBodyProperties?: { [key: string]: any };
+  noProxy?: string[];
 }
 
 export interface StepWithParams {
@@ -631,12 +694,14 @@ export type EmbeddingsProviderName =
   | "transformers.js"
   | "ollama"
   | "openai"
+  | "cohere"
   | "free-trial";
 
 export interface EmbedOptions {
   apiBase?: string;
   apiKey?: string;
   model?: string;
+  requestOptions?: RequestOptions;
 }
 
 export interface EmbeddingsProviderDescription extends EmbedOptions {
@@ -648,7 +713,7 @@ export interface EmbeddingsProvider {
   embed(chunks: string[]): Promise<number[][]>;
 }
 
-export type RerankerName = "voyage" | "llm" | "free-trial";
+export type RerankerName = "cohere" | "voyage" | "llm" | "free-trial";
 
 export interface RerankerDescription {
   name: RerankerName;
@@ -677,10 +742,14 @@ export interface TabAutocompleteOptions {
   useCache: boolean;
   onlyMyCode: boolean;
   useOtherFiles: boolean;
+  useRecentlyEdited: boolean;
+  recentLinePrefixMatchMinLength: number;
+  disableInFiles?: string[];
 }
 
 export interface ContinueUIConfig {
   codeBlockToolbarPosition?: "top" | "bottom";
+  fontSize?: number;
 }
 
 interface ContextMenuConfig {
@@ -690,8 +759,16 @@ interface ContextMenuConfig {
   optimize?: string;
   fixGrammar?: string;
 }
-interface ExperimantalConfig {
+
+interface ModelRoles {
+  inlineEdit?: string;
+}
+
+interface ExperimentalConfig {
   contextMenuPrompts?: ContextMenuConfig;
+  modelRoles?: ModelRoles;
+  defaultContext?: "activeFile"[];
+  promptPath?: string;
 }
 
 export interface SerializedContinueConfig {
@@ -701,6 +778,7 @@ export interface SerializedContinueConfig {
   commandModels: ModelDescription[];
   systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
+  requestOptions?: RequestOptions;
   slashCommands?: SlashCommandDescription[];
   customCommands?: CustomCommand[];
   contextProviders?: ContextProviderWithParams[];
@@ -712,7 +790,7 @@ export interface SerializedContinueConfig {
   tabAutocompleteOptions?: Partial<TabAutocompleteOptions>;
   ui?: ContinueUIConfig;
   reranker?: RerankerDescription;
-  experimental?: ExperimantalConfig;
+  experimental?: ExperimentalConfig;
 }
 
 export type ConfigMergeType = "merge" | "overwrite";
@@ -722,7 +800,7 @@ export type ContinueRcJson = Partial<SerializedContinueConfig> & {
 };
 
 export interface Config {
-  /** If set to true, Continue will collect anonymous usage data to improve the product. If set to false, we will collect nothing. Read here to learn more: https://continue.dev/docs/telemetry */
+  /** If set to true, Continue will collect anonymous usage data to improve the product. If set to false, we will collect nothing. Read here to learn more: https://docs.continue.dev/telemetry */
   allowAnonymousTelemetry?: boolean;
   /** Each entry in this array will originally be a ModelDescription, the same object from your config.json, but you may add CustomLLMs.
    * A CustomLLM requires you only to define an AsyncGenerator that calls the LLM and yields string updates. You can choose to define either `streamCompletion` or `streamChat` (or both).
@@ -735,6 +813,8 @@ export interface Config {
   systemMessage?: string;
   /** The default completion options for all models */
   completionOptions?: BaseCompletionOptions;
+  /** Request options that will be applied to all models and context providers */
+  requestOptions?: RequestOptions;
   /** The list of slash commands that will be available in the sidebar */
   slashCommands?: SlashCommand[];
   /** Each entry in this array will originally be a ContextProviderWithParams, the same object from your config.json, but you may add CustomContextProviders.
@@ -758,7 +838,7 @@ export interface Config {
   /** Options for the reranker */
   reranker?: RerankerDescription | Reranker;
   /** Experimental configuration */
-  experimental?: ExperimantalConfig;
+  experimental?: ExperimentalConfig;
 }
 
 export interface ContinueConfig {
@@ -767,6 +847,7 @@ export interface ContinueConfig {
   commandModels: ILLM[];
   systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
+  requestOptions?: RequestOptions;
   slashCommands?: SlashCommand[];
   contextProviders?: IContextProvider[];
   disableSessionTitles?: boolean;
@@ -777,7 +858,7 @@ export interface ContinueConfig {
   tabAutocompleteOptions?: Partial<TabAutocompleteOptions>;
   ui?: ContinueUIConfig;
   reranker?: Reranker;
-  experimental?: ExperimantalConfig;
+  experimental?: ExperimentalConfig;
 }
 
 export interface BrowserSerializedContinueConfig {
@@ -785,6 +866,7 @@ export interface BrowserSerializedContinueConfig {
   models: ModelDescription[];
   systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
+  requestOptions?: RequestOptions;
   slashCommands?: SlashCommandDescription[];
   contextProviders?: ContextProviderDescription[];
   disableIndexing?: boolean;
@@ -793,5 +875,5 @@ export interface BrowserSerializedContinueConfig {
   embeddingsProvider?: string;
   ui?: ContinueUIConfig;
   reranker?: RerankerDescription;
-  experimental?: ExperimantalConfig;
+  experimental?: ExperimentalConfig;
 }
