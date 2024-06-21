@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { IDE, ContinueSDK } from "core";
 import { AutocompleteOutcome } from "core/autocomplete/completionProvider";
 import { ConfigHandler } from "core/config/handler";
+import { fetchwithRequestOptions } from "core/util/fetchWithOptions";
 import { logDevData } from "core/util/devdata";
 import { Telemetry } from "core/util/posthog";
 import { ContinueGUIWebviewViewProvider } from "./debugPanel";
@@ -276,6 +277,8 @@ const commandsMap: (
                 llm,
                 fullInput: text || "",
                 selectedCode: [],
+                fetch: (url, init) =>
+                  fetchwithRequestOptions(url, init, config.requestOptions),
               });
             }) || [],
           )
