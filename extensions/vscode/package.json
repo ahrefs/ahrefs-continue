@@ -1,7 +1,7 @@
 {
   "name": "ahrefs-continue",
   "icon": "media/a_ahrefs_logo.png",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "repository": {
     "type": "git",
     "url": "https://github.com/ahrefs/ahrefs-continue"
@@ -295,12 +295,6 @@
         },
         {
           "command": "ahrefs-continue.newSession"
-        }
-      ],
-      "webview/context": [
-        {
-          "command": "ahrefs-continue.shareSession",
-          "group": "navigation@1"
         }
       ],
       "editor/context": [
