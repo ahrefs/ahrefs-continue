@@ -1,10 +1,12 @@
 import { ContextItemId, IDE } from "core";
 import { ConfigHandler } from "core/config/handler";
+import { fetchwithRequestOptions } from "core/util/fetchWithOptions";
 import {
   setupLocalMode,
   setupOptimizedExistingUserMode,
   setupOptimizedMode,
 } from "core/config/onboarding";
+import { SiteIndexingConfig } from "core"
 import { addModel, addOpenAIKey, deleteModel } from "core/config/util";
 import { indexDocs } from "core/indexing/docs";
 import TransformersJsEmbeddingsProvider from "core/indexing/embeddings/TransformersJsEmbeddingsProvider";
@@ -379,7 +381,14 @@ export class VsCodeWebviewProtocol {
       while (!next.done) {
         if (protocol.abortedMessageIds.has(msg.messageId)) {
           protocol.abortedMessageIds.delete(msg.messageId);
-          next = await gen.return({ completion: "", prompt: "" });
+          next = await gen.return({
+            completion: "",
+            prompt: "",
+            completionOptions: {
+              ...msg.data.completionOptions,
+              model: model.model,
+            },
+          });
           break;
         }
         yield { content: next.value };
@@ -403,7 +412,14 @@ export class VsCodeWebviewProtocol {
       while (!next.done) {
         if (protocol.abortedMessageIds.has(msg.messageId)) {
           protocol.abortedMessageIds.delete(msg.messageId);
-          next = await gen.return({ completion: "", prompt: "" });
+          next = await gen.return({
+            completion: "",
+            prompt: "",
+            completionOptions: {
+              ...msg.data.completionOptions,
+              model: model.model,
+            },
+          });
           break;
         }
         yield { content: next.value.content };
@@ -465,6 +481,8 @@ export class VsCodeWebviewProtocol {
         },
         selectedCode,
         config,
+        fetch: (url, init) =>
+          fetchwithRequestOptions(url, init, config.requestOptions),
       })) {
         if (content) {
           yield { content };
@@ -490,7 +508,11 @@ export class VsCodeWebviewProtocol {
       }
 
       try {
-        const items = await provider.loadSubmenuItems({ ide });
+        const items = await provider.loadSubmenuItems({ 
+          ide: this.ide, 
+          fetch: (url, init) =>
+            fetchwithRequestOptions(url, init, config.requestOptions)
+        });
         return items;
       } catch (e) {
         vscode.window.showErrorMessage(
@@ -526,8 +548,10 @@ export class VsCodeWebviewProtocol {
           embeddingsProvider: config.embeddingsProvider,
           reranker: config.reranker,
           fullInput,
-          ide,
+          ide,  
           selectedCode,
+          fetch: (url, init) =>
+            fetchwithRequestOptions(url, init, config.requestOptions),
         });
 
         Telemetry.capture("useContextProvider", {
@@ -542,20 +566,25 @@ export class VsCodeWebviewProtocol {
         return [];
       }
     });
+
     this.on("context/addDocs", (msg) => {
-      const { url, title } = msg.data;
-      const embeddingsProvider = new TransformersJsEmbeddingsProvider();
+      const siteIndexingConfig: SiteIndexingConfig = {
+        startUrl: msg.data.startUrl,
+        rootUrl: msg.data.rootUrl,
+        title: msg.data.title,
+        maxDepth: msg.data.maxDepth,
+      };
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: `Indexing ${title}`,
+          title: `Indexing ${msg.data.title}`,
           cancellable: false,
         },
         async (progress) => {
           for await (const update of indexDocs(
-            title,
-            new URL(url),
-            embeddingsProvider,
+            siteIndexingConfig,
+            new TransformersJsEmbeddingsProvider(),
           )) {
             progress.report({
               increment: update.progress,
@@ -564,7 +593,7 @@ export class VsCodeWebviewProtocol {
           }
 
           vscode.window.showInformationMessage(
-            `🎉 Successfully indexed ${title}`,
+            `🎉 Successfully indexed ${msg.data.title}`,
           );
 
           this.request("refreshSubmenuItems", undefined);

@@ -2,6 +2,7 @@ import * as child_process from "child_process";
 import { exec } from "child_process";
 import {
   ContinueRcJson,
+  FileType,
   IDE,
   IdeInfo,
   IndexTag,
@@ -10,6 +11,7 @@ import {
   Thread,
 } from "core";
 import { getContinueGlobalPath } from "core/util/paths";
+import { defaultIgnoreFile } from "core/indexing/ignore";
 import * as path from "path";
 import * as vscode from "vscode";
 import { DiffManager } from "./diff/horizontal";
@@ -26,6 +28,22 @@ class VsCodeIde implements IDE {
 
   constructor(private readonly diffManager: DiffManager) {
     this.ideUtils = new VsCodeIdeUtils();
+  }
+
+  private authToken: string | undefined;
+  private askedForAuth = false;
+
+  async getGitHubAuthToken(): Promise<string | undefined> {
+    console.log("Reading Github Auth Token is not supported.")
+    return undefined;
+  }
+
+  async infoPopup(message: string): Promise<void> {
+    vscode.window.showInformationMessage(message);
+  }
+
+  async errorPopup(message: string): Promise<void> {
+    vscode.window.showErrorMessage(message);
   }
 
   async getRepoName(dir: string): Promise<string | undefined> {
@@ -77,6 +95,18 @@ class VsCodeIde implements IDE {
         new vscode.Position(range.end.line, range.end.character),
       ),
     );
+  }
+
+  async getLastModified(files: string[]): Promise<{ [path: string]: number }> {
+    const pathToLastModified: { [path: string]: number } = {};
+    await Promise.all(
+      files.map(async (file) => {
+        const stat = await vscode.workspace.fs.stat(uriFromFilePath(file));
+        pathToLastModified[file] = stat.mtime;
+      }),
+    );
+
+    return pathToLastModified;
   }
 
   async getStats(directory: string): Promise<{ [path: string]: number }> {
@@ -255,6 +285,10 @@ class VsCodeIde implements IDE {
     return await this.ideUtils.getOpenFiles();
   }
 
+  async getCurrentFile(): Promise<string | undefined> {
+    return vscode.window.activeTextEditor?.document.uri.fsPath;
+  }
+
   async getPinnedFiles(): Promise<string[]> {
     const tabArray = vscode.window.tabGroups.all[0].tabs;
 
@@ -341,6 +375,19 @@ class VsCodeIde implements IDE {
 
   async getBranch(dir: string): Promise<string> {
     return this.ideUtils.getBranch(vscode.Uri.file(dir));
+  }
+
+  getGitRootPath(dir: string): Promise<string | undefined> {
+    return this.ideUtils.getGitRoot(dir);
+  }
+
+  async listDir(dir: string): Promise<[string, FileType][]> {
+    const files = await vscode.workspace.fs.readDirectory(uriFromFilePath(dir));
+    return files
+      .filter(([name, type]) => {
+        !(type === vscode.FileType.File && defaultIgnoreFile.ignores(name));
+      })
+      .map(([name, type]) => [path.join(dir, name), type]) as any;
   }
 }
 
