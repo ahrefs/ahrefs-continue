@@ -15,6 +15,14 @@ export function getContinueGlobalPath(): string {
   return continuePath;
 }
 
+export function getContinueSavedSessionsPath(): string {
+  const savedSessionsPath = path.join(getContinueGlobalPath(), "saved_sessions");
+  if (!fs.existsSync(savedSessionsPath)) {
+    fs.mkdirSync(savedSessionsPath);
+  }
+  return savedSessionsPath;
+}
+
 export function getSessionsFolderPath(): string {
   const sessionsPath = path.join(getContinueGlobalPath(), "sessions");
   if (!fs.existsSync(sessionsPath)) {

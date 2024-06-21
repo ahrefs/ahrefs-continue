@@ -1,19 +1,16 @@
-import fetch, { Response } from "node-fetch";
-import { EmbedOptions } from "../..";
-import { getHeaders } from "../../continueServer/stubs/headers";
-import { SERVER_URL } from "../../util/parameters";
-import { withExponentialBackoff } from "../../util/withExponentialBackoff";
-import BaseEmbeddingsProvider from "./BaseEmbeddingsProvider";
+import { Response } from "node-fetch";
+import { getHeaders } from "../../continueServer/stubs/headers.js";
+import { EmbedOptions } from "../../index.js";
+import { SERVER_URL } from "../../util/parameters.js";
+import { withExponentialBackoff } from "../../util/withExponentialBackoff.js";
+import BaseEmbeddingsProvider from "./BaseEmbeddingsProvider.js";
 
 class FreeTrialEmbeddingsProvider extends BaseEmbeddingsProvider {
   static maxBatchSize = 128;
+
   static defaultOptions: Partial<EmbedOptions> | undefined = {
     model: "voyage-code-2",
   };
-
-  get id(): string {
-    return FreeTrialEmbeddingsProvider.defaultOptions!.model!;
-  }
 
   async embed(chunks: string[]) {
     const batchedChunks = [];
@@ -30,8 +27,8 @@ class FreeTrialEmbeddingsProvider extends BaseEmbeddingsProvider {
       await Promise.all(
         batchedChunks.map(async (batch) => {
           const fetchWithBackoff = () =>
-            withExponentialBackoff<Response>(() =>
-              fetch(new URL("embeddings", SERVER_URL), {
+            withExponentialBackoff<Response>(async () =>
+              this.fetch(new URL("embeddings", SERVER_URL), {
                 method: "POST",
                 body: JSON.stringify({
                   input: batch,
@@ -39,11 +36,18 @@ class FreeTrialEmbeddingsProvider extends BaseEmbeddingsProvider {
                 }),
                 headers: {
                   "Content-Type": "application/json",
-                  ...getHeaders(),
+                  ...(await getHeaders()),
                 },
               }),
             );
           const resp = await fetchWithBackoff();
+
+          if (resp.status !== 200) {
+            throw new Error(
+              `Failed to embed: ${resp.status} ${await resp.text()}`,
+            );
+          }
+
           const data = (await resp.json()) as any;
           return data.embeddings;
         }),

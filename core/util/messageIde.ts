@@ -1,6 +1,7 @@
 import {
   ContinueRcJson,
   IDE,
+  FileType,
   IdeInfo,
   IndexTag,
   Problem,
@@ -13,12 +14,26 @@ export class MessageIde implements IDE {
     private readonly request: (messageType: string, data: any) => Promise<any>,
   ) {}
 
+  getGitHubAuthToken(): Promise<string | undefined> {
+    return this.request("getGitHubAuthToken", undefined);
+  }
+  getLastModified(files: string[]): Promise<{ [path: string]: number }> {
+    return this.request("getLastModified", { files });
+  }
+
   getRepoName(dir: string): Promise<string | undefined> {
     return this.request("getRepoName", { dir });
   }
 
   getDebugLocals(threadIndex: number): Promise<string> {
     return this.request("getDebugLocals", { threadIndex });
+  }
+
+  getGitRootPath(dir: string): Promise<string | undefined> {
+    return this.request("getGitRootPath", { dir });
+  }
+  listDir(dir: string): Promise<[string, FileType][]> {
+    return this.request("listDir", { dir });
   }
 
   getTopLevelCallStackSources(
@@ -154,5 +169,17 @@ export class MessageIde implements IDE {
 
   async getBranch(dir: string): Promise<string> {
     return this.request("getBranch", { dir });
+  }
+
+  getCurrentFile(): Promise<string | undefined> {
+    return this.request("getCurrentFile", undefined);
+  }
+
+  infoPopup(message: string): Promise<void> {
+    return this.request("errorPopup", { message });
+  }
+
+  errorPopup(message: string): Promise<void> {
+    return this.request("errorPopup", { message });
   }
 }

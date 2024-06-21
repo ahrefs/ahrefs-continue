@@ -64,6 +64,7 @@ describe("/edit slash command", () => {
       contextItems: [TEST_CONTEXT_ITEM],
       selectedCode: [],
       config: {} as any,
+      fetch,
     };
 
     let total = "";
