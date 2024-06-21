@@ -29,6 +29,7 @@ import { SubmenuContextProvidersContext } from "../../App";
 import useHistory from "../../hooks/useHistory";
 import useUpdatingRef from "../../hooks/useUpdatingRef";
 import { useWebviewListener } from "../../hooks/useWebviewListener";
+import { selectUseActiveFile } from "../../redux/selectors";
 import { defaultModelSelector } from "../../redux/selectors/modelSelectors";
 import { setEditingContextItemAtIndex } from "../../redux/slices/stateSlice";
 import { RootState } from "../../redux/store";
@@ -136,6 +137,8 @@ function TipTapEditor(props: TipTapEditorProps) {
   const historyLength = useSelector(
     (store: RootState) => store.state.history.length,
   );
+
+  const useActiveFile = useSelector(selectUseActiveFile);
 
   const [inputFocused, setInputFocused] = useState(false);
 
@@ -250,15 +253,20 @@ function TipTapEditor(props: TipTapEditorProps) {
                 return false;
               }
 
-              onEnterRef.current({ useCodebase: false });
+              onEnterRef.current({
+                useCodebase: false,
+                noContext: !useActiveFile,
+              });
               return true;
             },
 
             "Cmd-Enter": () => {
-              onEnterRef.current({ useCodebase: true });
+              onEnterRef.current({
+                useCodebase: true,
+                noContext: !useActiveFile,
+              });
               return true;
             },
-
             "Shift-Enter": () =>
               this.editor.commands.first(({ commands }) => [
                 () => commands.newlineInCode(),
@@ -409,7 +417,7 @@ function TipTapEditor(props: TipTapEditorProps) {
         return;
       }
       editor?.commands.insertContent(data.input);
-      onEnterRef.current({ useCodebase: false });
+      onEnterRef.current({ useCodebase: false, noContext: true });
     },
     [editor, onEnterRef.current, props.isMainInput],
   );

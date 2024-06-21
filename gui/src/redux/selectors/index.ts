@@ -23,3 +23,8 @@ export const selectContextProviderDescriptions = createSelector(
     return providers.filter((desc) => desc.type === "submenu") || [];
   }
 );
+
+export const selectUseActiveFile = createSelector(
+  [(store: RootState) => store.state.config.experimental?.defaultContext],
+  (defaultContext) => defaultContext?.includes("activeFile"),
+);

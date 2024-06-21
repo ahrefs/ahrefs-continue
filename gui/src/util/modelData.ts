@@ -607,20 +607,6 @@ const claude3Haiku: ModelPackage = {
   icon: "anthropic.png",
 };
 
-const chatBison: ModelPackage = {
-  title: "chat-bison-001",
-  description:
-    "Google PaLM's chat-bison-001 model, fine-tuned for chatting about code",
-  params: {
-    model: "chat-bison-001",
-    contextLength: 8000,
-    apiKey: "",
-    title: "Chat Bison",
-  },
-  providerOptions: ["palm"],
-  icon: "google-palm.png",
-};
-
 const AUTODETECT: ModelPackage = {
   title: "Autodetect",
   description:
@@ -796,26 +782,6 @@ export const PROVIDER_INFO: { [key: string]: ModelInfo } = {
       },
       ,
     ],
-  },
-  palm: {
-    title: "Google Gemini API",
-    provider: "google-palm",
-    refPage: "googlepalmapi",
-    description:
-      "Try out Google's state-of-the-art Gemini model from their API.",
-    longDescription: `To get started with Google Gemini API, obtain your API key from [here](https://ai.google.dev/tutorials/workspace_auth_quickstart) and paste it below.`,
-    icon: "gemini.png",
-    tags: [ModelProviderTag["Requires API Key"]],
-    collectInputFor: [
-      {
-        inputType: CollectInputType.text,
-        key: "apiKey",
-        label: "API Key",
-        placeholder: "Enter your Gemini API key",
-        required: true,
-      },
-    ],
-    packages: [geminiPro],
   },
   mistral: {
     title: "Mistral API",
