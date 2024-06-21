@@ -1,6 +1,7 @@
 export async function* onlyWhitespaceAfterEndOfLine(
   stream: AsyncGenerator<string>,
   endOfLine: string[],
+  fullStop: () => void,
 ): AsyncGenerator<string> {
   let pending = "";
   for await (let chunk of stream) {
@@ -12,6 +13,7 @@ export async function* onlyWhitespaceAfterEndOfLine(
         chunk[i + 1].trim() === chunk[i + 1]
       ) {
         yield chunk.slice(0, i + 1);
+        fullStop();
         return;
       }
     }
@@ -27,10 +29,12 @@ export async function* onlyWhitespaceAfterEndOfLine(
 
 export async function* noFirstCharNewline(stream: AsyncGenerator<string>) {
   let first = true;
-  for await (let char of stream) {
+  for await (const char of stream) {
     if (first) {
       first = false;
-      if (char === "\n") return;
+      if (char.startsWith("\n") || char.startsWith("\r")) {
+        return;
+      }
     }
     yield char;
   }

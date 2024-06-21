@@ -81,7 +81,7 @@ export class TabAutocompleteModel {
       const config = await this.configHandler.loadConfig();
       let completionModelName = ws_config.get("ahrefs-continue.completionModel", "")
       let completionModel: ILLM = config.tabAutocompleteModels.find((m) => m.title == completionModelName || m.model == completionModelName) || config.tabAutocompleteModels[0];
-      this._llm = this.configHandler.setupLlm(completionModel);
+      this._llm = completionModel;
     }
     return this._llm;
   }
