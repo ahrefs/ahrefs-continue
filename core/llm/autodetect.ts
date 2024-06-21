@@ -6,6 +6,7 @@ import {
   deepseekTemplateMessages,
   gemmaTemplateMessage,
   llama2TemplateMessages,
+  llama3TemplateMessages,
   llavaTemplateMessages,
   neuralChatTemplateMessages,
   openchatTemplateMessages,
@@ -44,7 +45,6 @@ const PROVIDER_HANDLES_TEMPLATING: ModelProvider[] = [
 const PROVIDER_SUPPORTS_IMAGES: ModelProvider[] = [
   "openai",
   "ollama",
-  "google-palm",
   "free-trial",
   "anthropic",
   "bedrock",
@@ -67,13 +67,6 @@ function modelSupportsImages(provider: ModelProvider, model: string): boolean {
     return true;
   }
 
-  if (
-    model === "gemini-ultra" &&
-    (provider === "google-palm" || provider === "free-trial")
-  ) {
-    return true;
-  }
-
   return false;
 }
 const PARALLEL_PROVIDERS: ModelProvider[] = [
@@ -81,7 +74,6 @@ const PARALLEL_PROVIDERS: ModelProvider[] = [
   "bedrock",
   "deepinfra",
   "gemini",
-  "google-palm",
   "huggingface-inference-api",
   "huggingface-tgi",
   "mistral",
@@ -211,6 +203,7 @@ function autodetectTemplateFunction(
       llava: llavaTemplateMessages,
       "codellama-70b": codeLlama70bTemplateMessages,
       gemma: gemmaTemplateMessage,
+      llama3: llama3TemplateMessages,
       none: null,
     };
 

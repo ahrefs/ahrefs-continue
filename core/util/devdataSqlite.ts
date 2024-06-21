@@ -20,12 +20,13 @@ export class DevDataSqliteDb {
   public static async logTokensGenerated(
     model: string,
     provider: string,
-    tokens: number,
+    promptTokens: number,
+    generatedTokens: number,
   ) {
     const db = await DevDataSqliteDb.get();
     await db?.run(
-      `INSERT INTO tokens_generated (model, provider, tokens_generated) VALUES (?, ?, ?)`,
-      [model, provider, tokens],
+      `INSERT INTO tokens_generated (model, provider, tokens_prompt, tokens_generated) VALUES (?, ?, ?, ?)`,
+      [model, provider, promptTokens, generatedTokens],
     );
   }
 

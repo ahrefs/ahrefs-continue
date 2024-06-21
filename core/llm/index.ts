@@ -6,12 +6,14 @@ import {
   LLMFullCompletionOptions,
   LLMOptions,
   LLMReturnValue,
+  PromptLog,
   ModelName,
   ModelProvider,
   PromptTemplate,
   RequestOptions,
   TemplateType,
 } from "..";
+import { logDevData } from "../util/devdata.js";
 import { DevDataSqliteDb } from "../util/devdataSqlite";
 import mergeJson from "../util/merge";
 import { Telemetry } from "../util/posthog";
@@ -62,6 +64,10 @@ export abstract class BaseLLM implements ILLM {
 
   supportsPrefill(): boolean {
     return ["ollama", "anthropic"].includes(this.providerName);
+  }
+
+  supportsFim(): boolean {
+    return false;
   }
 
   uniqueId: string;
@@ -210,19 +216,31 @@ ${settings}
 ${prompt}`;
   }
 
-  private _logTokensGenerated(model: string, completion: string) {
-    let tokens = this.countTokens(completion);
+  private _logTokensGenerated(
+    model: string,
+    prompt: string,
+    completion: string,
+  ) {
+    let promptTokens = this.countTokens(prompt);
+    let generatedTokens = this.countTokens(completion);
     Telemetry.capture("tokens_generated", {
       model: model,
       provider: this.providerName,
-      tokens: tokens,
+      promptTokens: promptTokens,
+      generatedTokens: generatedTokens,
     });
-    Telemetry.capture("tokensGenerated", {
+    DevDataSqliteDb.logTokensGenerated(
+      model,
+      this.providerName,
+      promptTokens,
+      generatedTokens,
+    );
+    logDevData("tokens_generated", {
       model: model,
       provider: this.providerName,
-      tokens: tokens,
+      promptTokens: promptTokens,
+      generatedTokens: generatedTokens,
     });
-    DevDataSqliteDb.logTokensGenerated(model, this.providerName, tokens);
   }
 
   _fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> =
@@ -277,6 +295,60 @@ ${prompt}`;
     return formatted;
   }
 
+  async *_streamFim(
+    prefix: string,
+    suffix: string,
+    options: CompletionOptions,
+  ): AsyncGenerator<string, PromptLog> {
+    throw new Error("Not implemented");
+  }
+
+  async *streamFim(
+    prefix: string,
+    suffix: string,
+    options: LLMFullCompletionOptions = {},
+  ): AsyncGenerator<string> {
+    const { completionOptions, log } = this._parseCompletionOptions(options);
+
+    const madeUpFimPrompt = `${prefix}<FIM>${suffix}`;
+    if (log) {
+      if (this.writeLog) {
+        await this.writeLog(
+          this._compileLogMessage(madeUpFimPrompt, completionOptions),
+        );
+      }
+      if (this.llmRequestHook) {
+        this.llmRequestHook(completionOptions.model, madeUpFimPrompt);
+      }
+    }
+
+    let completion = "";
+    for await (const chunk of this._streamFim(
+      prefix,
+      suffix,
+      completionOptions,
+    )) {
+      completion += chunk;
+      yield chunk;
+    }
+
+    this._logTokensGenerated(
+      completionOptions.model,
+      madeUpFimPrompt,
+      completion,
+    );
+
+    if (log && this.writeLog) {
+      await this.writeLog(`Completion:\n\n${completion}\n\n`);
+    }
+
+    return {
+      prompt: madeUpFimPrompt,
+      completion,
+      completionOptions,
+    };
+  }
+
   async *streamComplete(
     prompt: string,
     options: LLMFullCompletionOptions = {},
@@ -310,13 +382,13 @@ ${prompt}`;
       yield chunk;
     }
 
-    this._logTokensGenerated(completionOptions.model, completion);
+    this._logTokensGenerated(completionOptions.model, prompt, completion);
 
     if (log && this.writeLog) {
       await this.writeLog(`Completion:\n\n${completion}\n\n`);
     }
 
-    return { prompt, completion };
+    return { prompt, completion, completionOptions };
   }
 
   async complete(prompt: string, options: LLMFullCompletionOptions = {}) {
@@ -345,7 +417,7 @@ ${prompt}`;
 
     const completion = await this._complete(prompt, completionOptions);
 
-    this._logTokensGenerated(completionOptions.model, completion);
+    this._logTokensGenerated(completionOptions.model, prompt, completion);
     if (log && this.writeLog) {
       await this.writeLog(`Completion:\n\n${completion}\n\n`);
     }
@@ -364,7 +436,7 @@ ${prompt}`;
   async *streamChat(
     messages: ChatMessage[],
     options: LLMFullCompletionOptions = {},
-  ): AsyncGenerator<ChatMessage, LLMReturnValue> {
+  ): AsyncGenerator<ChatMessage, PromptLog> {
     const { completionOptions, log, raw } =
       this._parseCompletionOptions(options);
 
@@ -407,12 +479,16 @@ ${prompt}`;
       throw error;
     }
 
-    this._logTokensGenerated(completionOptions.model, completion);
+    this._logTokensGenerated(completionOptions.model, prompt, completion);
     if (log && this.writeLog) {
       await this.writeLog(`Completion:\n\n${completion}\n\n`);
     }
 
-    return { prompt, completion };
+    return {
+      prompt,
+      completion,
+      completionOptions,
+    };
   }
 
   protected async *_streamComplete(

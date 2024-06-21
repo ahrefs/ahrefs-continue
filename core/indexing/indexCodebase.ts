@@ -75,11 +75,13 @@ export class CodebaseIndexer {
     await this.ide.getRepoName(workspaceDirs[0]);
     yield {
       progress: 0,
-      desc: "Starting indexing...",
+      desc: "Nothing to index",
+      status: "disabled",     
     };
 
     for (let directory of workspaceDirs) {
-      const stats = await this.ide.getStats(directory);
+      const files = await this.ide.listWorkspaceContents(directory);
+      const stats = await this.ide.getLastModified(files);
       const branch = await this.ide.getBranch(directory);
       const repoName = await this.ide.getRepoName(directory);
       let completedIndexes = 0;
@@ -110,6 +112,7 @@ export class CodebaseIndexer {
               yield {
                 progress: 1,
                 desc: "Indexing cancelled",
+                status: "disabled",
               };
               return;
             }
@@ -123,6 +126,7 @@ export class CodebaseIndexer {
                   (completedIndexes + progress) / indexesToBuild.length) /
                 workspaceDirs.length,
               desc,
+              status: "indexing",
             };
           }
           completedIndexes++;
@@ -131,6 +135,7 @@ export class CodebaseIndexer {
               (completedDirs + completedIndexes / indexesToBuild.length) /
               workspaceDirs.length,
             desc: "Completed indexing " + codebaseIndex.artifactId,
+            status: "indexing",
           };
         }
       } catch (e) {
@@ -141,6 +146,7 @@ export class CodebaseIndexer {
       yield {
         progress: completedDirs / workspaceDirs.length,
         desc: "Indexing Complete",
+        status: "done",
       };
     }
   }

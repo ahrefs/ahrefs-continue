@@ -1,7 +1,7 @@
-import fetch, { Response } from "node-fetch";
-import { EmbedOptions } from "../..";
-import { withExponentialBackoff } from "../../util/withExponentialBackoff";
-import BaseEmbeddingsProvider from "./BaseEmbeddingsProvider";
+import { Response } from "node-fetch";
+import { EmbedOptions } from "../../index.js";
+import { withExponentialBackoff } from "../../util/withExponentialBackoff.js";
+import BaseEmbeddingsProvider from "./BaseEmbeddingsProvider.js";
 
 class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
   // https://platform.openai.com/docs/api-reference/embeddings/create is 2048
@@ -12,10 +12,6 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
     apiBase: "https://api.openai.com/v1/",
     model: "text-embedding-3-small",
   };
-
-  get id(): string {
-    return this.options.model ?? "openai";
-  }
 
   async embed(chunks: string[]) {
     if (!this.options.apiBase?.endsWith("/")) {
@@ -37,7 +33,7 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
         batchedChunks.map(async (batch) => {
           const fetchWithBackoff = () =>
             withExponentialBackoff<Response>(() =>
-              fetch(new URL("embeddings", this.options.apiBase), {
+              this.fetch(new URL("embeddings", this.options.apiBase), {
                 method: "POST",
                 body: JSON.stringify({
                   input: batch,

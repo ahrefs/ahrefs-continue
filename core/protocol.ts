@@ -9,6 +9,7 @@ import {
   PersistedSessionInfo,
   RangeInFile,
   SerializedContinueConfig,
+  SiteIndexingConfig,
   SessionInfo,
 } from ".";
 import { AutocompleteInput } from "./autocomplete/completionProvider";
@@ -57,7 +58,7 @@ export type Protocol = {
     { title: string },
     Promise<ContextSubmenuItem[]>,
   ];
-  "context/addDocs": [{ title: string; url: string }, void];
+  "context/addDocs": [SiteIndexingConfig, void];
   "autocomplete/complete": [AutocompleteInput, Promise<string[]>];
   "autocomplete/cancel": [undefined, void];
   "autocomplete/accept": [{ completionId: string }, void];
