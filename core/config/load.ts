@@ -25,8 +25,8 @@ import {
 import { contextProviderClassFromName } from "../context/providers";
 import CustomContextProviderClass from "../context/providers/CustomContextProvider";
 import FileContextProvider from "../context/providers/FileContextProvider";
-import { AllRerankers } from "../context/rerankers";
-import { LLMReranker } from "../context/rerankers/llm";
+// import { AllRerankers } from "../context/rerankers";
+// import { LLMReranker } from "../context/rerankers/llm";
 import { AllEmbeddingsProviders } from "../indexing/embeddings";
 import TransformersJsEmbeddingsProvider from "../indexing/embeddings/TransformersJsEmbeddingsProvider";
 import { BaseLLM } from "../llm";
@@ -36,9 +36,7 @@ import { copyOf } from "../util";
 import mergeJson from "../util/merge";
 import {
   getConfigJsPath,
-  getConfigJsPathForRemote,
   getConfigJsonPath,
-  getConfigJsonPathForRemote,
   getConfigTsPath,
   getContinueDotEnv,
   migrate,
@@ -278,36 +276,36 @@ async function intermediateToFinalConfig(
     }
   }
 
-  // Embeddings Provider
-  if (
-    (config.embeddingsProvider as EmbeddingsProviderDescription | undefined)
-      ?.provider
-  ) {
-    const { provider, ...options } =
-      config.embeddingsProvider as EmbeddingsProviderDescription;
-    config.embeddingsProvider = new AllEmbeddingsProviders[provider](options);
-  }
+  // // Embeddings Provider
+  // if (
+  //   (config.embeddingsProvider as EmbeddingsProviderDescription | undefined)
+  //     ?.provider
+  // ) {
+  //   const { provider, ...options } =
+  //     config.embeddingsProvider as EmbeddingsProviderDescription;
+  //   config.embeddingsProvider = new AllEmbeddingsProviders[provider](options);
+  // }
 
-  if (!config.embeddingsProvider) {
-    config.embeddingsProvider = new TransformersJsEmbeddingsProvider();
-  }
+  // if (!config.embeddingsProvider) {
+  //   config.embeddingsProvider = new TransformersJsEmbeddingsProvider();
+  // }
 
-  // Reranker
-  if (config.reranker && !(config.reranker as Reranker | undefined)?.rerank) {
-    const { name, params } = config.reranker as RerankerDescription;
-    const rerankerClass = AllRerankers[name];
+  // // Reranker
+  // if (config.reranker && !(config.reranker as Reranker | undefined)?.rerank) {
+  //   const { name, params } = config.reranker as RerankerDescription;
+  //   const rerankerClass = AllRerankers[name];
 
-    if (name === "llm") {
-      const llm = models.find((model) => model.title === params?.modelTitle);
-      if (!llm) {
-        console.warn(`Unknown model ${params?.modelTitle}`);
-      } else {
-        config.reranker = new LLMReranker(llm);
-      }
-    } else if (rerankerClass) {
-      config.reranker = new rerankerClass(params);
-    }
-  }
+  //   if (name === "llm") {
+  //     const llm = models.find((model) => model.title === params?.modelTitle);
+  //     if (!llm) {
+  //       console.warn(`Unknown model ${params?.modelTitle}`);
+  //     } else {
+  //       config.reranker = new LLMReranker(llm);
+  //     }
+  //   } else if (rerankerClass) {
+  //     config.reranker = new rerankerClass(params);
+  //   }
+  // }
 
   return {
     ...config,
@@ -336,7 +334,8 @@ function finalToBrowserConfig(
       completionOptions: m.completionOptions,
       systemMessage: m.systemMessage,
       requestOptions: m.requestOptions,
-      promptTemplates: m.promptTemplates,
+      // TODO: Types incompanitable. Correct them.
+      // promptTemplates: m.promptTemplates,
     })),
     systemMessage: final.systemMessage,
     completionOptions: final.completionOptions,

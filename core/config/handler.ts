@@ -92,42 +92,6 @@ export class ConfigHandler {
     return this.savedConfig;
   }
 
-  setupLlm(llm: ILLM): ILLM {
-    llm._fetch = async (input, init) => {
-      const resp = await fetchwithRequestOptions(
-        new URL(input),
-        { ...init },
-        llm.requestOptions
-      );
-
-      if (!resp.ok) {
-        let text = await resp.text();
-        if (resp.status === 404 && !resp.url.includes("/v1")) {
-          if (text.includes("try pulling it first")) {
-            const model = JSON.parse(text).error.split(" ")[1].slice(1, -1);
-            text = `The model "${model}" was not found. To download it, run \`ollama run ${model}\`.`;
-          } else if (text.includes("/api/chat")) {
-            text =
-              "The /api/chat endpoint was not found. This may mean that you are using an older version of Ollama that does not support /api/chat. Upgrading to the latest version will solve the issue.";
-          } else {
-            text =
-              "This may mean that you forgot to add '/v1' to the end of your 'apiBase' in config.json.";
-          }
-        }
-        throw new Error(
-          `HTTP ${resp.status} ${resp.statusText} from ${resp.url}\n\n${text}`
-        );
-      }
-
-      return resp;
-    };
-
-    llm.writeLog = async (log: string) => {
-      this.writeLog(log);
-    };
-    return llm;
-  }
-
   async llmFromTitle(title?: string): Promise<ILLM> {
     const config = await this.loadConfig();
     const model =
@@ -136,7 +100,7 @@ export class ConfigHandler {
       throw new Error("No model found");
     }
 
-    return this.setupLlm(model);
+    return model;
   }
 
   async loadCommandLlm(title?: string): Promise<ILLM> {
@@ -147,6 +111,6 @@ export class ConfigHandler {
       throw new Error("No commandModel found");
     }
 
-    return this.setupLlm(model);
+    return model;
   }
 }
