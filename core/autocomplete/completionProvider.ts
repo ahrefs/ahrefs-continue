@@ -217,7 +217,7 @@ export async function getTabCompletion(
       fullPrefix + fullSuffix,
       fullPrefix.length,
       ide,
-          lang,
+      lang,
     ),
     new Promise((resolve) => {
       setTimeout(() => resolve([]), 100);
