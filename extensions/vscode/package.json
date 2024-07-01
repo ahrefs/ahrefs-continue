@@ -506,7 +506,7 @@
     "uuidv4": "^6.2.13",
     "vectordb": "0.4.12",
     "vscode-languageclient": "^8.0.2",
-    "ws": "^8.13.0",
+    "ws": "^8.17.1",
     "yarn": "^1.22.21",
     "fast-levenshtein": "^3.0.0"
   }
