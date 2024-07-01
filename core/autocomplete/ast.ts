@@ -28,6 +28,10 @@ export async function getTreePathAtCursor(
   while (path[path.length - 1].childCount > 0) {
     let foundChild = false;
     for (let child of path[path.length - 1].children) {
+      if (child.type == "import_statement") {
+        path.push(child);
+      }
+
       if (child.startIndex <= cursorIndex && child.endIndex >= cursorIndex) {
         path.push(child);
         foundChild = true;
