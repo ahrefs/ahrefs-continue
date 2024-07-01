@@ -134,7 +134,14 @@ async function loadSerializedConfig(
 
   if (remoteConfigServerUrl) {
     const remoteConfigJson = await fetchRemoteConfig(remoteConfigServerUrl.href);
-    config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
+    config = mergeJson(config, remoteConfigJson, "merge", configMergeKeys);
+
+    // Force it to generate line by line
+    if (config.tabAutocompleteOptions) {
+        config.tabAutocompleteOptions.multilineCompletions = "never";
+    } else {
+        config.tabAutocompleteOptions = { multilineCompletions: "never" };
+    }
   }
 
   for (const workspaceConfig of workspaceConfigs) {
