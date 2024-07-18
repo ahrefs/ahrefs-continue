@@ -54,11 +54,13 @@ export class ContinueGUIWebviewViewProvider
     private readonly windowId: string,
     private readonly extensionContext: vscode.ExtensionContext,
     private readonly verticalDiffManager: VerticalPerLineDiffManager,
+    private readonly context: vscode.ExtensionContext,
   ) {
     this.webviewProtocol = new VsCodeWebviewProtocol(
       ide,
       configHandler,
       verticalDiffManager,
+      context
     );
   }
 

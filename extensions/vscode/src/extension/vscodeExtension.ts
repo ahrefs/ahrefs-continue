@@ -81,6 +81,7 @@ export class VsCodeExtension {
       this.windowId,
       this.extensionContext,
       this.verticalDiffManager,
+      this.extensionContext
     );
 
     setupRemoteConfigSync(

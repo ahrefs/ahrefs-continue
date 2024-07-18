@@ -147,6 +147,7 @@ export class VsCodeWebviewProtocol {
     private readonly ide: IDE,
     private readonly configHandler: ConfigHandler,
     private readonly verticalDiffManager: VerticalPerLineDiffManager,
+    private readonly context: vscode.ExtensionContext
   ) {
     this.on("abort", (msg) => {
       this.abortedMessageIds.add(msg.messageId);
@@ -618,6 +619,7 @@ export class VsCodeWebviewProtocol {
       this.verticalDiffManager.streamEdit(
         `The following code was suggested as an edit:\n\`\`\`\n${msg.data.text}\n\`\`\`\nPlease apply it to the previous code.`,
         await this.request("getDefaultModelTitle", undefined),
+        context
       );
     });
     this.on("showTutorial", (msg) => {

@@ -112,6 +112,9 @@ const commandsMap: (
   diffManager,
   verticalDiffManager,
 ) => ({
+  "ahrefs-continue.interruptGeneration": () => {
+        extensionContext.globalState.update("interruptGeneration", true);
+  },
   "ahrefs-continue.acceptDiff": async (newFilepath?: string | vscode.Uri) => {
     if (newFilepath instanceof vscode.Uri) {
       newFilepath = newFilepath.fsPath;
@@ -199,6 +202,11 @@ const commandsMap: (
     );
     const previousInput = existingHandler?.input;
 
+    let interruptGenerationKey = "interruptGeneration";
+    if (extensionContext.globalState.get<boolean>(interruptGenerationKey) === undefined) {
+        extensionContext.globalState.update(interruptGenerationKey, false);
+    }
+
     const config = await configHandler.loadConfig();
     const ws_config = vscode.workspace.getConfiguration();
     let commandModelTitle = ws_config.get('ahrefs-continue.commandModel', '');
@@ -244,7 +252,7 @@ const commandsMap: (
     }
 
     if (text.length > 0 || quickPickItems.length === 0) {
-      await verticalDiffManager.streamEdit(text, commandModelTitle);
+      await verticalDiffManager.streamEdit(text, commandModelTitle, extensionContext);
     } else {
       // Pick context first
       const selectedProviders = await vscode.window.showQuickPick(
@@ -289,7 +297,7 @@ const commandsMap: (
           "\n\n---\n\n" +
           text;
 
-        await verticalDiffManager.streamEdit(text, commandModelTitle);
+        await verticalDiffManager.streamEdit(text, commandModelTitle, extensionContext);
       }
     }
   },

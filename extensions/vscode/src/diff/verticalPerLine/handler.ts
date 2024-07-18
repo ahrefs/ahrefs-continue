@@ -300,7 +300,7 @@ export class VerticalPerLineDiffHandler {
     }
   }
 
-  async run(diffLineGenerator: AsyncGenerator<DiffLine>) {
+  async run(diffLineGenerator: AsyncGenerator<DiffLine>, context: vscode.ExtensionContext) {
     try {
       // As an indicator of loading
       this.updateIndexLineDecorations();
@@ -308,6 +308,10 @@ export class VerticalPerLineDiffHandler {
       for await (let diffLine of diffLineGenerator) {
         if (this.isCancelled) {
           return;
+        }
+        if (context.globalState.get<boolean>("interruptGeneration", false)) {
+            context.globalState.update("interruptGeneration", false)
+            break;
         }
         await this.queueDiffLine(diffLine);
       }

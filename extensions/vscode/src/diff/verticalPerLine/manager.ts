@@ -138,7 +138,7 @@ export class VerticalPerLineDiffManager {
     }
   }
 
-  async streamEdit(input: string, modelTitle: string | undefined) {
+  async streamEdit(input: string, modelTitle: string | undefined, context: vscode.ExtensionContext) {
     vscode.commands.executeCommand("setContext", "continue.diffVisible", true);
 
     const editor = vscode.window.activeTextEditor;
@@ -217,6 +217,7 @@ export class VerticalPerLineDiffManager {
           input,
           getMarkdownLanguageTagForFile(filepath),
         ),
+        context
       );
     } catch (e) {
       console.error("Error streaming diff:", e);
