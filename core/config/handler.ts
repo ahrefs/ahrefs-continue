@@ -1,6 +1,6 @@
 import { ContinueConfig, ContinueRcJson, IDE, ILLM } from "..";
 import { IdeSettings } from "../protocol";
-import { Telemetry } from "../util/posthog";
+import { Telemetry } from "../util/logging";
 import {
   BrowserSerializedContinueConfig,
   finalToBrowserConfig,

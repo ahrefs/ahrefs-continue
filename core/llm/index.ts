@@ -16,7 +16,7 @@ import {
 import { logDevData } from "../util/devdata.js";
 import { DevDataSqliteDb } from "../util/devdataSqlite";
 import mergeJson from "../util/merge";
-import { Telemetry } from "../util/posthog";
+import { Telemetry } from "../util/logging";
 import {
   autodetectPromptTemplates,
   autodetectTemplateFunction,

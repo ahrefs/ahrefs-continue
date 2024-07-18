@@ -9,7 +9,7 @@ import {
 import { streamDiff } from "../diff/streamDiff";
 import { streamLines } from "../diff/util";
 import { gptEditPrompt } from "../llm/templates/edit";
-import { Telemetry } from "./posthog";
+import { Telemetry } from "./logging";
 
 function constructPrompt(
   prefix: string,
