@@ -11,12 +11,6 @@ import {
 import { intersection } from "core/util/ranges";
 import * as vscode from "vscode";
 import type Parser from "web-tree-sitter";
-<<<<<<< HEAD
-import * as path from 'path';
-import * as fs from 'fs';
-import * as levenshtein from 'fast-levenshtein';
-=======
->>>>>>> v0.9.184-vscode
 
 type GotoProviderName =
   | "vscode.executeDefinitionProvider"
@@ -38,13 +32,9 @@ function gotoInputKey(input: GotoInput) {
 const MAX_CACHE_SIZE = 50;
 const gotoCache = new Map<string, RangeInFile[]>();
 
-<<<<<<< HEAD
-async function executeGotoProvider(input: GotoInput): Promise<RangeInFile[]> {
-=======
 export async function executeGotoProvider(
   input: GotoInput,
 ): Promise<RangeInFile[]> {
->>>>>>> v0.9.184-vscode
   const cacheKey = gotoInputKey(input);
   const cached = gotoCache.get(cacheKey);
   if (cached) {
@@ -203,79 +193,6 @@ async function crawlTypes(
   return results;
 }
 
-<<<<<<< HEAD
-function isAbsolutePath(inputPath: string): boolean {
-  return path.isAbsolute(inputPath);
-}
-
-function findFunctionDefinitions(node: Parser.SyntaxNode, functionName: string): Array<Parser.SyntaxNode> {
-  const functions = [];
-  const queue = [node];
-
-  while (queue.length > 0) {
-    const currentNode = queue.shift();
-
-    if (currentNode) {
-      if (currentNode.type === 'function_declaration' || currentNode.type === 'method_definition') {
-        const nameNode = currentNode.childForFieldName('name');
-        if (nameNode && nameNode.text === functionName) {
-          functions.push(currentNode);
-        }
-        else if (functionName === "*") {
-            functions.push(currentNode);
-        }
-      }
-
-      for (let i = 0; i < currentNode.childCount; i++) {
-        const childNode = currentNode.child(i);
-        if (childNode) {
-          queue.push(childNode);
-        }
-      }
-    }
-  }
-
-  return functions;
-}
-
-function findClosestMatchingFile(filepath: string): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    const directory = path.dirname(filepath);
-    const targetFileName = path.basename(filepath);
-
-    // Read the directory contents
-    fs.readdir(directory, (err, files) => {
-      if (err) {
-        console.error('Error reading directory:', err);
-        reject(err);
-        return;
-      }
-
-      // Initialize variables to keep track of the closest match
-      let closestFile: string | null = null;
-      let closestDistance = Infinity;
-
-      // Iterate over each file in the directory
-      files.forEach(file => {
-        const distance = levenshtein.get(targetFileName, file);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestFile = file;
-        }
-      });
-
-      if (closestFile) {
-        resolve(path.resolve(directory, closestFile));
-      } else {
-        resolve(undefined);
-      }
-    });
-  });
-}
-
-=======
->>>>>>> v0.9.184-vscode
 export async function getDefinitionsForNode(
   uri: string,
   node: Parser.SyntaxNode,
@@ -284,7 +201,6 @@ export async function getDefinitionsForNode(
 ): Promise<RangeInFileWithContents[]> {
   const ranges: (RangeInFile | RangeInFileWithContents)[] = [];
   switch (node.type) {
-<<<<<<< HEAD
     case "import_statement": {
       let importedModules;
       let importedModulesNode = node.children.find((child) => child.type === 'import_clause');
@@ -351,8 +267,6 @@ export async function getDefinitionsForNode(
       return funDefs;
     }
 
-=======
->>>>>>> v0.9.184-vscode
     case "call_expression": {
       // function call -> function definition
       const [funDef] = await executeGotoProvider({

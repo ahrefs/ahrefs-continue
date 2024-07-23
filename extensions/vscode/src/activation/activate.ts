@@ -1,54 +1,3 @@
-<<<<<<< HEAD
-import { getTsConfigPath, migrate } from "core/util/paths";
-import { Telemetry } from "core/util/posthog";
-import path from "path";
-import * as vscode from "vscode";
-import { VsCodeExtension } from "../extension/vscodeExtension";
-import registerQuickFixProvider from "../lang-server/codeActions";
-import { getExtensionVersion } from "../util/util";
-import { getExtensionUri } from "../util/vscode";
-import { setupInlineTips } from "./inlineTips";
-
-function showRefactorMigrationMessage(
-  extensionContext: vscode.ExtensionContext,
-) {
-  // Only if the vscode setting continue.manuallyRunningSserver is true
-  const manuallyRunningServer =
-    vscode.workspace
-      .getConfiguration("ahrefs-continue")
-      .get<boolean>("manuallyRunningServer") || false;
-  if (
-    manuallyRunningServer &&
-    extensionContext?.globalState.get<boolean>(
-      "continue.showRefactorMigrationMessage",
-    ) !== false
-  ) {
-    vscode.window
-      .showInformationMessage(
-        "The Continue server protocol was recently updated in a way that requires the latest server version to work properly. Since you are manually running the server, please be sure to upgrade with `pip install --upgrade continuedev`.",
-        "Got it",
-        "Don't show again",
-      )
-      .then((selection) => {
-        if (selection === "Don't show again") {
-          // Get the global state
-          extensionContext?.globalState.update(
-            "continue.showRefactorMigrationMessage",
-            false,
-          );
-        }
-      });
-  }
-}
-
-export async function activateExtension(context: vscode.ExtensionContext) {
-  // Add necessary files
-  getTsConfigPath();
-
-  // Register commands and providers
-  setupInlineTips(context);
-  showRefactorMigrationMessage(context);
-=======
 import { getTsConfigPath, getContinueRcPath, migrate } from "core/util/paths";
 import { Telemetry } from "core/util/posthog";
 import path from "node:path";
@@ -74,7 +23,6 @@ export async function activateExtension(context: vscode.ExtensionContext) {
   const workOsAuthProvider = new WorkOsAuthProvider(context);
   await workOsAuthProvider.initialize();
   context.subscriptions.push(workOsAuthProvider);
->>>>>>> v0.9.184-vscode
 
   const vscodeExtension = new VsCodeExtension(context);
 
@@ -85,23 +33,13 @@ export async function activateExtension(context: vscode.ExtensionContext) {
         path.join(getExtensionUri().fsPath, "media", "welcome.md"),
       ),
     );
-<<<<<<< HEAD
-=======
 
     vscode.commands.executeCommand("continue.focusContinueInput");
->>>>>>> v0.9.184-vscode
   });
 
   // Load Continue configuration
   if (!context.globalState.get("hasBeenInstalled")) {
     context.globalState.update("hasBeenInstalled", true);
-<<<<<<< HEAD
-    Telemetry.capture("install", {
-      extensionVersion: getExtensionVersion(),
-    });
-  }
-}
-=======
     Telemetry.capture(
       "install",
       {
@@ -125,4 +63,3 @@ export async function activateExtension(context: vscode.ExtensionContext) {
       }
     : continuePublicApi;
 }
->>>>>>> v0.9.184-vscode

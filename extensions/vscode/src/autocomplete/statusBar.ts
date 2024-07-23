@@ -1,13 +1,4 @@
 import * as vscode from "vscode";
-<<<<<<< HEAD
-
-const statusBarItemText = (enabled: boolean | undefined) =>
-  enabled ? "$(check) Ahrefs-Continue" : "$(circle-slash) Ahrefs-Continue";
-
-const statusBarItemTooltip = (enabled: boolean | undefined) =>
-  enabled ? "Tab autocomplete is enabled" : "Click to enable tab autocomplete";
-
-=======
 import { Battery } from "../util/battery";
 import {
   CONTINUE_WORKSPACE_KEY,
@@ -72,26 +63,17 @@ const statusBarItemTooltip = (status: StatusBarStatus | undefined) => {
 };
 
 let statusBarStatus: StatusBarStatus | undefined = undefined;
->>>>>>> v0.9.184-vscode
 let statusBarItem: vscode.StatusBarItem | undefined = undefined;
 let statusBarFalseTimeout: NodeJS.Timeout | undefined = undefined;
 
 export function stopStatusBarLoading() {
   statusBarFalseTimeout = setTimeout(() => {
-<<<<<<< HEAD
-    setupStatusBar(true, false);
-=======
     setupStatusBar(StatusBarStatus.Enabled, false);
->>>>>>> v0.9.184-vscode
   }, 100);
 }
 
 export function setupStatusBar(
-<<<<<<< HEAD
-  enabled: boolean | undefined,
-=======
   status: StatusBarStatus | undefined,
->>>>>>> v0.9.184-vscode
   loading?: boolean,
 ) {
   if (loading !== false) {
@@ -107,20 +89,6 @@ export function setupStatusBar(
   }
 
   statusBarItem.text = loading
-<<<<<<< HEAD
-    ? "$(loading~spin) Ahrefs-Continue"
-    : statusBarItemText(enabled);
-  statusBarItem.tooltip = statusBarItemTooltip(enabled);
-  statusBarItem.command = "ahrefs-continue.toggleTabAutocompleteEnabled";
-
-  statusBarItem.show();
-
-  vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("ahrefs-continue")) {
-      const config = vscode.workspace.getConfiguration("ahrefs-continue");
-      const enabled = config.get<boolean>("enableTabAutocomplete");
-      setupStatusBar(enabled);
-=======
     ? "$(loading~spin) Continue"
     : statusBarItemText(status);
   statusBarItem.tooltip = statusBarItemTooltip(status ?? statusBarStatus);
@@ -163,7 +131,6 @@ export function monitorBatteryChanges(battery: Battery): vscode.Disposable {
           ? StatusBarStatus.Enabled
           : StatusBarStatus.Paused,
       );
->>>>>>> v0.9.184-vscode
     }
   });
 }
