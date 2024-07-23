@@ -888,6 +888,7 @@ export interface Config {
    * Continue will do the rest of the work to construct prompt templates, handle context items, prune context, etc.
    */
   models: (CustomLLM | ModelDescription)[];
+  commandModels: ModelDescription[];
   /** A system message to be followed by all of your models */
   systemMessage?: string;
   /** The default completion options for all models */
@@ -909,7 +910,7 @@ export interface Config {
   /** The provider used to calculate embeddings. If left empty, Continue will use transformers.js to calculate the embeddings with all-MiniLM-L6-v2 */
   embeddingsProvider?: EmbeddingsProviderDescription | EmbeddingsProvider;
   /** The model that Continue will use for tab autocompletions. */
-  tabAutocompleteModel?:
+  tabAutocompleteModels?:
     | CustomLLM
     | ModelDescription
     | (CustomLLM | ModelDescription)[];

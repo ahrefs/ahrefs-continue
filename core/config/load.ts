@@ -338,9 +338,45 @@ async function intermediateToFinalConfig(
   if (config.tabAutocompleteModels) {
     tabAutocompleteModels = (
       await Promise.all(
-        (Array.isArray(config.tabAutocompleteModel)
-          ? config.tabAutocompleteModel
-          : [config.tabAutocompleteModel]
+        (Array.isArray(config.tabAutocompleteModels)
+          ? config.tabAutocompleteModels
+          : [config.tabAutocompleteModels]
+        ).map(async (desc) => {
+          if (isModelDescription(desc)) {
+            const llm = await llmFromDescription(
+              desc,
+              ide.readFile.bind(ide),
+              uniqueId,
+              ideSettings,
+              writeLog,
+              config.completionOptions,
+              config.systemMessage,
+            );
+
+            if (llm?.providerName === "free-trial") {
+              if (!allowFreeTrial) {
+                // This shouldn't happen
+                throw new Error("Free trial cannot be used with control plane");
+              }
+              const ghAuthToken = await ide.getGitHubAuthToken();
+              (llm as FreeTrial).setupGhAuthToken(ghAuthToken);
+            }
+            return llm;
+          } else {
+            return new CustomLLMClass(desc);
+          }
+        }),
+      )
+    ).filter((x) => x !== undefined) as BaseLLM[];
+
+  // Command model
+  let commandModels: BaseLLM[] = [];
+  if (config.commandModels) {
+    commandModels = (
+      await Promise.all(
+        (Array.isArray(config.commandModels)
+          ? config.commandModels
+          : [config.commandModels]
         ).map(async (desc) => {
           if (isModelDescription(desc)) {
             const llm = await llmFromDescription(
@@ -439,6 +475,7 @@ async function intermediateToFinalConfig(
     tabAutocompleteModels,
     reranker: config.reranker as any,
   };
+}
 }
 
 function finalToBrowserConfig(
