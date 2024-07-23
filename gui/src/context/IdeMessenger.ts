@@ -1,5 +1,5 @@
 import { ChatMessage, IDE, LLMFullCompletionOptions, PromptLog } from "core";
-import type { FromWebviewProtocol, ToWebviewProtocol } from "core/protocol";
+import type { FromWebviewProtocol, ToWebviewProtocol } from "core/protocol/index";
 import { MessageIde } from "core/util/messageIde";
 import { Message } from "core/util/messenger";
 import { createContext } from "react";

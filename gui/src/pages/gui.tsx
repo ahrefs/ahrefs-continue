@@ -53,7 +53,6 @@ import {
   getMetaKeyLabel,
   isJetBrains,
   isMetaEquivalentKeyPressed,
-  ideRequest
 } from "../util";
 import { FREE_TRIAL_LIMIT_REQUESTS } from "../util/freeTrial";
 import { getLocalStorage, setLocalStorage } from "../util/localStorage";
@@ -329,13 +328,6 @@ function GUI() {
       mainTextInputRef.current?.focus?.();
     },
     [saveSession],
-  );
-  
-  useWebviewListener(
-    "sendSessionChatHistory",
-    async () => {
-      ideRequest("saveSessionChatHistory", { "chatHistory" : state.history, "defaultTitle" : state.defaultModelTitle} );
-    }
   );
 
   const isLastUserInput = useCallback(
