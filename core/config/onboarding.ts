@@ -37,7 +37,7 @@ export function setupLocalMode(
       },
       ...config.models.filter((model) => model.provider !== "free-trial"),
     ],
-    tabAutocompleteModel: {
+    tabAutocompleteModels: {
       title: "Starcoder 3b",
       provider: "ollama",
       model: "starcoder2:3b",
@@ -59,7 +59,7 @@ export function setupFreeTrialMode(
       ...FREE_TRIAL_MODELS,
       ...config.models.filter((model) => model.provider !== "free-trial"),
     ],
-    tabAutocompleteModel: {
+    tabAutocompleteModels: {
       title: "Tab Autocomplete",
       provider: "free-trial",
       model: TRIAL_FIM_MODEL,
