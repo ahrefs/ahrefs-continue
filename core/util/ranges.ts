@@ -90,4 +90,8 @@ export function minPosition(a: Position, b: Position): Position {
   } else {
     return a.character < b.character ? a : b;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> v0.9.184-vscode

@@ -27,4 +27,8 @@ class DeepInfraEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
+<<<<<<< HEAD
 export default DeepInfraEmbeddingsProvider;
+=======
+export default DeepInfraEmbeddingsProvider;
+>>>>>>> v0.9.184-vscode

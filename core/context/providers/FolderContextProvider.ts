@@ -1,17 +1,17 @@
-import { BaseContextProvider } from "..";
 import {
   ContextItem,
   ContextProviderDescription,
   ContextProviderExtras,
   ContextSubmenuItem,
   LoadSubmenuItemsArgs,
-} from "../..";
-import { getBasename, getLastNPathParts } from "../../util";
+} from "../../index.js";
+import { getBasename, groupByLastNPathParts, getUniqueFilePath } from "../../util/index.js";
+import { BaseContextProvider } from "../index.js";
 
 class FolderContextProvider extends BaseContextProvider {
   static description: ContextProviderDescription = {
     title: "folder",
-    displayTitle: "Folders",
+    displayTitle: "Folder",
     description: "Type to search",
     type: "submenu",
   };
@@ -21,7 +21,7 @@ class FolderContextProvider extends BaseContextProvider {
     extras: ContextProviderExtras,
   ): Promise<ContextItem[]> {
     const { retrieveContextItemsFromEmbeddings } = await import(
-      "../retrieval/retrieval"
+      "../retrieval/retrieval.js"
     );
     return retrieveContextItemsFromEmbeddings(extras, this.options, query);
   }
@@ -29,11 +29,13 @@ class FolderContextProvider extends BaseContextProvider {
     args: LoadSubmenuItemsArgs,
   ): Promise<ContextSubmenuItem[]> {
     const folders = await args.ide.listFolders();
+    const folderGroups = groupByLastNPathParts(folders, 2);
+
     return folders.map((folder) => {
       return {
         id: folder,
         title: getBasename(folder),
-        description: getLastNPathParts(folder, 2),
+        description: getUniqueFilePath(folder, folderGroups)
       };
     });
   }

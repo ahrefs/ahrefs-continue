@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import crypto from "crypto";
 import * as fs from "fs";
 import { Database, open } from "sqlite";
 import sqlite3 from "sqlite3";
 import { IndexTag, IndexingProgressUpdate } from "..";
 import { getIndexSqlitePath } from "../util/paths";
+=======
+import crypto from "node:crypto";
+import * as fs from "node:fs";
+import { open, type Database } from "sqlite";
+import sqlite3 from "sqlite3";
+import { IndexTag, IndexingProgressUpdate } from "../index.js";
+import { getIndexSqlitePath } from "../util/paths.js";
+>>>>>>> v0.9.184-vscode
 import {
   CodebaseIndex,
   IndexResultType,
@@ -11,7 +20,11 @@ import {
   MarkCompleteCallback,
   PathAndCacheKey,
   RefreshIndexResults,
+<<<<<<< HEAD
 } from "./types";
+=======
+} from "./types.js";
+>>>>>>> v0.9.184-vscode
 
 export type DatabaseConnection = Database<sqlite3.Database>;
 
@@ -106,7 +119,11 @@ async function getAddRemoveForTag(
   const updateOldVersion: PathAndCacheKey[] = [];
   const remove: PathAndCacheKey[] = [];
 
+<<<<<<< HEAD
   for (let item of saved) {
+=======
+  for (const item of saved) {
+>>>>>>> v0.9.184-vscode
     const { lastUpdated, ...pathAndCacheKey } = item;
 
     if (currentFiles[item.path] === undefined) {
@@ -157,7 +174,11 @@ async function getAddRemoveForTag(
       switch (resultType) {
         case AddRemoveResultType.Add:
           await db.run(
+<<<<<<< HEAD
             `INSERT INTO tag_catalog (path, cacheKey, lastUpdated, dir, branch, artifactId) VALUES (?, ?, ?, ?, ?, ?)`,
+=======
+            "INSERT INTO tag_catalog (path, cacheKey, lastUpdated, dir, branch, artifactId) VALUES (?, ?, ?, ?, ?, ?)",
+>>>>>>> v0.9.184-vscode
             path,
             cacheKey,
             newLastUpdatedTimestamp,
@@ -207,22 +228,37 @@ async function getAddRemoveForTag(
     }
   }
 
+<<<<<<< HEAD
   for (let item of updateNewVersion) {
+=======
+  for (const item of updateNewVersion) {
+>>>>>>> v0.9.184-vscode
     itemToAction[JSON.stringify(item)] = [
       item,
       AddRemoveResultType.UpdateNewVersion,
     ];
   }
+<<<<<<< HEAD
   for (let item of add) {
     itemToAction[JSON.stringify(item)] = [item, AddRemoveResultType.Add];
   }
   for (let item of updateOldVersion) {
+=======
+  for (const item of add) {
+    itemToAction[JSON.stringify(item)] = [item, AddRemoveResultType.Add];
+  }
+  for (const item of updateOldVersion) {
+>>>>>>> v0.9.184-vscode
     itemToAction[JSON.stringify(item)] = [
       item,
       AddRemoveResultType.UpdateOldVersion,
     ];
   }
+<<<<<<< HEAD
   for (let item of remove) {
+=======
+  for (const item of remove) {
+>>>>>>> v0.9.184-vscode
     itemToAction[JSON.stringify(item)] = [item, AddRemoveResultType.Remove];
   }
 
@@ -243,7 +279,11 @@ async function getTagsFromGlobalCache(
 ): Promise<IndexTag[]> {
   const db = await SqliteDb.get();
   const stmt = await db.prepare(
+<<<<<<< HEAD
     `SELECT dir, branch, artifactId FROM global_cache WHERE cacheKey = ? AND artifactId = ?`,
+=======
+    "SELECT dir, branch, artifactId FROM global_cache WHERE cacheKey = ? AND artifactId = ?",
+>>>>>>> v0.9.184-vscode
   );
   const rows = await stmt.all(cacheKey, artifactId);
   return rows;
@@ -272,7 +312,11 @@ export async function getComputeDeleteAddRemove(
   const addTag: PathAndCacheKey[] = [];
   const removeTag: PathAndCacheKey[] = [];
 
+<<<<<<< HEAD
   for (let { path, cacheKey } of add) {
+=======
+  for (const { path, cacheKey } of add) {
+>>>>>>> v0.9.184-vscode
     const existingTags = await getTagsFromGlobalCache(cacheKey, tag.artifactId);
     if (existingTags.length > 0) {
       addTag.push({ path, cacheKey });
@@ -281,7 +325,11 @@ export async function getComputeDeleteAddRemove(
     }
   }
 
+<<<<<<< HEAD
   for (let { path, cacheKey } of remove) {
+=======
+  for (const { path, cacheKey } of remove) {
+>>>>>>> v0.9.184-vscode
     const existingTags = await getTagsFromGlobalCache(cacheKey, tag.artifactId);
     if (existingTags.length > 1) {
       removeTag.push({ path, cacheKey });
@@ -310,14 +358,22 @@ export async function getComputeDeleteAddRemove(
       markComplete(items, resultType);
 
       // Update the global cache
+<<<<<<< HEAD
       let results: any = {
+=======
+      const results: any = {
+>>>>>>> v0.9.184-vscode
         compute: [],
         del: [],
         addTag: [],
         removeTag: [],
       };
       results[resultType] = items;
+<<<<<<< HEAD
       for await (let _ of globalCacheIndex.update(
+=======
+      for await (const _ of globalCacheIndex.update(
+>>>>>>> v0.9.184-vscode
         tag,
         results,
         () => {},
@@ -329,12 +385,20 @@ export async function getComputeDeleteAddRemove(
 }
 
 export class GlobalCacheCodeBaseIndex implements CodebaseIndex {
+<<<<<<< HEAD
+=======
+  relativeExpectedTime: number = 1;
+>>>>>>> v0.9.184-vscode
   private db: DatabaseConnection;
 
   constructor(db: DatabaseConnection) {
     this.db = db;
   }
+<<<<<<< HEAD
   artifactId: string = "globalCache";
+=======
+  artifactId = "globalCache";
+>>>>>>> v0.9.184-vscode
 
   static async create(): Promise<GlobalCacheCodeBaseIndex> {
     return new GlobalCacheCodeBaseIndex(await SqliteDb.get());

@@ -1,6 +1,10 @@
 import ignore from "ignore";
 
+<<<<<<< HEAD
 const DEFAULT_IGNORE_FILETYPES = [
+=======
+export const DEFAULT_IGNORE_FILETYPES = [
+>>>>>>> v0.9.184-vscode
   "*.DS_Store",
   "*-lock.json",
   "*.lock",
@@ -25,6 +29,10 @@ const DEFAULT_IGNORE_FILETYPES = [
   "*.dll",
   "*.obj",
   "*.o",
+<<<<<<< HEAD
+=======
+  "*.o.d",
+>>>>>>> v0.9.184-vscode
   "*.a",
   "*.lib",
   "*.so",
@@ -54,10 +62,27 @@ const DEFAULT_IGNORE_FILETYPES = [
   "*.sqlite",
   "*.wasm",
   "*.plist",
+<<<<<<< HEAD
+=======
+  "*.profraw",
+  "*.gcda",
+  "*.gcno",
+  "go.sum",
+  ".env",
+  ".gitignore",
+  ".gitkeep",
+  ".continueignore",
+  "config.json",
+  // "*.prompt", // can be incredibly confusing for the LLM to have another set of instructions injected into the prompt
+>>>>>>> v0.9.184-vscode
 ];
 export const defaultIgnoreFile = ignore().add(DEFAULT_IGNORE_FILETYPES);
 export const DEFAULT_IGNORE_DIRS = [
   ".git",
+<<<<<<< HEAD
+=======
+  ".svn",
+>>>>>>> v0.9.184-vscode
   ".vscode",
   ".idea",
   ".vs",
@@ -76,5 +101,17 @@ export const DEFAULT_IGNORE_DIRS = [
   ".continue",
   "__pycache__",
   "site-packages",
+<<<<<<< HEAD
 ];
 export const defaultIgnoreDir = ignore().add(DEFAULT_IGNORE_DIRS);
+=======
+  ".gradle",
+  ".cache",
+  "gems",
+  "vendor",
+];
+export const defaultIgnoreDir = ignore().add(DEFAULT_IGNORE_DIRS);
+
+export const DEFAULT_IGNORE =
+  DEFAULT_IGNORE_FILETYPES.join("\n") + "\n" + DEFAULT_IGNORE_DIRS.join("\n");
+>>>>>>> v0.9.184-vscode

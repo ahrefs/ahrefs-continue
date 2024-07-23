@@ -4,13 +4,26 @@ import {
   CompletionProvider,
   type AutocompleteInput,
 } from "core/autocomplete/completionProvider";
+<<<<<<< HEAD
 import type { ConfigHandler } from "core/config/handler";
+=======
+import { ConfigHandler } from "core/config/ConfigHandler";
+>>>>>>> v0.9.184-vscode
 import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
 import type { TabAutocompleteModel } from "../util/loadAutocompleteModel";
 import { getDefinitionsFromLsp } from "./lsp";
 import { RecentlyEditedTracker } from "./recentlyEdited";
+<<<<<<< HEAD
 import { setupStatusBar, stopStatusBarLoading } from "./statusBar";
+=======
+import {
+  StatusBarStatus,
+  getStatusBarStatus,
+  setupStatusBar,
+  stopStatusBarLoading,
+} from "./statusBar";
+>>>>>>> v0.9.184-vscode
 
 interface VsCodeCompletionInput {
   document: vscode.TextDocument;
@@ -74,9 +87,13 @@ export class ContinueCompletionProvider
     //@ts-ignore
   ): ProviderResult<InlineCompletionItem[] | InlineCompletionList> {
     const enableTabAutocomplete =
+<<<<<<< HEAD
       vscode.workspace
         .getConfiguration("ahrefs-continue")
         .get<boolean>("enableTabAutocomplete") || false;
+=======
+      getStatusBarStatus() === StatusBarStatus.Enabled;
+>>>>>>> v0.9.184-vscode
     if (token.isCancellationRequested || !enableTabAutocomplete) {
       return null;
     }
@@ -185,8 +202,12 @@ export class ContinueCompletionProvider
         completionId: uuidv4(),
         filepath: document.uri.fsPath,
         pos,
+<<<<<<< HEAD
         recentlyEditedFiles: 
           await this.recentlyEditedTracker.getRecentlyEditedDocuments(),
+=======
+        recentlyEditedFiles: [],
+>>>>>>> v0.9.184-vscode
         recentlyEditedRanges:
           await this.recentlyEditedTracker.getRecentlyEditedRanges(),
         clipboardText: clipboardText,
@@ -196,7 +217,11 @@ export class ContinueCompletionProvider
         injectDetails,
       };
 
+<<<<<<< HEAD
       setupStatusBar(true, true);
+=======
+      setupStatusBar(undefined, true);
+>>>>>>> v0.9.184-vscode
       const outcome =
         await this.completionProvider.provideInlineCompletionItems(
           input,
@@ -244,11 +269,19 @@ export class ContinueCompletionProvider
         startPos.translate(0, outcome.completion.length),
       );
       const completionItem = new vscode.InlineCompletionItem(
+<<<<<<< HEAD
           outcome.completion,
         completionRange,
           {
             title: "Log Autocomplete Outcome",
             command: "continue.logAutocompleteOutcome",
+=======
+        outcome.completion,
+        completionRange,
+        {
+          title: "Log Autocomplete Outcome",
+          command: "continue.logAutocompleteOutcome",
+>>>>>>> v0.9.184-vscode
           arguments: [input.completionId, this.completionProvider],
         },
       );

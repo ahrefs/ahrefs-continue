@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import * as path from "path";
+=======
+import * as path from "node:path";
+>>>>>>> v0.9.184-vscode
 import * as vscode from "vscode";
 import { uriFromFilePath } from "./util/vscode";
 
@@ -20,9 +24,15 @@ export function showAnswerInTextEditor(
         vscode.TextEditorRevealType.InCenter,
       );
 
+<<<<<<< HEAD
       let decorationType = vscode.window.createTextEditorDecorationType({
         after: {
           contentText: answer + "\n",
+=======
+      const decorationType = vscode.window.createTextEditorDecorationType({
+        after: {
+          contentText: `${answer}\n`,
+>>>>>>> v0.9.184-vscode
           color: "rgb(0, 255, 0, 0.8)",
         },
         backgroundColor: "rgb(0, 255, 0, 0.2)",
@@ -112,7 +122,11 @@ class DecorationManager {
   }
 
   deleteDecoration(key: DecorationKey) {
+<<<<<<< HEAD
     let decorationTypes = this.editorToDecorations.get(key.editorUri);
+=======
+    const decorationTypes = this.editorToDecorations.get(key.editorUri);
+>>>>>>> v0.9.184-vscode
     if (!decorationTypes) {
       return;
     }
@@ -128,12 +142,20 @@ class DecorationManager {
   }
 
   deleteAllDecorations(editorUri: string) {
+<<<<<<< HEAD
     let decorationTypes = this.editorToDecorations.get(editorUri)?.keys();
+=======
+    const decorationTypes = this.editorToDecorations.get(editorUri)?.keys();
+>>>>>>> v0.9.184-vscode
     if (!decorationTypes) {
       return;
     }
     this.editorToDecorations.delete(editorUri);
+<<<<<<< HEAD
     for (let decorationType of decorationTypes) {
+=======
+    for (const decorationType of decorationTypes) {
+>>>>>>> v0.9.184-vscode
       this.rerenderDecorations(editorUri, decorationType);
     }
   }
@@ -156,6 +178,7 @@ function constructBaseKey(
   };
 }
 
+<<<<<<< HEAD
 const gutterSpinnerDecorationType =
   vscode.window.createTextEditorDecorationType({
     gutterIconPath: vscode.Uri.file(
@@ -174,6 +197,8 @@ export function showGutterSpinner(
   return key;
 }
 
+=======
+>>>>>>> v0.9.184-vscode
 export function showLintMessage(
   editor: vscode.TextEditor,
   lineno: number,
@@ -198,7 +223,11 @@ export function showLintMessage(
 export function highlightCode(
   editor: vscode.TextEditor,
   range: vscode.Range,
+<<<<<<< HEAD
   removeOnClick: boolean = true,
+=======
+  removeOnClick = true,
+>>>>>>> v0.9.184-vscode
 ): DecorationKey {
   const decorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: "rgb(255, 255, 0, 0.1)",

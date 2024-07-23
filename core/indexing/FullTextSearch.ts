@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { BranchAndDir, Chunk, IndexTag, IndexingProgressUpdate } from "..";
 import { RETRIEVAL_PARAMS } from "../util/parameters";
 import { ChunkCodebaseIndex } from "./chunk/ChunkCodebaseIndex";
@@ -11,6 +12,28 @@ import {
 
 export class FullTextSearchCodebaseIndex implements CodebaseIndex {
   artifactId: string = "sqliteFts";
+=======
+import {
+  BranchAndDir,
+  Chunk,
+  IndexTag,
+  IndexingProgressUpdate,
+} from "../index.js";
+import { getBasename } from "../util/index.js";
+import { RETRIEVAL_PARAMS } from "../util/parameters.js";
+import { ChunkCodebaseIndex } from "./chunk/ChunkCodebaseIndex.js";
+import { DatabaseConnection, SqliteDb, tagToString } from "./refreshIndex.js";
+import {
+  IndexResultType,
+  MarkCompleteCallback,
+  RefreshIndexResults,
+  type CodebaseIndex,
+} from "./types.js";
+
+export class FullTextSearchCodebaseIndex implements CodebaseIndex {
+  relativeExpectedTime: number = 0.2;
+  artifactId = "sqliteFts";
+>>>>>>> v0.9.184-vscode
 
   private async _createTables(db: DatabaseConnection) {
     await db.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(
@@ -43,6 +66,7 @@ export class FullTextSearchCodebaseIndex implements CodebaseIndex {
 
       // Insert chunks
       const chunks = await db.all(
+<<<<<<< HEAD
         `SELECT * FROM chunks WHERE path = ? AND cacheKey = ?`,
         [item.path, item.cacheKey],
       );
@@ -54,13 +78,35 @@ export class FullTextSearchCodebaseIndex implements CodebaseIndex {
         );
         await db.run(
           `INSERT INTO fts_metadata (id, path, cacheKey, chunkId) VALUES (?, ?, ?, ?)`,
+=======
+        "SELECT * FROM chunks WHERE path = ? AND cacheKey = ?",
+        [item.path, item.cacheKey],
+      );
+
+      for (const chunk of chunks) {
+        const { lastID } = await db.run(
+          "INSERT INTO fts (path, content) VALUES (?, ?)",
+          [item.path, chunk.content],
+        );
+        await db.run(
+          `INSERT INTO fts_metadata (id, path, cacheKey, chunkId) 
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+           path = excluded.path,
+           cacheKey = excluded.cacheKey,
+           chunkId = excluded.chunkId`,
+>>>>>>> v0.9.184-vscode
           [lastID, item.path, item.cacheKey, chunk.id],
         );
       }
 
       yield {
         progress: i / results.compute.length,
+<<<<<<< HEAD
         desc: `Indexing ${item.path}`,
+=======
+        desc: `Indexing ${getBasename(item.path)}`,
+>>>>>>> v0.9.184-vscode
         status: "indexing",
       };
       markComplete([item], IndexResultType.Compute);
@@ -79,10 +125,17 @@ export class FullTextSearchCodebaseIndex implements CodebaseIndex {
     // Delete
     for (const item of results.del) {
       const { lastID } = await db.run(
+<<<<<<< HEAD
         `DELETE FROM fts_metadata WHERE path = ? AND cacheKey = ?`,
         [item.path, item.cacheKey],
       );
       await db.run(`DELETE FROM fts WHERE rowid = ?`, [lastID]);
+=======
+        "DELETE FROM fts_metadata WHERE path = ? AND cacheKey = ?",
+        [item.path, item.cacheKey],
+      );
+      await db.run("DELETE FROM fts WHERE rowid = ?", [lastID]);
+>>>>>>> v0.9.184-vscode
 
       markComplete([item], IndexResultType.Delete);
     }
@@ -122,7 +175,11 @@ export class FullTextSearchCodebaseIndex implements CodebaseIndex {
     let results = await db.all(query, [
       ...tagStrings,
       ...(filterPaths || []),
+<<<<<<< HEAD
       n,
+=======
+      Math.ceil(n),
+>>>>>>> v0.9.184-vscode
     ]);
 
     results = results.filter((result) => result.rank <= bm25Threshold);

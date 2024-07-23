@@ -69,4 +69,8 @@ class GeminiEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
+<<<<<<< HEAD
 export default GeminiEmbeddingsProvider;
+=======
+export default GeminiEmbeddingsProvider;
+>>>>>>> v0.9.184-vscode

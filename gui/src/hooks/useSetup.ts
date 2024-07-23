@@ -1,25 +1,43 @@
 import { Dispatch } from "@reduxjs/toolkit";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { VSC_THEME_COLOR_VARS } from "../components";
+import { IdeMessengerContext } from "../context/IdeMessenger";
 import { setVscMachineId } from "../redux/slices/configSlice";
 import {
   addContextItemsAtIndex,
   setConfig,
   setInactive,
+  setSelectedProfileId,
 } from "../redux/slices/stateSlice";
 import { RootState } from "../redux/store";
-import { ideRequest, isJetBrains } from "../util/ide";
+
+import { isJetBrains } from "../util";
+import { getLocalStorage, setLocalStorage } from "../util/localStorage";
 import useChatHandler from "./useChatHandler";
 import { useWebviewListener } from "./useWebviewListener";
+import { debounce } from "lodash";
 
 function useSetup(dispatch: Dispatch<any>) {
   const [configLoaded, setConfigLoaded] = useState<boolean>(false);
 
+  const ideMessenger = useContext(IdeMessengerContext);
+
   const loadConfig = async () => {
-    const config = await ideRequest("config/getBrowserSerialized", undefined);
+    const { config, profileId } = await ideMessenger.request(
+      "config/getSerializedProfileInfo",
+      undefined,
+    );
     dispatch(setConfig(config));
+    dispatch(setSelectedProfileId(profileId));
     setConfigLoaded(true);
+    setLocalStorage("disableIndexing", config.disableIndexing || false);
+
+    // Perform any actions needed with the config
+    if (config.ui?.fontSize) {
+      setLocalStorage("fontSize", config.ui.fontSize);
+      document.body.style.fontSize = `${config.ui.fontSize}px`;
+    }
   };
 
   // Load config from the IDE
@@ -41,7 +59,7 @@ function useSetup(dispatch: Dispatch<any>) {
     dispatch(setInactive());
 
     // Tell JetBrains the webview is ready
-    ideRequest("onLoad", undefined).then((msg) => {
+    ideMessenger.request("onLoad", undefined).then((msg) => {
       (window as any).windowId = msg.windowId;
       (window as any).serverUrl = msg.serverUrl;
       (window as any).workspacePaths = msg.workspacePaths;
@@ -52,7 +70,7 @@ function useSetup(dispatch: Dispatch<any>) {
     });
   }, []);
 
-  const { streamResponse } = useChatHandler(dispatch);
+  const { streamResponse } = useChatHandler(dispatch, ideMessenger);
 
   const defaultModelTitle = useSelector(
     (store: RootState) => store.state.defaultModelTitle,
@@ -66,15 +84,28 @@ function useSetup(dispatch: Dispatch<any>) {
   useWebviewListener("setColors", async (colors) => {
     Object.keys(colors).forEach((key) => {
       document.body.style.setProperty(key, colors[key]);
+      document.documentElement.style.setProperty(key, colors[key]);
     });
   });
 
+  const debouncedIndexDocs = debounce(() => {
+    ideMessenger.request("context/indexDocs", { reIndex: false });
+  }, 1000);
+
   useWebviewListener("configUpdate", async () => {
-    loadConfig();
+    await loadConfig();
+
+    if (!isJetBrains && !getLocalStorage("disableIndexing")) {
+      debouncedIndexDocs();
+    }
   });
 
   useWebviewListener("submitMessage", async (data) => {
-    streamResponse(data.message, { useCodebase: false, noContext: true },);
+    streamResponse(
+      data.message,
+      { useCodebase: false, noContext: true },
+      ideMessenger,
+    );
   });
 
   useWebviewListener("addContextItem", async (data) => {

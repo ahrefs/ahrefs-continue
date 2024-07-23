@@ -109,4 +109,8 @@ export async function expandSnippet(
     }),
   );
   return chunks;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> v0.9.184-vscode

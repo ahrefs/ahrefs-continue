@@ -203,4 +203,8 @@ export async function* crawlPage(
     index += batch.length; // Proceed to next batch
   }
   console.log("Crawl completed");
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> v0.9.184-vscode

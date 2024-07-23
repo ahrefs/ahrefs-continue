@@ -1,4 +1,4 @@
-import { ChatMessage, PromptTemplate } from "../..";
+import { ChatMessage, PromptTemplate } from "../../index.js";
 
 const simplifiedEditPrompt = `Consider the following code:
 \`\`\`{{{language}}}
@@ -95,7 +95,7 @@ ${otherData.codeToEdit}
 ${suffixTag}
 \`\`\`
 
-Please rewrite the entire code block above in order to satisfy the following request: "${otherData.userInput}".${suffixExplanation}`,
+Please rewrite the entire code block above in order to satisfy the following request: "${otherData.userInput}". You should rewrite the entire code block without leaving placeholders, even if the code is the same as before.${suffixExplanation}`,
       },
       {
         role: "assistant",
@@ -115,7 +115,7 @@ ${otherData.codeToEdit}
 ${suffixTag}
 \`\`\`
 
-Please rewrite the entire code block above, editing the portion below "${START_TAG}" in order to satisfy the following request: "${otherData.userInput}".${suffixExplanation}
+Please rewrite the entire code block above, editing the portion below "${START_TAG}" in order to satisfy the following request: "${otherData.userInput}". You should rewrite the entire code block without leaving placeholders, even if the code is the same as before.${suffixExplanation}
 `,
     },
     {
@@ -259,6 +259,15 @@ Output only a code block with the rewritten code:
   },
 ];
 
+const llama3EditPrompt: PromptTemplate = `<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+\`\`\`{{{language}}}
+{{{codeToEdit}}}
+\`\`\`
+
+Rewrite the above code to satisfy this request: "{{{userInput}}}"<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+Sure! Here's the code you requested:
+\`\`\`{{{language}}}`;
+
 const gemmaEditPrompt = `<start_of_turn>user
 You are an expert programmer and write code on the first attempt without any errors or fillers. Rewrite the code to satisfy this request: "{{{userInput}}}"
 
@@ -279,6 +288,7 @@ export {
   deepseekEditPrompt,
   gemmaEditPrompt,
   gptEditPrompt,
+  llama3EditPrompt,
   mistralEditPrompt,
   neuralChatEditPrompt,
   openchatEditPrompt,

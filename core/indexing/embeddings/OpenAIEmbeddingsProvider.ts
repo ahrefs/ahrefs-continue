@@ -13,11 +13,35 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
     model: "text-embedding-3-small",
   };
 
+<<<<<<< HEAD
   async embed(chunks: string[]) {
     if (!this.options.apiBase?.endsWith("/")) {
       this.options.apiBase += "/";
     }
 
+=======
+  private _getEndpoint() {
+    if (!this.options.apiBase) {
+      throw new Error(
+        "No API base URL provided. Please set the 'apiBase' option in config.json",
+      );
+    }
+
+    this.options.apiBase = this.options.apiBase.endsWith("/")
+      ? this.options.apiBase
+      : `${this.options.apiBase}/`;
+
+    if (this.options.apiType === "azure") {
+      return new URL(
+        `openai/deployments/${this.options.engine}/embeddings?api-version=${this.options.apiVersion}`,
+        this.options.apiBase,
+      );
+    }
+    return new URL("embeddings", this.options.apiBase);
+  }
+
+  async embed(chunks: string[]) {
+>>>>>>> v0.9.184-vscode
     const batchedChunks = [];
     for (
       let i = 0;
@@ -31,9 +55,19 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
     return (
       await Promise.all(
         batchedChunks.map(async (batch) => {
+<<<<<<< HEAD
           const fetchWithBackoff = () =>
             withExponentialBackoff<Response>(() =>
               this.fetch(new URL("embeddings", this.options.apiBase), {
+=======
+          if (batch.length === 0) {
+            return [];
+          }
+
+          const fetchWithBackoff = () =>
+            withExponentialBackoff<Response>(() =>
+              this.fetch(this._getEndpoint(), {
+>>>>>>> v0.9.184-vscode
                 method: "POST",
                 body: JSON.stringify({
                   input: batch,
@@ -42,6 +76,10 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
                 headers: {
                   Authorization: `Bearer ${this.options.apiKey}`,
                   "Content-Type": "application/json",
+<<<<<<< HEAD
+=======
+                  "api-key": this.options.apiKey ?? "", // For Azure
+>>>>>>> v0.9.184-vscode
                 },
               }),
             );
@@ -61,4 +99,8 @@ class OpenAIEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
+<<<<<<< HEAD
 export default OpenAIEmbeddingsProvider;
+=======
+export default OpenAIEmbeddingsProvider;
+>>>>>>> v0.9.184-vscode

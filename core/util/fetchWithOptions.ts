@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { http, https } from "follow-redirects";
+=======
+import * as followRedirects from "follow-redirects";
+>>>>>>> v0.9.184-vscode
 import { HttpProxyAgent } from "http-proxy-agent";
 import { globalAgent } from "https";
 import { HttpsProxyAgent } from "https-proxy-agent";
@@ -7,6 +11,11 @@ import * as fs from "node:fs";
 import tls from "node:tls";
 import { RequestOptions } from "../index.js";
 
+<<<<<<< HEAD
+=======
+const { http, https } = (followRedirects as any).default;
+
+>>>>>>> v0.9.184-vscode
 export function fetchwithRequestOptions(
   url_: URL | string,
   init?: RequestInit,
@@ -40,7 +49,11 @@ export function fetchwithRequestOptions(
 
   const timeout = (requestOptions?.timeout ?? TIMEOUT) * 1000; // measured in ms
 
+<<<<<<< HEAD
   const agentOptions = {
+=======
+  const agentOptions: {[key: string]: any} = {
+>>>>>>> v0.9.184-vscode
     ca,
     rejectUnauthorized: requestOptions?.verifySsl,
     timeout,
@@ -49,6 +62,18 @@ export function fetchwithRequestOptions(
     keepAliveMsecs: timeout,
   };
 
+<<<<<<< HEAD
+=======
+  // Handle ClientCertificateOptions
+  if (requestOptions?.clientCertificate){
+    agentOptions.cert = fs.readFileSync(requestOptions.clientCertificate.cert,"utf8");
+    agentOptions.key = fs.readFileSync(requestOptions.clientCertificate.key,"utf8");
+    if(requestOptions.clientCertificate.passphrase){
+      agentOptions.passphrase = requestOptions.clientCertificate.passphrase;
+    }
+  }
+
+>>>>>>> v0.9.184-vscode
   const proxy = requestOptions?.proxy;
 
   // Create agent
@@ -97,4 +122,8 @@ export function fetchwithRequestOptions(
   });
 
   return resp;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> v0.9.184-vscode

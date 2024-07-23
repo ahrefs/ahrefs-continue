@@ -57,7 +57,14 @@ function collapseChildren(
   }
   code = code.slice(node.startIndex);
   let removedChild = false;
+<<<<<<< HEAD
   while (countTokens(code) > maxChunkSize && collapsedChildren.length > 0) {
+=======
+  while (
+    countTokens(code.trim()) > maxChunkSize &&
+    collapsedChildren.length > 0
+  ) {
+>>>>>>> v0.9.184-vscode
     removedChild = true;
     // Remove children starting at the end - TODO: Add multiple chunks so no children are missing
     const childCode = collapsedChildren.pop()!;
@@ -100,6 +107,10 @@ export const FUNCTION_DECLARATION_NODE_TYPEs = [
   "function_definition",
   "function_item",
   "function_declaration",
+<<<<<<< HEAD
+=======
+  "method_declaration",
+>>>>>>> v0.9.184-vscode
 ];
 
 function constructClassDefinitionChunk(
@@ -213,4 +224,8 @@ export async function* codeChunker(
   const tree = parser.parse(contents);
 
   yield* getSmartCollapsedChunks(tree.rootNode, contents, maxChunkSize);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> v0.9.184-vscode

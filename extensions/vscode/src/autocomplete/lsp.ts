@@ -11,9 +11,12 @@ import {
 import { intersection } from "core/util/ranges";
 import * as vscode from "vscode";
 import type Parser from "web-tree-sitter";
+<<<<<<< HEAD
 import * as path from 'path';
 import * as fs from 'fs';
 import * as levenshtein from 'fast-levenshtein';
+=======
+>>>>>>> v0.9.184-vscode
 
 type GotoProviderName =
   | "vscode.executeDefinitionProvider"
@@ -35,7 +38,13 @@ function gotoInputKey(input: GotoInput) {
 const MAX_CACHE_SIZE = 50;
 const gotoCache = new Map<string, RangeInFile[]>();
 
+<<<<<<< HEAD
 async function executeGotoProvider(input: GotoInput): Promise<RangeInFile[]> {
+=======
+export async function executeGotoProvider(
+  input: GotoInput,
+): Promise<RangeInFile[]> {
+>>>>>>> v0.9.184-vscode
   const cacheKey = gotoInputKey(input);
   const cached = gotoCache.get(cacheKey);
   if (cached) {
@@ -194,6 +203,7 @@ async function crawlTypes(
   return results;
 }
 
+<<<<<<< HEAD
 function isAbsolutePath(inputPath: string): boolean {
   return path.isAbsolute(inputPath);
 }
@@ -264,6 +274,8 @@ function findClosestMatchingFile(filepath: string): Promise<string | undefined> 
   });
 }
 
+=======
+>>>>>>> v0.9.184-vscode
 export async function getDefinitionsForNode(
   uri: string,
   node: Parser.SyntaxNode,
@@ -272,6 +284,7 @@ export async function getDefinitionsForNode(
 ): Promise<RangeInFileWithContents[]> {
   const ranges: (RangeInFile | RangeInFileWithContents)[] = [];
   switch (node.type) {
+<<<<<<< HEAD
     case "import_statement": {
       let importedModules;
       let importedModulesNode = node.children.find((child) => child.type === 'import_clause');
@@ -338,6 +351,8 @@ export async function getDefinitionsForNode(
       return funDefs;
     }
 
+=======
+>>>>>>> v0.9.184-vscode
     case "call_expression": {
       // function call -> function definition
       const [funDef] = await executeGotoProvider({
@@ -488,4 +503,8 @@ export const getDefinitionsFromLsp: GetLspDefinitionsFunction = async (
     console.warn("Error getting definitions from LSP: ", e);
     return [];
   }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> v0.9.184-vscode

@@ -1,15 +1,34 @@
+<<<<<<< HEAD
 import { ChatMessage, DiffLine, ILLM } from "..";
+=======
+>>>>>>> v0.9.184-vscode
 import {
   filterCodeBlockLines,
   filterEnglishLinesAtEnd,
   filterEnglishLinesAtStart,
   filterLeadingAndTrailingNewLineInsertion,
+<<<<<<< HEAD
   stopAtLines,
 } from "../autocomplete/lineStream";
 import { streamDiff } from "../diff/streamDiff";
 import { streamLines } from "../diff/util";
 import { gptEditPrompt } from "../llm/templates/edit";
 import { Telemetry } from "./logging";
+=======
+  skipLines,
+  stopAtLines,
+} from "../autocomplete/lineStream.js";
+import { streamDiff } from "../diff/streamDiff.js";
+import { streamLines } from "../diff/util.js";
+import {
+  ChatMessage,
+  DiffLine,
+  ILLM,
+  LLMFullCompletionOptions,
+} from "../index.js";
+import { gptEditPrompt } from "../llm/templates/edit.js";
+import { Telemetry } from "./posthog.js";
+>>>>>>> v0.9.184-vscode
 
 function constructPrompt(
   prefix: string,
@@ -52,11 +71,24 @@ export async function* streamDiffLines(
   llm: ILLM,
   input: string,
   language: string | undefined,
+<<<<<<< HEAD
 ): AsyncGenerator<DiffLine> {
   Telemetry.capture("inlineEdit", {
     model: llm.model,
     provider: llm.providerName,
   });
+=======
+  onlyOneInsertion?: boolean,
+): AsyncGenerator<DiffLine> {
+  Telemetry.capture(
+    "inlineEdit",
+    {
+      model: llm.model,
+      provider: llm.providerName,
+    },
+    true,
+  );
+>>>>>>> v0.9.184-vscode
 
   // Strip common indentation for the LLM, then add back after generation
   let oldLines =
@@ -80,6 +112,10 @@ export async function* streamDiffLines(
   );
   const inept = modelIsInept(llm.model);
 
+<<<<<<< HEAD
+=======
+  const options: LLMFullCompletionOptions = {};
+>>>>>>> v0.9.184-vscode
   const completion =
     typeof prompt === "string"
       ? llm.streamComplete(prompt, { raw: true })
@@ -90,6 +126,10 @@ export async function* streamDiffLines(
   lines = filterEnglishLinesAtStart(lines);
   lines = filterCodeBlockLines(lines);
   lines = stopAtLines(lines, () => {});
+<<<<<<< HEAD
+=======
+  lines = skipLines(lines);
+>>>>>>> v0.9.184-vscode
   if (inept) {
     // lines = fixCodeLlamaFirstLineIndentation(lines);
     lines = filterEnglishLinesAtEnd(lines);
@@ -103,7 +143,18 @@ export async function* streamDiffLines(
     diffLines = addIndentation(diffLines, indentation);
   }
 
+<<<<<<< HEAD
   for await (let diffLine of diffLines) {
     yield diffLine;
+=======
+  let seenGreen = false;
+  for await (const diffLine of diffLines) {
+    yield diffLine;
+    if (diffLine.type === "new") {
+      seenGreen = true;
+    } else if (onlyOneInsertion && seenGreen && diffLine.type === "same") {
+      break;
+    }
+>>>>>>> v0.9.184-vscode
   }
 }

@@ -1,7 +1,11 @@
 import path from "path";
 // @ts-ignore
 // prettier-ignore
+<<<<<<< HEAD
 import { type PipelineType } from "core/vendor/node_modules/@xenova/transformers/src/transformers.js";
+=======
+import { type PipelineType } from "../../vendor/modules/@xenova/transformers/src/transformers.js";
+>>>>>>> v0.9.184-vscode
 import BaseEmbeddingsProvider from "./BaseEmbeddingsProvider.js";
 
 class EmbeddingsPipeline {
@@ -13,7 +17,11 @@ class EmbeddingsPipeline {
     if (EmbeddingsPipeline.instance === null) {
       // @ts-ignore
       // prettier-ignore
+<<<<<<< HEAD
       const { env, pipeline } = await import("../../vendor/node_modules/@xenova/transformers/src/transformers.js");
+=======
+      const { env, pipeline } = await import("../../vendor/modules/@xenova/transformers/src/transformers.js");
+>>>>>>> v0.9.184-vscode
 
       env.allowLocalModels = true;
       env.allowRemoteModels = false;
@@ -40,7 +48,11 @@ export class TransformersJsEmbeddingsProvider extends BaseEmbeddingsProvider {
   static maxGroupSize: number = 4;
 
   constructor() {
+<<<<<<< HEAD
     super({ model: "all-MiniLM-L2-v6" }, () => Promise.resolve(null));
+=======
+    super({ model: "all-MiniLM-L6-v2" }, () => Promise.resolve(null));
+>>>>>>> v0.9.184-vscode
   }
 
   async embed(chunks: string[]) {
@@ -74,4 +86,8 @@ export class TransformersJsEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
+<<<<<<< HEAD
 export default TransformersJsEmbeddingsProvider;
+=======
+export default TransformersJsEmbeddingsProvider;
+>>>>>>> v0.9.184-vscode

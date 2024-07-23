@@ -1,5 +1,9 @@
 import { machineIdSync } from "node-machine-id";
+<<<<<<< HEAD
 import * as path from "path";
+=======
+import * as path from "node:path";
+>>>>>>> v0.9.184-vscode
 import * as vscode from "vscode";
 
 export function translate(range: vscode.Range, lines: number): vscode.Range {
@@ -22,14 +26,23 @@ export function getNonce() {
 }
 
 export function getExtensionUri(): vscode.Uri {
+<<<<<<< HEAD
   return vscode.extensions.getExtension("Ahrefs.ahrefs-continue")!.extensionUri;
+=======
+  return vscode.extensions.getExtension("Continue.continue")!.extensionUri;
+>>>>>>> v0.9.184-vscode
 }
 
 export function getViewColumnOfFile(
   filepath: string,
 ): vscode.ViewColumn | undefined {
+<<<<<<< HEAD
   for (let tabGroup of vscode.window.tabGroups.all) {
     for (let tab of tabGroup.tabs) {
+=======
+  for (const tabGroup of vscode.window.tabGroups.all) {
+    for (const tab of tabGroup.tabs) {
+>>>>>>> v0.9.184-vscode
       if (
         (tab?.input as any)?.uri &&
         (tab.input as any).uri.fsPath === filepath
@@ -44,7 +57,11 @@ export function getViewColumnOfFile(
 export function getRightViewColumn(): vscode.ViewColumn {
   // When you want to place in the rightmost panel if there is already more than one, otherwise use Beside
   let column = vscode.ViewColumn.Beside;
+<<<<<<< HEAD
   let columnOrdering = [
+=======
+  const columnOrdering = [
+>>>>>>> v0.9.184-vscode
     vscode.ViewColumn.One,
     vscode.ViewColumn.Beside,
     vscode.ViewColumn.Two,
@@ -56,7 +73,11 @@ export function getRightViewColumn(): vscode.ViewColumn {
     vscode.ViewColumn.Eight,
     vscode.ViewColumn.Nine,
   ];
+<<<<<<< HEAD
   for (let tabGroup of vscode.window.tabGroups.all) {
+=======
+  for (const tabGroup of vscode.window.tabGroups.all) {
+>>>>>>> v0.9.184-vscode
     if (
       columnOrdering.indexOf(tabGroup.viewColumn) >
       columnOrdering.indexOf(column)
@@ -73,15 +94,28 @@ export function openEditorAndRevealRange(
   editorFilename: string,
   range?: vscode.Range,
   viewColumn?: vscode.ViewColumn,
+<<<<<<< HEAD
 ): Promise<vscode.TextEditor> {
   return new Promise((resolve, _) => {
     if (editorFilename.startsWith("~")) {
       editorFilename = path.join(
+=======
+  preview?: boolean,
+): Promise<vscode.TextEditor> {
+  return new Promise((resolve, _) => {
+    let filename = editorFilename;
+    if (editorFilename.startsWith("~")) {
+      filename = path.join(
+>>>>>>> v0.9.184-vscode
         process.env.HOME || process.env.USERPROFILE || "",
         editorFilename.slice(1),
       );
     }
+<<<<<<< HEAD
     vscode.workspace.openTextDocument(editorFilename).then(async (doc) => {
+=======
+    vscode.workspace.openTextDocument(filename).then(async (doc) => {
+>>>>>>> v0.9.184-vscode
       try {
         // An error is thrown mysteriously if you open two documents in parallel, hence this
         while (showTextDocumentInProcess) {
@@ -93,10 +127,17 @@ export function openEditorAndRevealRange(
         }
         showTextDocumentInProcess = true;
         vscode.window
+<<<<<<< HEAD
           .showTextDocument(
             doc,
             getViewColumnOfFile(editorFilename) || viewColumn,
           )
+=======
+          .showTextDocument(doc, {
+            viewColumn: getViewColumnOfFile(editorFilename) || viewColumn,
+            preview,
+          })
+>>>>>>> v0.9.184-vscode
           .then((editor) => {
             if (range) {
               editor.revealRange(range);
@@ -123,7 +164,11 @@ function windowsToPosix(windowsPath: string): string {
 function isWindowsLocalButNotRemote(): boolean {
   return (
     vscode.env.remoteName !== undefined &&
+<<<<<<< HEAD
     ["wsl", "ssh-remote", "dev-container", "attached-container"].includes(
+=======
+    ["wsl", "ssh-remote", "dev-container", "attached-container", "tunnel"].includes(
+>>>>>>> v0.9.184-vscode
       vscode.env.remoteName,
     ) &&
     process.platform === "win32"
@@ -135,6 +180,7 @@ export function getPathSep(): string {
 }
 
 export function uriFromFilePath(filepath: string): vscode.Uri {
+<<<<<<< HEAD
   if (vscode.env.remoteName) {
     if (isWindowsLocalButNotRemote()) {
       filepath = windowsToPosix(filepath);
@@ -144,6 +190,18 @@ export function uriFromFilePath(filepath: string): vscode.Uri {
     );
   } else {
     return vscode.Uri.file(filepath);
+=======
+  let finalPath = filepath;
+  if (vscode.env.remoteName) {
+    if (isWindowsLocalButNotRemote()) {
+      finalPath = windowsToPosix(filepath);
+    }
+    return vscode.Uri.parse(
+      `vscode-remote://${vscode.env.remoteName}${finalPath}`,
+    );
+  } else {
+    return vscode.Uri.file(finalPath);
+>>>>>>> v0.9.184-vscode
   }
 }
 

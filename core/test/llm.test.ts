@@ -1,9 +1,17 @@
 import * as dotenv from "dotenv";
 
+<<<<<<< HEAD
 import { CompletionOptions } from "..";
 import { BaseLLM } from "../llm";
 
 jest.setTimeout(100_000);
+=======
+import { CompletionOptions } from "../index.js";
+import { BaseLLM } from "../llm/index.js";
+import OpenAI from "../llm/llms/OpenAI.js";
+
+// jest.setTimeout(100_000);
+>>>>>>> v0.9.184-vscode
 
 dotenv.config();
 
@@ -32,7 +40,10 @@ function testLLM(llm: BaseLLM) {
       }
 
       expect(total.length).toBeGreaterThan(0);
+<<<<<<< HEAD
       console.log(total);
+=======
+>>>>>>> v0.9.184-vscode
       return;
     });
 
@@ -43,7 +54,10 @@ function testLLM(llm: BaseLLM) {
       }
 
       expect(total.length).toBeGreaterThan(0);
+<<<<<<< HEAD
       console.log(total);
+=======
+>>>>>>> v0.9.184-vscode
       return;
     });
 
@@ -51,7 +65,10 @@ function testLLM(llm: BaseLLM) {
       const completion = await llm.complete("Hi");
 
       expect(completion.length).toBeGreaterThan(0);
+<<<<<<< HEAD
       console.log(completion);
+=======
+>>>>>>> v0.9.184-vscode
       return;
     });
   });
@@ -61,17 +78,29 @@ describe("LLM", () => {
   // testLLM(
   //   new FreeTrial({
   //     model: "gpt-3.5-turbo",
+<<<<<<< HEAD
   //   })
+=======
+  //   }),
+>>>>>>> v0.9.184-vscode
   // );
   // testLLM(
   //   new Anthropic({
   //     model: "claude-2",
   //     apiKey: process.env.ANTHROPIC_API_KEY,
+<<<<<<< HEAD
   //   })
   // );
   // testLLM(
   //   new OpenAI({ apiKey: process.env.OPENAI_API_KEY, model: "gpt-3.5-turbo" })
   // );
+=======
+  //   }),
+  // );
+  testLLM(
+    new OpenAI({ apiKey: process.env.OPENAI_API_KEY, model: "gpt-3.5-turbo" }),
+  );
+>>>>>>> v0.9.184-vscode
   // TODO: Fix Replicate
   // testLLM(
   //   new Replicate({
@@ -94,7 +123,11 @@ describe("LLM", () => {
   // testLLM(new HuggingFaceTGI({ model: "codellama-7b" }));
   // testLLM(new HuggingFaceInferenceAPI({ model: "codellama-7b" }));
   // testLLM(
+<<<<<<< HEAD
   //   new GooglePalm({
+=======
+  //   new Gemini({
+>>>>>>> v0.9.184-vscode
   //     model: "gemini-pro",
   //     //   model: "chat-bison-001",
   //     apiKey: process.env.GOOGLE_PALM_API_KEY,

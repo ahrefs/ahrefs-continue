@@ -90,7 +90,11 @@ export function rerenderDecorations(editorUri: string) {
   let newSels: vscode.Range[] = [];
   for (let i = 0; i < suggestions.length; i++) {
     const suggestion = suggestions[i];
+<<<<<<< HEAD
     if (typeof idx != "undefined" && idx === i) {
+=======
+    if (typeof idx !== "undefined" && idx === i) {
+>>>>>>> v0.9.184-vscode
       if (suggestion.newSelected) {
         olds.push(suggestion.oldRange);
         newSels.push(suggestion.newRange);
@@ -192,9 +196,15 @@ function selectSuggestion(
   }
   if (idx === undefined) return;
 
+<<<<<<< HEAD
   let [suggestion] = suggestions.splice(idx, 1);
 
   var rangeToDelete: vscode.Range;
+=======
+  const [suggestion] = suggestions.splice(idx, 1);
+
+  let rangeToDelete: vscode.Range;
+>>>>>>> v0.9.184-vscode
   switch (accept) {
     case "old":
       rangeToDelete = suggestion.newRange;
@@ -217,8 +227,13 @@ function selectSuggestion(
   });
 
   // Shift the below suggestions up
+<<<<<<< HEAD
   let linesToShift = rangeToDelete.end.line - rangeToDelete.start.line;
   for (let below of suggestions) {
+=======
+  const linesToShift = rangeToDelete.end.line - rangeToDelete.start.line;
+  for (const below of suggestions) {
+>>>>>>> v0.9.184-vscode
     // Assumes there should be no crossover between suggestions. Might want to enforce this.
     if (
       below.oldRange.union(below.newRange).start.line >
@@ -302,6 +317,7 @@ export async function showSuggestion(
           if (success) {
             const suggestionLinesLength =
               suggestion === "" ? 0 : suggestion.split("\n").length;
+<<<<<<< HEAD
             let suggestionRange = new vscode.Range(
               new vscode.Position(range.end.line, 0),
               new vscode.Position(range.end.line + suggestionLinesLength, 0),
@@ -311,6 +327,17 @@ export async function showSuggestion(
             const filename = editor!.document.uri.toString();
             if (editorToSuggestions.has(filename)) {
               let suggestions = editorToSuggestions.get(filename)!;
+=======
+            const suggestionRange = new vscode.Range(
+              new vscode.Position(range.end.line, 0),
+              new vscode.Position(range.end.line + suggestionLinesLength, 0),
+            );
+            const content = editor!.document.getText(suggestionRange);
+
+            const filename = editor!.document.uri.toString();
+            if (editorToSuggestions.has(filename)) {
+              const suggestions = editorToSuggestions.get(filename)!;
+>>>>>>> v0.9.184-vscode
               suggestions.push({
                 oldRange: range,
                 newRange: suggestionRange,

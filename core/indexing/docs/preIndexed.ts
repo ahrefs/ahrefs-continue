@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { Chunk } from "../..";
 import { addDocs } from "./db";
+=======
+import { Chunk } from "../../index.js";
+>>>>>>> v0.9.184-vscode
 
 const request = require("request");
 
@@ -39,6 +43,7 @@ export interface SiteIndexingResults {
   url: string;
   title: string;
 }
+<<<<<<< HEAD
 
 export async function downloadPreIndexedDocs(
   embeddingsProviderId: string,
@@ -57,3 +62,5 @@ export async function downloadPreIndexedDocs(
     results.chunks.map((c) => c.embedding),
   );
 }
+=======
+>>>>>>> v0.9.184-vscode

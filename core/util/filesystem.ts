@@ -1,18 +1,59 @@
 import * as fs from "node:fs";
+<<<<<<< HEAD
+=======
+import * as path from "node:path";
+>>>>>>> v0.9.184-vscode
 import {
   ContinueRcJson,
   FileType,
   IDE,
   IdeInfo,
+<<<<<<< HEAD
   IndexTag,
   Problem,
   Range,
   Thread,
 } from "../index.js";
+=======
+  IdeSettings,
+  IndexTag,
+  Location,
+  Problem,
+  Range,
+  RangeInFile,
+  Thread,
+} from "../index.d.js";
+>>>>>>> v0.9.184-vscode
 
 import { getContinueGlobalPath } from "./paths.js";
 
 class FileSystemIde implements IDE {
+<<<<<<< HEAD
+=======
+  constructor(private readonly workspaceDir: string) {}
+  pathSep(): Promise<string> {
+    return Promise.resolve(path.sep);
+  }
+  fileExists(filepath: string): Promise<boolean> {
+    return Promise.resolve(fs.existsSync(filepath));
+  }
+
+  gotoDefinition(location: Location): Promise<RangeInFile[]> {
+    throw new Error("Method not implemented.");
+  }
+  onDidChangeActiveTextEditor(callback: (filepath: string) => void): void {
+    throw new Error("Method not implemented.");
+  }
+
+  async getIdeSettings(): Promise<IdeSettings> {
+    return {
+      remoteConfigServerUrl: undefined,
+      remoteConfigSyncPeriod: 60,
+      userToken: "",
+      enableControlServerBeta: false,
+    };
+  }
+>>>>>>> v0.9.184-vscode
   async getGitHubAuthToken(): Promise<string | undefined> {
     return undefined;
   }
@@ -30,12 +71,21 @@ class FileSystemIde implements IDE {
     const all: [string, FileType][] = fs
       .readdirSync(dir, { withFileTypes: true })
       .map((dirent: any) => [
+<<<<<<< HEAD
         dirent.path,
         dirent.isDirectory()
           ? FileType.Directory
           : dirent.isSymbolicLink()
             ? FileType.SymbolicLink
             : FileType.File,
+=======
+        dirent.name,
+        dirent.isDirectory()
+          ? (2 as FileType.Directory)
+          : dirent.isSymbolicLink()
+            ? (64 as FileType.SymbolicLink)
+            : (1 as FileType.File),
+>>>>>>> v0.9.184-vscode
       ]);
     return Promise.resolve(all);
   }
@@ -68,7 +118,11 @@ class FileSystemIde implements IDE {
   }
 
   isTelemetryEnabled(): Promise<boolean> {
+<<<<<<< HEAD
     return Promise.resolve(false);
+=======
+    return Promise.resolve(true);
+>>>>>>> v0.9.184-vscode
   }
 
   getUniqueId(): Promise<string> {
@@ -110,6 +164,7 @@ class FileSystemIde implements IDE {
     return Promise.resolve();
   }
 
+<<<<<<< HEAD
   listWorkspaceContents(
     directory?: string,
     useGitIgnore?: boolean,
@@ -133,6 +188,10 @@ class FileSystemIde implements IDE {
         resolve([folder]);
       });
     });
+=======
+  getWorkspaceDirs(): Promise<string[]> {
+    return Promise.resolve([this.workspaceDir]);
+>>>>>>> v0.9.184-vscode
   }
 
   listFolders(): Promise<string[]> {
@@ -218,4 +277,8 @@ class FileSystemIde implements IDE {
   }
 }
 
+<<<<<<< HEAD
 export default FileSystemIde;
+=======
+export default FileSystemIde;
+>>>>>>> v0.9.184-vscode

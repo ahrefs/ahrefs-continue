@@ -1,9 +1,17 @@
 import * as vscode from "vscode";
+<<<<<<< HEAD
 import { getMetaKeyLabel } from "../util/util";
 
 const inlineTipDecoration = vscode.window.createTextEditorDecorationType({
   after: {
     contentText: `${getMetaKeyLabel()} L to select code, ${getMetaKeyLabel()} I to edit`,
+=======
+import { getMetaKeyName } from "../util/util";
+
+const inlineTipDecoration = vscode.window.createTextEditorDecorationType({
+  after: {
+    contentText: `Add to chat (${getMetaKeyName()}+L) | Edit highlighted code (${getMetaKeyName()}+I).`,
+>>>>>>> v0.9.184-vscode
     color: "#888",
     margin: "0 0 0 6em",
     fontWeight: "bold",
@@ -12,7 +20,11 @@ const inlineTipDecoration = vscode.window.createTextEditorDecorationType({
 
 function showInlineTip() {
   return vscode.workspace
+<<<<<<< HEAD
     .getConfiguration("ahrefs-continue")
+=======
+    .getConfiguration("continue")
+>>>>>>> v0.9.184-vscode
     .get<boolean>("showInlineTip");
 }
 
@@ -32,7 +44,11 @@ function handleSelectionChange(e: vscode.TextEditorSelectionChangeEvent) {
   const line = Math.max(0, selection.start.line - 1);
 
   const hoverMarkdown = new vscode.MarkdownString(
+<<<<<<< HEAD
     `Use ${getMetaKeyLabel()} L to select code, or ${getMetaKeyLabel()} I to edit highlighted code. Click [here](command:continue.hideInlineTip) if you don't want to see these inline suggestions.`,
+=======
+    `Click [here](command:continue.hideInlineTip) to hide these suggestions`,
+>>>>>>> v0.9.184-vscode
   );
   hoverMarkdown.isTrusted = true;
   hoverMarkdown.supportHtml = true;
@@ -50,7 +66,11 @@ function handleSelectionChange(e: vscode.TextEditorSelectionChangeEvent) {
 const emptyFileTooltipDecoration = vscode.window.createTextEditorDecorationType(
   {
     after: {
+<<<<<<< HEAD
       contentText: `Use ${getMetaKeyLabel()} I to generate code`,
+=======
+      contentText: `Use ${getMetaKeyName()}+I to generate code`,
+>>>>>>> v0.9.184-vscode
       color: "#888",
       margin: "2em 0 0 0",
       fontStyle: "italic",
