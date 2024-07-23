@@ -9,25 +9,6 @@ async function embedOne(
   options: EmbedOptions,
   customFetch: FetchFunction,
 ) {
-<<<<<<< HEAD
-  const fetchWithBackoff = () =>
-    withExponentialBackoff<Response>(() =>
-      customFetch(new URL("api/embeddings", options.apiBase), {
-        method: "POST",
-        body: JSON.stringify({
-          model: options.model,
-          prompt: chunk,
-        }),
-      }),
-    );
-  const resp = await fetchWithBackoff();
-
-  if (!resp.ok) {
-    throw new Error(`Failed to embed chunk: ${await resp.text()}`);
-  }
-
-  return (await resp.json()).embedding;
-=======
   const embedding = await withExponentialBackoff<number[]>(async () => {
     const resp = await customFetch(new URL("api/embeddings", options.apiBase), {
       method: "POST",
@@ -51,7 +32,6 @@ async function embedOne(
   });
 
   return embedding;
->>>>>>> v0.9.184-vscode
 }
 
 class OllamaEmbeddingsProvider extends BaseEmbeddingsProvider {
@@ -69,8 +49,4 @@ class OllamaEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
-<<<<<<< HEAD
 export default OllamaEmbeddingsProvider;
-=======
-export default OllamaEmbeddingsProvider;
->>>>>>> v0.9.184-vscode

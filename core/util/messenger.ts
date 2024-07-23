@@ -1,16 +1,11 @@
-<<<<<<< HEAD
-=======
 import { v4 as uuidv4 } from "uuid";
 import type { IProtocol } from "../protocol";
 
->>>>>>> v0.9.184-vscode
 export interface Message<T = any> {
   messageType: string;
   messageId: string;
   data: T;
 }
-<<<<<<< HEAD
-=======
 
 export interface FromMessage<
   FromProtocol extends IProtocol,
@@ -154,4 +149,3 @@ export class InProcessMessenger<
     return Promise.resolve(response);
   }
 }
->>>>>>> v0.9.184-vscode

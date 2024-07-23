@@ -59,8 +59,4 @@ parentPort.on("message", async (chunks) => {
   } catch (error) {
     parentPort.postMessage({ error: error.message });
   }
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> v0.9.184-vscode

@@ -1,26 +1,7 @@
-<<<<<<< HEAD
-const { execSync } = require("child_process");
-=======
->>>>>>> v0.9.184-vscode
 const fs = require("fs");
 const ncp = require("ncp").ncp;
 const path = require("path");
 const { rimrafSync } = require("rimraf");
-<<<<<<< HEAD
-
-function execCmdSync(cmd) {
-  try {
-    execSync(cmd);
-  } catch (err) {
-    console.error(`Error executing command '${cmd}': `, err.output.toString());
-    process.exit(1);
-  }
-}
-
-// Clear folders that will be packaged to ensure clean slate
-rimrafSync(path.join(__dirname, "bin"));
-rimrafSync(path.join(__dirname, "out"));
-=======
 const {
   validateFilesPresent,
   execCmdSync,
@@ -37,7 +18,6 @@ const guiDist = path.join(__dirname, "..", "..", "..", "gui", "dist");
 if (!fs.existsSync(guiDist)) {
   fs.mkdirSync(guiDist, { recursive: true });
 }
->>>>>>> v0.9.184-vscode
 
 // Get the target to package for
 let target = undefined;
@@ -49,33 +29,7 @@ if (args[2] === "--target") {
 let os;
 let arch;
 if (!target) {
-<<<<<<< HEAD
-  os = {
-    aix: "linux",
-    darwin: "darwin",
-    freebsd: "linux",
-    linux: "linux",
-    openbsd: "linux",
-    sunos: "linux",
-    win32: "win32",
-  }[process.platform];
-  arch = {
-    arm: "arm64",
-    arm64: "arm64",
-    ia32: "x64",
-    loong64: "arm64",
-    mips: "arm64",
-    mipsel: "arm64",
-    ppc: "x64",
-    ppc64: "x64",
-    riscv64: "arm64",
-    s390: "x64",
-    s390x: "x64",
-    x64: "x64",
-  }[process.arch];
-=======
   [os, arch] = autodetectPlatformAndArch();
->>>>>>> v0.9.184-vscode
 } else {
   [os, arch] = target.split("-");
 }
@@ -128,20 +82,12 @@ const exe = os === "win32" ? ".exe" : "";
   }
 
   // Install node_modules //
-<<<<<<< HEAD
-  execCmdSync("npm install --no-save");
-=======
   execCmdSync("npm install");
->>>>>>> v0.9.184-vscode
   console.log("[info] npm install in extensions/vscode completed");
 
   process.chdir("../../gui");
 
-<<<<<<< HEAD
-  execCmdSync("npm install --no-save");
-=======
   execCmdSync("npm install");
->>>>>>> v0.9.184-vscode
   console.log("[info] npm install in gui completed");
 
   if (ghAction()) {
@@ -195,14 +141,6 @@ const exe = os === "win32" ? ".exe" : "";
   // Then copy over the dist folder to the VSCode extension //
   const vscodeGuiPath = path.join("../extensions/vscode/gui");
   fs.mkdirSync(vscodeGuiPath, { recursive: true });
-<<<<<<< HEAD
-  ncp("dist", vscodeGuiPath, (error) => {
-    if (error) {
-      console.log("Error copying React app build to VSCode extension: ", error);
-      throw error;
-    }
-    console.log("Copied gui build to VSCode extension");
-=======
   await new Promise((resolve, reject) => {
     ncp("dist", vscodeGuiPath, (error) => {
       if (error) {
@@ -216,7 +154,6 @@ const exe = os === "win32" ? ".exe" : "";
         resolve();
       }
     });
->>>>>>> v0.9.184-vscode
   });
 
   if (!fs.existsSync(path.join("dist", "assets", "index.js"))) {
@@ -236,12 +173,9 @@ const exe = os === "win32" ? ".exe" : "";
     ncp(
       path.join(__dirname, "../../../core/node_modules/onnxruntime-node/bin"),
       path.join(__dirname, "../bin"),
-<<<<<<< HEAD
-=======
       {
         dereference: true,
       },
->>>>>>> v0.9.184-vscode
       (error) => {
         if (error) {
           console.warn("[info] Error copying onnxruntime-node files", error);
@@ -263,8 +197,6 @@ const exe = os === "win32" ? ".exe" : "";
       if (!target.startsWith("win")) {
         rimrafSync(path.join(__dirname, "../bin/napi-v3/win32"));
       }
-<<<<<<< HEAD
-=======
 
       // Also don't want to include cuda/shared/tensorrt binaries, they are too large
       if (target.startsWith("linux")) {
@@ -284,7 +216,6 @@ const exe = os === "win32" ? ".exe" : "";
           }
         });
       }
->>>>>>> v0.9.184-vscode
     } catch (e) {
       console.warn("[info] Error removing unused binaries", e);
     }
@@ -298,10 +229,7 @@ const exe = os === "win32" ? ".exe" : "";
     ncp(
       path.join(__dirname, "../../../core/node_modules/tree-sitter-wasms/out"),
       path.join(__dirname, "../out/tree-sitter-wasms"),
-<<<<<<< HEAD
-=======
       { dereference: true },
->>>>>>> v0.9.184-vscode
       (error) => {
         if (error) {
           console.warn("[error] Error copying tree-sitter-wasm files", error);
@@ -323,21 +251,13 @@ const exe = os === "win32" ? ".exe" : "";
   // ncp(
   //   path.join(
   //     __dirname,
-<<<<<<< HEAD
-  //     "../../../core/node_modules/llm-code-highlighter/dist/tag-qry"
-=======
   //     "../../../core/node_modules/llm-code-highlighter/dist/tag-qry",
->>>>>>> v0.9.184-vscode
   //   ),
   //   path.join(__dirname, "../out/tag-qry"),
   //   (error) => {
   //     if (error)
   //       console.warn("Error copying code-highlighter tag-qry files", error);
-<<<<<<< HEAD
-  //   }
-=======
   //   },
->>>>>>> v0.9.184-vscode
   // );
 
   // textmate-syntaxes
@@ -372,15 +292,6 @@ const exe = os === "win32" ? ".exe" : "";
     return target?.startsWith("win");
   }
 
-<<<<<<< HEAD
-  // GitHub Actions doesn't support ARM, so we need to download pre-saved binaries
-  if (isArm()) {
-    // Neither lancedb nor sqlite3 have pre-built windows arm64 binaries
-    if (!isWin()) {
-      // lancedb binary
-      console.log("[info] Downloading pre-built lancedb binary");
-      rimrafSync("node_modules/@lancedb");
-=======
   async function installNodeModuleInTempDirAndCopyToCurrent(
     packageName,
     toCopy,
@@ -450,30 +361,10 @@ const exe = os === "win32" ? ".exe" : "";
       // Neither lancedb nor sqlite3 have pre-built windows arm64 binaries
 
       // lancedb binary
->>>>>>> v0.9.184-vscode
       const packageToInstall = {
         "darwin-arm64": "@lancedb/vectordb-darwin-arm64",
         "linux-arm64": "@lancedb/vectordb-linux-arm64-gnu",
       }[target];
-<<<<<<< HEAD
-      execCmdSync(`npm install -f ${packageToInstall} --no-save`);
-    }
-
-    // Download and unzip esbuild
-    console.log("[info] Downloading pre-built esbuild binary");
-    rimrafSync("node_modules/@esbuild");
-    fs.mkdirSync("node_modules/@esbuild", { recursive: true });
-    execCmdSync(
-      `curl -o node_modules/@esbuild/esbuild.zip https://continue-server-binaries.s3.us-west-1.amazonaws.com/${target}/esbuild.zip`,
-    );
-    execCmdSync(`cd node_modules/@esbuild && unzip esbuild.zip`);
-    fs.unlinkSync("node_modules/@esbuild/esbuild.zip");
-  }
-
-  if (ghAction()) {
-    // sqlite3
-    if (isArm() && !isWin()) {
-=======
       console.log(
         "[info] Downloading pre-built lancedb binary: " + packageToInstall,
       );
@@ -483,7 +374,6 @@ const exe = os === "win32" ? ".exe" : "";
         "@lancedb",
       );
 
->>>>>>> v0.9.184-vscode
       // Replace the installed with pre-built
       console.log("[info] Downloading pre-built sqlite3 binary");
       rimrafSync("../../core/node_modules/sqlite3/build");
@@ -501,10 +391,6 @@ const exe = os === "win32" ? ".exe" : "";
       );
       fs.unlinkSync("../../core/node_modules/sqlite3/build.tar.gz");
     }
-<<<<<<< HEAD
-  }
-
-=======
 
     // Download and unzip esbuild
     console.log("[info] Downloading pre-built esbuild binary");
@@ -525,13 +411,10 @@ const exe = os === "win32" ? ".exe" : "";
   }
 
   console.log("[info] Copying sqlite node binding from core");
->>>>>>> v0.9.184-vscode
   await new Promise((resolve, reject) => {
     ncp(
       path.join(__dirname, "../../../core/node_modules/sqlite3/build"),
       path.join(__dirname, "../out/build"),
-<<<<<<< HEAD
-=======
       { dereference: true },
       (error) => {
         if (error) {
@@ -550,7 +433,6 @@ const exe = os === "win32" ? ".exe" : "";
       path.join(__dirname, "../../../core/node_modules/sqlite3/build"),
       path.join(__dirname, "../out"),
       { dereference: true },
->>>>>>> v0.9.184-vscode
       (error) => {
         if (error) {
           console.warn("[error] Error copying sqlite3 files", error);
@@ -563,16 +445,12 @@ const exe = os === "win32" ? ".exe" : "";
   });
 
   // Copy node_modules for pre-built binaries
-<<<<<<< HEAD
-  const NODE_MODULES_TO_COPY = ["esbuild", "@esbuild", "@lancedb", "@vscode"];
-=======
   const NODE_MODULES_TO_COPY = [
     "esbuild",
     "@esbuild",
     "@lancedb",
     "@vscode/ripgrep",
   ];
->>>>>>> v0.9.184-vscode
   fs.mkdirSync("out/node_modules", { recursive: true });
 
   await Promise.all(
@@ -583,19 +461,13 @@ const exe = os === "win32" ? ".exe" : "";
           ncp(
             `node_modules/${mod}`,
             `out/node_modules/${mod}`,
-<<<<<<< HEAD
-=======
             { dereference: true },
->>>>>>> v0.9.184-vscode
             function (error) {
               if (error) {
                 console.error(`[error] Error copying ${mod}`, error);
                 reject(error);
               } else {
-<<<<<<< HEAD
-=======
                 console.log(`[info] Copied ${mod}`);
->>>>>>> v0.9.184-vscode
                 resolve();
               }
             },
@@ -613,42 +485,21 @@ const exe = os === "win32" ? ".exe" : "";
   );
 
   // Validate the all of the necessary files are present
-<<<<<<< HEAD
-  validateFilesPresent();
-})();
-
-function validateFilesPresent() {
-  // This script verifies after pacakging that necessary files are in the correct locations
-  // In many cases just taking a sample file from the folder when they are all roughly the same thing
-
-  const pathsToVerify = [
-    // Queries used to create the index for @code context provider
-    "tree-sitter/code-snippet-queries/tree-sitter-c_sharp-tags.scm",
-=======
   validateFilesPresent([
     // Queries used to create the index for @code context provider
     "tree-sitter/code-snippet-queries/c_sharp.scm",
->>>>>>> v0.9.184-vscode
 
     // Queries used for @outline and @highlights context providers
     "tag-qry/tree-sitter-c_sharp-tags.scm",
 
     // onnx runtime bindngs
     `bin/napi-v3/${os}/${arch}/onnxruntime_binding.node`,
-<<<<<<< HEAD
-    `bin/napi-v3/${os}/${arch}/${os === "darwin"
-      ? "libonnxruntime.1.14.0.dylib"
-      : os === "linux"
-        ? "libonnxruntime.so.1.14.0"
-        : "onnxruntime.dll"
-=======
     `bin/napi-v3/${os}/${arch}/${
       os === "darwin"
         ? "libonnxruntime.1.14.0.dylib"
         : os === "linux"
           ? "libonnxruntime.so.1.14.0"
           : "onnxruntime.dll"
->>>>>>> v0.9.184-vscode
     }`,
     "builtin-themes/dark_modern.json",
 
@@ -683,69 +534,6 @@ function validateFilesPresent() {
 
     // out/node_modules (to be accessed by extension.js)
     `out/node_modules/@vscode/ripgrep/bin/rg${exe}`,
-<<<<<<< HEAD
-    `out/node_modules/@esbuild/${target === "win32-arm64"
-      ? "esbuild.exe"
-      : target === "win32-x64"
-        ? "win32-x64/esbuild.exe"
-        : `${target}/bin/esbuild`
-    }`,
-    `out/node_modules/@lancedb/vectordb-${os === "win32"
-      ? "win32-x64-msvc"
-      : `${target}${os === "linux" ? "-gnu" : ""}`
-    }/index.node`,
-    `out/node_modules/esbuild/lib/main.js`,
-    `out/node_modules/esbuild/bin/esbuild`,
-  ];
-
-  let missingFiles = [];
-  for (const path of pathsToVerify) {
-    if (!fs.existsSync(path)) {
-      const parentFolder = path.split("/").slice(0, -1).join("/");
-      const grandparentFolder = path.split("/").slice(0, -2).join("/");
-      const grandGrandparentFolder = path.split("/").slice(0, -3).join("/");
-
-      console.error(`File ${path} does not exist`);
-      if (!fs.existsSync(parentFolder)) {
-        console.error(`Parent folder ${parentFolder} does not exist`);
-      } else {
-        console.error(
-          "Contents of parent folder:",
-          fs.readdirSync(parentFolder),
-        );
-      }
-      if (!fs.existsSync(grandparentFolder)) {
-        console.error(`Grandparent folder ${grandparentFolder} does not exist`);
-        if (!fs.existsSync(grandGrandparentFolder)) {
-          console.error(
-            `Grandgrandparent folder ${grandGrandparentFolder} does not exist`,
-          );
-        } else {
-          console.error(
-            "Contents of grandgrandparent folder:",
-            fs.readdirSync(grandGrandparentFolder),
-          );
-        }
-      } else {
-        console.error(
-          "Contents of grandparent folder:",
-          fs.readdirSync(grandparentFolder),
-        );
-      }
-
-      missingFiles.push(path);
-    }
-  }
-
-  if (missingFiles.length > 0) {
-    throw new Error(
-      `The following files were missing:\n- ${missingFiles.join("\n- ")}`,
-    );
-  } else {
-    console.log("All paths exist");
-  }
-}
-=======
     `out/node_modules/@esbuild/${
       target === "win32-arm64"
         ? "esbuild.exe"
@@ -762,4 +550,3 @@ function validateFilesPresent() {
     `out/node_modules/esbuild/bin/esbuild`,
   ]);
 })();
->>>>>>> v0.9.184-vscode

@@ -47,6 +47,7 @@ export async function getTreePathAtCursor(
 
   return path;
 }
+}
 
 export async function getScopeAroundRange(
   range: RangeInFileWithContents,

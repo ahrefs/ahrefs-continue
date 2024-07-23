@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-import {
-  ContinueRcJson,
-  IDE,
-  FileType,
-  IdeInfo,
-  IndexTag,
-  Problem,
-  Range,
-  Thread,
-} from "..";
-
-export class MessageIde implements IDE {
-  constructor(
-    private readonly request: (messageType: string, data: any) => Promise<any>,
-  ) {}
-
-=======
 import type {
   ContinueRcJson,
   FileType,
@@ -59,15 +41,12 @@ export class MessageIde implements IDE {
   getIdeSettings(): Promise<IdeSettings> {
     return this.request("getIdeSettings", undefined);
   }
->>>>>>> v0.9.184-vscode
   getGitHubAuthToken(): Promise<string | undefined> {
     return this.request("getGitHubAuthToken", undefined);
   }
   getLastModified(files: string[]): Promise<{ [path: string]: number }> {
     return this.request("getLastModified", { files });
   }
-<<<<<<< HEAD
-=======
   getGitRootPath(dir: string): Promise<string | undefined> {
     return this.request("getGitRootPath", { dir });
   }
@@ -82,7 +61,6 @@ export class MessageIde implements IDE {
   errorPopup(message: string): Promise<void> {
     return this.request("errorPopup", { message });
   }
->>>>>>> v0.9.184-vscode
 
   getRepoName(dir: string): Promise<string | undefined> {
     return this.request("getRepoName", { dir });
@@ -92,16 +70,6 @@ export class MessageIde implements IDE {
     return this.request("getDebugLocals", { threadIndex });
   }
 
-<<<<<<< HEAD
-  getGitRootPath(dir: string): Promise<string | undefined> {
-    return this.request("getGitRootPath", { dir });
-  }
-  listDir(dir: string): Promise<[string, FileType][]> {
-    return this.request("listDir", { dir });
-  }
-
-=======
->>>>>>> v0.9.184-vscode
   getTopLevelCallStackSources(
     threadIndex: number,
     stackDepth: number,
@@ -128,13 +96,6 @@ export class MessageIde implements IDE {
     return this.request("readRangeInFile", { filepath, range });
   }
 
-<<<<<<< HEAD
-  getStats(directory: string): Promise<{ [path: string]: number }> {
-    throw new Error("Method not implemented.");
-  }
-
-=======
->>>>>>> v0.9.184-vscode
   isTelemetryEnabled(): Promise<boolean> {
     return this.request("isTelemetryEnabled", undefined);
   }
@@ -155,13 +116,6 @@ export class MessageIde implements IDE {
     return await this.request("getTerminalContents", undefined);
   }
 
-<<<<<<< HEAD
-  async listWorkspaceContents(directory?: string): Promise<string[]> {
-    return await this.request("listWorkspaceContents", undefined);
-  }
-
-=======
->>>>>>> v0.9.184-vscode
   async getWorkspaceDirs(): Promise<string[]> {
     return await this.request("getWorkspaceDirs", undefined);
   }
@@ -223,13 +177,10 @@ export class MessageIde implements IDE {
     return this.request("getOpenFiles", undefined);
   }
 
-<<<<<<< HEAD
-=======
   getCurrentFile(): Promise<string | undefined> {
     return this.request("getCurrentFile", undefined);
   }
 
->>>>>>> v0.9.184-vscode
   getPinnedFiles(): Promise<string[]> {
     return this.request("getPinnedFiles", undefined);
   }
@@ -238,11 +189,7 @@ export class MessageIde implements IDE {
     return this.request("getSearchResults", { query });
   }
 
-<<<<<<< HEAD
-  getProblems(filepath?: string | undefined): Promise<Problem[]> {
-=======
   getProblems(filepath: string): Promise<Problem[]> {
->>>>>>> v0.9.184-vscode
     return this.request("getProblems", { filepath });
   }
 
@@ -253,19 +200,4 @@ export class MessageIde implements IDE {
   async getBranch(dir: string): Promise<string> {
     return this.request("getBranch", { dir });
   }
-<<<<<<< HEAD
-
-  getCurrentFile(): Promise<string | undefined> {
-    return this.request("getCurrentFile", undefined);
-  }
-
-  infoPopup(message: string): Promise<void> {
-    return this.request("errorPopup", { message });
-  }
-
-  errorPopup(message: string): Promise<void> {
-    return this.request("errorPopup", { message });
-  }
-=======
->>>>>>> v0.9.184-vscode
 }

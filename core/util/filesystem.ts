@@ -1,20 +1,10 @@
 import * as fs from "node:fs";
-<<<<<<< HEAD
-=======
 import * as path from "node:path";
->>>>>>> v0.9.184-vscode
 import {
   ContinueRcJson,
   FileType,
   IDE,
   IdeInfo,
-<<<<<<< HEAD
-  IndexTag,
-  Problem,
-  Range,
-  Thread,
-} from "../index.js";
-=======
   IdeSettings,
   IndexTag,
   Location,
@@ -23,13 +13,10 @@ import {
   RangeInFile,
   Thread,
 } from "../index.d.js";
->>>>>>> v0.9.184-vscode
 
 import { getContinueGlobalPath } from "./paths.js";
 
 class FileSystemIde implements IDE {
-<<<<<<< HEAD
-=======
   constructor(private readonly workspaceDir: string) {}
   pathSep(): Promise<string> {
     return Promise.resolve(path.sep);
@@ -53,7 +40,6 @@ class FileSystemIde implements IDE {
       enableControlServerBeta: false,
     };
   }
->>>>>>> v0.9.184-vscode
   async getGitHubAuthToken(): Promise<string | undefined> {
     return undefined;
   }
@@ -71,21 +57,12 @@ class FileSystemIde implements IDE {
     const all: [string, FileType][] = fs
       .readdirSync(dir, { withFileTypes: true })
       .map((dirent: any) => [
-<<<<<<< HEAD
-        dirent.path,
-        dirent.isDirectory()
-          ? FileType.Directory
-          : dirent.isSymbolicLink()
-            ? FileType.SymbolicLink
-            : FileType.File,
-=======
         dirent.name,
         dirent.isDirectory()
           ? (2 as FileType.Directory)
           : dirent.isSymbolicLink()
             ? (64 as FileType.SymbolicLink)
             : (1 as FileType.File),
->>>>>>> v0.9.184-vscode
       ]);
     return Promise.resolve(all);
   }
@@ -118,11 +95,7 @@ class FileSystemIde implements IDE {
   }
 
   isTelemetryEnabled(): Promise<boolean> {
-<<<<<<< HEAD
-    return Promise.resolve(false);
-=======
     return Promise.resolve(true);
->>>>>>> v0.9.184-vscode
   }
 
   getUniqueId(): Promise<string> {
@@ -164,34 +137,8 @@ class FileSystemIde implements IDE {
     return Promise.resolve();
   }
 
-<<<<<<< HEAD
-  listWorkspaceContents(
-    directory?: string,
-    useGitIgnore?: boolean,
-  ): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      fs.readdir("/tmp/continue", (err, files) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(files);
-      });
-    });
-  }
-
-  getWorkspaceDirs(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      fs.mkdtemp("/tmp/continue", (err, folder) => {
-        if (err) {
-          reject(err);
-        }
-        resolve([folder]);
-      });
-    });
-=======
   getWorkspaceDirs(): Promise<string[]> {
     return Promise.resolve([this.workspaceDir]);
->>>>>>> v0.9.184-vscode
   }
 
   listFolders(): Promise<string[]> {
@@ -277,8 +224,4 @@ class FileSystemIde implements IDE {
   }
 }
 
-<<<<<<< HEAD
 export default FileSystemIde;
-=======
-export default FileSystemIde;
->>>>>>> v0.9.184-vscode

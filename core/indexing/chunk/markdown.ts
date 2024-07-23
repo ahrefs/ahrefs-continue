@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { ChunkWithoutID } from "../..";
-import { countTokens } from "../../llm/countTokens";
-import { basicChunker } from "./basic";
-=======
 import { ChunkWithoutID } from "../../index.js";
 import { countTokens } from "../../llm/countTokens.js";
 import { basicChunker } from "./basic.js";
->>>>>>> v0.9.184-vscode
 
 export function cleanFragment(
   fragment: string | undefined,
@@ -80,12 +74,8 @@ export async function* markdownChunker(
       },
     };
     return;
-<<<<<<< HEAD
-  } else if (hLevel > 4) {
-=======
   }
   if (hLevel > 4) {
->>>>>>> v0.9.184-vscode
     const header = findHeader(content.split("\n"));
 
     for (const chunk of basicChunker(content, maxChunkSize)) {
@@ -100,11 +90,7 @@ export async function* markdownChunker(
     return;
   }
 
-<<<<<<< HEAD
-  const h = "#".repeat(hLevel + 1) + " ";
-=======
   const h = `${"#".repeat(hLevel + 1)} `;
->>>>>>> v0.9.184-vscode
   const lines = content.split("\n");
   const sections = [];
 
@@ -146,11 +132,7 @@ export async function* markdownChunker(
       hLevel + 1,
     )) {
       yield {
-<<<<<<< HEAD
-        content: section.header + "\n" + chunk.content,
-=======
         content: `${section.header}\n${chunk.content}`,
->>>>>>> v0.9.184-vscode
         startLine: section.startLine + chunk.startLine,
         endLine: section.startLine + chunk.endLine,
         otherMetadata: {

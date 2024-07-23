@@ -1,15 +1,8 @@
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
-<<<<<<< HEAD
-import { Chunk } from "../..";
-import { MAX_CHUNK_SIZE } from "../../llm/constants";
-import { cleanFragment, cleanHeader } from "../chunk/markdown";
-import { PageData } from "./crawl";
-=======
 import { Chunk } from "../../index.js";
 import { cleanFragment, cleanHeader } from "../chunk/markdown.js";
 import { PageData } from "./crawl.js";
->>>>>>> v0.9.184-vscode
 
 export type ArticleComponent = {
   title: string;
@@ -27,33 +20,20 @@ function breakdownArticleComponent(
   url: string,
   article: ArticleComponent,
   subpath: string,
-<<<<<<< HEAD
-): Chunk[] {
-  let chunks: Chunk[] = [];
-
-  let lines = article.body.split("\n");
-=======
   max_chunk_size: number,
 ): Chunk[] {
   const chunks: Chunk[] = [];
 
   const lines = article.body.split("\n");
->>>>>>> v0.9.184-vscode
   let startLine = 0;
   let endLine = 0;
   let content = "";
   let index = 0;
 
   for (let i = 0; i < lines.length; i++) {
-<<<<<<< HEAD
-    let line = lines[i];
-    if (content.length + line.length <= MAX_CHUNK_SIZE) {
-      content += line + "\n";
-=======
     const line = lines[i];
     if (content.length + line.length <= max_chunk_size) {
       content += `${line}\n`;
->>>>>>> v0.9.184-vscode
       endLine = i;
     } else {
       chunks.push({
@@ -65,20 +45,12 @@ function breakdownArticleComponent(
         },
         index: index,
         filepath: new URL(
-<<<<<<< HEAD
-          subpath + `#${cleanFragment(article.title)}`,
-=======
           `${subpath}#${cleanFragment(article.title)}`,
->>>>>>> v0.9.184-vscode
           url,
         ).toString(),
         digest: subpath,
       });
-<<<<<<< HEAD
-      content = line + "\n";
-=======
       content = `${line}\n`;
->>>>>>> v0.9.184-vscode
       startLine = i;
       endLine = i;
       index += 1;
@@ -96,11 +68,7 @@ function breakdownArticleComponent(
       },
       index: index,
       filepath: new URL(
-<<<<<<< HEAD
-        subpath + `#${cleanFragment(article.title)}`,
-=======
         `${subpath}#${cleanFragment(article.title)}`,
->>>>>>> v0.9.184-vscode
         url,
       ).toString(),
       digest: subpath,
@@ -111,16 +79,6 @@ function breakdownArticleComponent(
   return chunks.filter((c) => c.content.trim().length > 20);
 }
 
-<<<<<<< HEAD
-export function chunkArticle(articleResult: Article): Chunk[] {
-  let chunks: Chunk[] = [];
-
-  for (let article of articleResult.article_components) {
-    let articleChunks = breakdownArticleComponent(
-      articleResult.url,
-      article,
-      articleResult.subpath,
-=======
 export function chunkArticle(
   articleResult: Article,
   maxChunkSize: number,
@@ -133,7 +91,6 @@ export function chunkArticle(
       article,
       articleResult.subpath,
       maxChunkSize,
->>>>>>> v0.9.184-vscode
     );
     chunks = [...chunks, ...articleChunks];
   }
@@ -169,23 +126,14 @@ export function stringToArticle(
 ): Article | undefined {
   try {
     const dom = new JSDOM(html);
-<<<<<<< HEAD
-    let reader = new Readability(dom.window.document);
-    let article = reader.parse();
-=======
     const reader = new Readability(dom.window.document);
     const article = reader.parse();
->>>>>>> v0.9.184-vscode
 
     if (!article) {
       return undefined;
     }
 
-<<<<<<< HEAD
-    let article_components = extractTitlesAndBodies(article.content);
-=======
     const article_components = extractTitlesAndBodies(article.content);
->>>>>>> v0.9.184-vscode
 
     return {
       url,

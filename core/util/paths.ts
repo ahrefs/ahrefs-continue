@@ -1,20 +1,8 @@
-<<<<<<< HEAD
-=======
 import * as JSONC from "comment-json";
->>>>>>> v0.9.184-vscode
 import dotenv from "dotenv";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-<<<<<<< HEAD
-import { IdeType, SerializedContinueConfig } from "..";
-import { defaultConfig, defaultConfigJetBrains } from "../config/default";
-import Types from "../config/types";
-
-export function getContinueGlobalPath(): string {
-  // This is ~/.continue on mac/linux
-  const continuePath = path.join(os.homedir(), ".ahrefs-continue");
-=======
 import { defaultConfig, defaultConfigJetBrains } from "../config/default.js";
 import Types from "../config/types.js";
 import { IdeType, SerializedContinueConfig } from "../index.js";
@@ -26,24 +14,12 @@ const CONTINUE_GLOBAL_DIR =
 export function getContinueGlobalPath(): string {
   // This is ~/.continue on mac/linux
   const continuePath = CONTINUE_GLOBAL_DIR;
->>>>>>> v0.9.184-vscode
   if (!fs.existsSync(continuePath)) {
     fs.mkdirSync(continuePath);
   }
   return continuePath;
 }
 
-<<<<<<< HEAD
-export function getContinueSavedSessionsPath(): string {
-  const savedSessionsPath = path.join(getContinueGlobalPath(), "saved_sessions");
-  if (!fs.existsSync(savedSessionsPath)) {
-    fs.mkdirSync(savedSessionsPath);
-  }
-  return savedSessionsPath;
-}
-
-=======
->>>>>>> v0.9.184-vscode
 export function getSessionsFolderPath(): string {
   const sessionsPath = path.join(getContinueGlobalPath(), "sessions");
   if (!fs.existsSync(sessionsPath)) {
@@ -60,13 +36,10 @@ export function getIndexFolderPath(): string {
   return indexPath;
 }
 
-<<<<<<< HEAD
-=======
 export function getGlobalContextFilePath(): string {
   return path.join(getIndexFolderPath(), "globalContext.json");
 }
 
->>>>>>> v0.9.184-vscode
 export function getSessionFilePath(sessionId: string): string {
   return path.join(getSessionsFolderPath(), `${sessionId}.json`);
 }
@@ -166,8 +139,6 @@ export function getTsConfigPath(): string {
   return tsConfigPath;
 }
 
-<<<<<<< HEAD
-=======
 export function getContinueRcPath(): string {
   // Disable indexing of the config folder to prevent infinite loops
   const continuercPath = path.join(getContinueGlobalPath(), ".continuerc.json");
@@ -186,7 +157,6 @@ export function getContinueRcPath(): string {
   return continuercPath;
 }
 
->>>>>>> v0.9.184-vscode
 export function devDataPath(): string {
   const sPath = path.join(getContinueGlobalPath(), "dev_data");
   if (!fs.existsSync(sPath)) {
@@ -200,23 +170,11 @@ export function getDevDataSqlitePath(): string {
 }
 
 export function getDevDataFilePath(fileName: string): string {
-<<<<<<< HEAD
-  return path.join(devDataPath(), fileName + ".jsonl");
-=======
   return path.join(devDataPath(), `${fileName}.jsonl`);
->>>>>>> v0.9.184-vscode
 }
 
 export function editConfigJson(
   callback: (config: SerializedContinueConfig) => SerializedContinueConfig,
-<<<<<<< HEAD
-) {
-  const config = fs.readFileSync(getConfigJsonPath(), "utf8");
-  let configJson = JSON.parse(config);
-  configJson = callback(configJson);
-  fs.writeFileSync(getConfigJsonPath(), JSON.stringify(configJson, null, 2));
-  return configJson;
-=======
 ): void {
   const config = fs.readFileSync(getConfigJsonPath(), "utf8");
   let configJson = JSONC.parse(config);
@@ -227,7 +185,6 @@ export function editConfigJson(
   } else {
     console.warn("config.json is not a valid object");
   }
->>>>>>> v0.9.184-vscode
 }
 
 function getMigrationsFolderPath(): string {
@@ -238,14 +195,6 @@ function getMigrationsFolderPath(): string {
   return migrationsPath;
 }
 
-<<<<<<< HEAD
-export function migrate(id: string, callback: () => void) {
-  const migrationsPath = getMigrationsFolderPath();
-  const migrationPath = path.join(migrationsPath, id);
-  if (!fs.existsSync(migrationPath)) {
-    fs.writeFileSync(migrationPath, "");
-    callback();
-=======
 export async function migrate(
   id: string,
   callback: () => void | Promise<void>,
@@ -263,7 +212,6 @@ export async function migrate(
     }
   } else if (onAlreadyComplete) {
     onAlreadyComplete();
->>>>>>> v0.9.184-vscode
   }
 }
 
@@ -291,13 +239,6 @@ export function getRemoteConfigsFolderPath(): string {
   return dir;
 }
 
-<<<<<<< HEAD
-export function getPathToRemoteConfig(remoteConfigServerUrl: URL): string {
-  const dir = path.join(
-    getRemoteConfigsFolderPath(),
-    remoteConfigServerUrl.hostname,
-  );
-=======
 export function getPathToRemoteConfig(remoteConfigServerUrl: string): string {
   let url: URL | undefined = undefined;
   try {
@@ -307,20 +248,12 @@ export function getPathToRemoteConfig(remoteConfigServerUrl: string): string {
         : new URL(remoteConfigServerUrl);
   } catch (e) {}
   const dir = path.join(getRemoteConfigsFolderPath(), url?.hostname ?? "None");
->>>>>>> v0.9.184-vscode
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
   return dir;
 }
 
-<<<<<<< HEAD
-export function getConfigJsonPathForRemote(remoteConfigServerUrl: URL): string {
-  return path.join(getPathToRemoteConfig(remoteConfigServerUrl), "ahrefs-continue-config.json");
-}
-
-export function getConfigJsPathForRemote(remoteConfigServerUrl: URL): string {
-=======
 export function internalBetaPathExists(): boolean {
   const sPath = path.join(getContinueGlobalPath(), ".internal_beta");
   return fs.existsSync(sPath);
@@ -335,7 +268,6 @@ export function getConfigJsonPathForRemote(
 export function getConfigJsPathForRemote(
   remoteConfigServerUrl: string,
 ): string {
->>>>>>> v0.9.184-vscode
   return path.join(getPathToRemoteConfig(remoteConfigServerUrl), "config.js");
 }
 
@@ -343,15 +275,6 @@ export function getContinueDotEnv(): { [key: string]: string } {
   const filepath = path.join(getContinueGlobalPath(), ".env");
   if (fs.existsSync(filepath)) {
     return dotenv.parse(fs.readFileSync(filepath));
-<<<<<<< HEAD
-  } else {
-    return {};
-  }
-}
-
-export function getCoreLogsPath(): string {
-  return path.join(getContinueGlobalPath(), "core.log");
-=======
   }
   return {};
 }
@@ -398,5 +321,4 @@ export function readAllGlobalPromptFiles(
   });
 
   return promptFiles;
->>>>>>> v0.9.184-vscode
 }

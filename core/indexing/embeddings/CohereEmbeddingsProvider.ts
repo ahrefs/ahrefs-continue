@@ -60,8 +60,4 @@ class CohereEmbeddingsProvider extends BaseEmbeddingsProvider {
   }
 }
 
-<<<<<<< HEAD
 export default CohereEmbeddingsProvider;
-=======
-export default CohereEmbeddingsProvider;
->>>>>>> v0.9.184-vscode

@@ -1,41 +1,24 @@
 // NOTE: vectordb requirement must be listed in extensions/vscode to avoid error
 import { v4 as uuidv4 } from "uuid";
 import { Table } from "vectordb";
-<<<<<<< HEAD
-=======
 import { IContinueServerClient } from "../continueServer/interface.js";
->>>>>>> v0.9.184-vscode
 import {
   BranchAndDir,
   Chunk,
   EmbeddingsProvider,
   IndexTag,
   IndexingProgressUpdate,
-<<<<<<< HEAD
-} from "..";
-import { ContinueServerClient } from "../continueServer/stubs/client";
-import { MAX_CHUNK_SIZE } from "../llm/constants";
-import { getBasename } from "../util";
-import { getLanceDbPath } from "../util/paths";
-import { chunkDocument } from "./chunk/chunk";
-import { DatabaseConnection, SqliteDb, tagToString } from "./refreshIndex";
-=======
 } from "../index.js";
 import { getBasename } from "../util/index.js";
 import { getLanceDbPath, migrate } from "../util/paths.js";
 import { chunkDocument } from "./chunk/chunk.js";
 import { DatabaseConnection, SqliteDb, tagToString } from "./refreshIndex.js";
->>>>>>> v0.9.184-vscode
 import {
   CodebaseIndex,
   IndexResultType,
   PathAndCacheKey,
   RefreshIndexResults,
-<<<<<<< HEAD
-} from "./types";
-=======
 } from "./types.js";
->>>>>>> v0.9.184-vscode
 
 // LanceDB  converts to lowercase, so names must all be lowercase
 interface LanceDbRow {
@@ -47,25 +30,6 @@ interface LanceDbRow {
 }
 
 export class LanceDbIndex implements CodebaseIndex {
-<<<<<<< HEAD
-  get artifactId(): string {
-    return "vectordb::" + this.embeddingsProvider.id;
-  }
-
-  static MAX_CHUNK_SIZE = MAX_CHUNK_SIZE;
-
-  constructor(
-    private readonly embeddingsProvider: EmbeddingsProvider,
-    private readonly readFile: (filepath: string) => Promise<string>,
-    private readonly continueServerClient?: ContinueServerClient,
-  ) {}
-
-  private tableNameForTag(tag: IndexTag) {
-    return tagToString(tag)
-      .replace(/\//g, "")
-      .replace(/\\/g, "")
-      .replace(/\:/g, "");
-=======
   relativeExpectedTime: number = 13;
   get artifactId(): string {
     return `vectordb::${this.embeddingsProvider.id}`;
@@ -79,7 +43,6 @@ export class LanceDbIndex implements CodebaseIndex {
 
   private tableNameForTag(tag: IndexTag) {
     return tagToString(tag).replace(/[^\w-_.]/g, "");
->>>>>>> v0.9.184-vscode
   }
 
   private async createSqliteCacheTable(db: DatabaseConnection) {
@@ -87,17 +50,12 @@ export class LanceDbIndex implements CodebaseIndex {
         uuid TEXT PRIMARY KEY,
         cacheKey TEXT NOT NULL,
         path TEXT NOT NULL,
-<<<<<<< HEAD
-=======
         artifact_id TEXT NOT NULL,
->>>>>>> v0.9.184-vscode
         vector TEXT NOT NULL,
         startLine INTEGER NOT NULL,
         endLine INTEGER NOT NULL,
         contents TEXT NOT NULL
     )`);
-<<<<<<< HEAD
-=======
 
     await new Promise((resolve) =>
       migrate(
@@ -114,7 +72,6 @@ export class LanceDbIndex implements CodebaseIndex {
         () => resolve(undefined),
       ),
     );
->>>>>>> v0.9.184-vscode
   }
 
   private async *computeChunks(
@@ -137,17 +94,6 @@ export class LanceDbIndex implements CodebaseIndex {
       const content = contents[i];
       const chunks: Chunk[] = [];
 
-<<<<<<< HEAD
-      for await (let chunk of chunkDocument(
-        items[i].path,
-        content,
-        LanceDbIndex.MAX_CHUNK_SIZE,
-        items[i].cacheKey,
-      )) {
-        chunks.push(chunk);
-      }
-
-=======
       let hasEmptyChunks = false;
 
       for await (const chunk of chunkDocument(
@@ -168,18 +114,11 @@ export class LanceDbIndex implements CodebaseIndex {
         continue;
       }
 
->>>>>>> v0.9.184-vscode
       if (chunks.length > 20) {
         // Too many chunks to index, probably a larger file than we want to include
         continue;
       }
 
-<<<<<<< HEAD
-      // Calculate embeddings
-      const embeddings = await this.embeddingsProvider.embed(
-        chunks.map((c) => c.content),
-      );
-=======
       let embeddings: number[][];
       try {
         // Calculate embeddings
@@ -200,7 +139,6 @@ export class LanceDbIndex implements CodebaseIndex {
           `Failed to generate embedding for ${chunks[0]?.filepath} with provider: ${this.embeddingsProvider.id}`,
         );
       }
->>>>>>> v0.9.184-vscode
 
       // Create row format
       for (let j = 0; j < chunks.length; j++) {
@@ -246,13 +184,8 @@ export class LanceDbIndex implements CodebaseIndex {
 
     // Compute
     let table: Table<number[]> | undefined = undefined;
-<<<<<<< HEAD
-    let needToCreateTable = true;
-    const existingTables = await db.tableNames();
-=======
     const existingTables = await db.tableNames();
     let needToCreateTable = !existingTables.includes(tableName);
->>>>>>> v0.9.184-vscode
 
     const addComputedLanceDbRows = async (
       pathAndCacheKey: PathAndCacheKey,
@@ -279,11 +212,7 @@ export class LanceDbIndex implements CodebaseIndex {
     };
 
     // Check remote cache
-<<<<<<< HEAD
-    if (this.continueServerClient !== undefined) {
-=======
     if (this.continueServerClient?.connected) {
->>>>>>> v0.9.184-vscode
       try {
         const keys = results.compute.map(({ cacheKey }) => cacheKey);
         const resp = await this.continueServerClient.getFromIndexCache(
@@ -316,18 +245,11 @@ export class LanceDbIndex implements CodebaseIndex {
             rows.push(row);
 
             await sqlite.run(
-<<<<<<< HEAD
-              "INSERT INTO lance_db_cache (uuid, cacheKey, path, vector, startLine, endLine, contents) VALUES (?, ?, ?, ?, ?, ?, ?)",
-              row.uuid,
-              row.cachekey,
-              row.path,
-=======
               "INSERT INTO lance_db_cache (uuid, cacheKey, path, artifact_id, vector, startLine, endLine, contents) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
               row.uuid,
               row.cachekey,
               row.path,
               this.artifactId,
->>>>>>> v0.9.184-vscode
               JSON.stringify(row.vector),
               chunk.startLine,
               chunk.endLine,
@@ -347,12 +269,9 @@ export class LanceDbIndex implements CodebaseIndex {
       }
     }
 
-<<<<<<< HEAD
-=======
     const progressReservedForTagging = 0.1;
     let accumulatedProgress = 0;
 
->>>>>>> v0.9.184-vscode
     let computedRows: LanceDbRow[] = [];
     for await (const update of this.computeChunks(results.compute)) {
       if (Array.isArray(update)) {
@@ -361,34 +280,23 @@ export class LanceDbIndex implements CodebaseIndex {
 
         // Add the computed row to the cache
         await sqlite.run(
-<<<<<<< HEAD
-          "INSERT INTO lance_db_cache (uuid, cacheKey, path, vector, startLine, endLine, contents) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          row.uuid,
-          row.cachekey,
-          row.path,
-=======
           "INSERT INTO lance_db_cache (uuid, cacheKey, path, artifact_id, vector, startLine, endLine, contents) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
           row.uuid,
           row.cachekey,
           row.path,
           this.artifactId,
->>>>>>> v0.9.184-vscode
           JSON.stringify(row.vector),
           data.startLine,
           data.endLine,
           data.contents,
         );
 
-<<<<<<< HEAD
-        yield { progress, desc, status: "indexing" };
-=======
         accumulatedProgress = progress * (1 - progressReservedForTagging);
         yield {
           progress: accumulatedProgress,
           desc,
           status: "indexing",
         };
->>>>>>> v0.9.184-vscode
       } else {
         await addComputedLanceDbRows(update, computedRows);
         computedRows = [];
@@ -396,20 +304,12 @@ export class LanceDbIndex implements CodebaseIndex {
     }
 
     // Add tag - retrieve the computed info from lance sqlite cache
-<<<<<<< HEAD
-    for (let { path, cacheKey } of results.addTag) {
-      const stmt = await sqlite.prepare(
-        "SELECT * FROM lance_db_cache WHERE cacheKey = ? AND path = ?",
-        cacheKey,
-        path,
-=======
     for (const { path, cacheKey } of results.addTag) {
       const stmt = await sqlite.prepare(
         "SELECT * FROM lance_db_cache WHERE cacheKey = ? AND path = ? AND artifact_id = ?",
         cacheKey,
         path,
         this.artifactId,
->>>>>>> v0.9.184-vscode
       );
       const cachedItems = await stmt.all();
 
@@ -422,16 +322,6 @@ export class LanceDbIndex implements CodebaseIndex {
         };
       });
 
-<<<<<<< HEAD
-      if (needToCreateTable && lanceRows.length > 0) {
-        table = await db.createTable(tableName, lanceRows);
-        needToCreateTable = false;
-      } else if (lanceRows.length > 0) {
-        await table!.add(lanceRows);
-      }
-
-      markComplete([{ path, cacheKey }], IndexResultType.AddTag);
-=======
       if (lanceRows.length > 0) {
         if (needToCreateTable) {
           table = await db.createTable(tableName, lanceRows);
@@ -452,16 +342,10 @@ export class LanceDbIndex implements CodebaseIndex {
         desc: `Indexing ${getBasename(path)}`,
         status: "indexing",
       };
->>>>>>> v0.9.184-vscode
     }
 
     // Delete or remove tag - remove from lance table)
     if (!needToCreateTable) {
-<<<<<<< HEAD
-      for (let { path, cacheKey } of [...results.removeTag, ...results.del]) {
-        // This is where the aforementioned lowercase conversion problem shows
-        await table!.delete(`cachekey = '${cacheKey}' AND path = '${path}'`);
-=======
       const toDel = [...results.removeTag, ...results.del];
       for (const { path, cacheKey } of toDel) {
         // This is where the aforementioned lowercase conversion problem shows
@@ -473,20 +357,11 @@ export class LanceDbIndex implements CodebaseIndex {
           desc: `Stashing ${getBasename(path)}`,
           status: "indexing",
         };
->>>>>>> v0.9.184-vscode
       }
     }
     markComplete(results.removeTag, IndexResultType.RemoveTag);
 
     // Delete - also remove from sqlite cache
-<<<<<<< HEAD
-    for (let { path, cacheKey } of results.del) {
-      await sqlite.run(
-        "DELETE FROM lance_db_cache WHERE cacheKey = ? AND path = ?",
-        cacheKey,
-        path,
-      );
-=======
     for (const { path, cacheKey } of results.del) {
       await sqlite.run(
         "DELETE FROM lance_db_cache WHERE cacheKey = ? AND path = ? AND artifact_id = ?",
@@ -500,7 +375,6 @@ export class LanceDbIndex implements CodebaseIndex {
         desc: `Removing ${getBasename(path)}`,
         status: "indexing",
       };
->>>>>>> v0.9.184-vscode
     }
 
     markComplete(results.del, IndexResultType.Delete);
@@ -521,10 +395,7 @@ export class LanceDbIndex implements CodebaseIndex {
     const tableName = this.tableNameForTag(tag);
     const tableNames = await db.tableNames();
     if (!tableNames.includes(tableName)) {
-<<<<<<< HEAD
-=======
       console.warn("Table not found in LanceDB", tableName);
->>>>>>> v0.9.184-vscode
       return [];
     }
 

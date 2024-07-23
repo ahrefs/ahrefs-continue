@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import * as path from "path";
-import { Language } from "web-tree-sitter";
-const Parser = require("web-tree-sitter");
-=======
 import fs from "node:fs";
 import * as path from "node:path";
 import Parser, { Language } from "web-tree-sitter";
->>>>>>> v0.9.184-vscode
 
 export const supportedLanguages: { [key: string]: string } = {
   cpp: "cpp",
@@ -76,10 +70,7 @@ export const supportedLanguages: { [key: string]: string } = {
   rs: "rust",
   rdl: "systemrdl",
   toml: "toml",
-<<<<<<< HEAD
-=======
   sol: "solidity",
->>>>>>> v0.9.184-vscode
 
   // jl: "julia",
   // swift: "swift",
@@ -88,12 +79,6 @@ export const supportedLanguages: { [key: string]: string } = {
 };
 
 export async function getParserForFile(filepath: string) {
-<<<<<<< HEAD
-  if (process.env.IS_BINARY) {
-    return undefined;
-  }
-=======
->>>>>>> v0.9.184-vscode
   try {
     await Parser.init();
     const parser = new Parser();
@@ -108,14 +93,11 @@ export async function getParserForFile(filepath: string) {
   }
 }
 
-<<<<<<< HEAD
-=======
 // Loading the wasm files to create a Language object is an expensive operation and with
 // sufficient number of files can result in errors, instead keep a map of language name
 // to Language object
 const nameToLanguage = new Map<string, Language>();
 
->>>>>>> v0.9.184-vscode
 export async function getLanguageForFile(
   filepath: string,
 ): Promise<Language | undefined> {
@@ -123,18 +105,6 @@ export async function getLanguageForFile(
     await Parser.init();
     const extension = path.extname(filepath).slice(1);
 
-<<<<<<< HEAD
-    if (!supportedLanguages[extension]) {
-      return undefined;
-    }
-
-    const wasmPath = path.join(
-      __dirname,
-      "tree-sitter-wasms",
-      `tree-sitter-${supportedLanguages[extension]}.wasm`,
-    );
-    const language = await Parser.Language.load(wasmPath);
-=======
     const languageName = supportedLanguages[extension];
     if (!languageName) {
       return undefined;
@@ -144,15 +114,12 @@ export async function getLanguageForFile(
       language = await loadLanguageForFileExt(extension);
       nameToLanguage.set(languageName, language);
     }
->>>>>>> v0.9.184-vscode
     return language;
   } catch (e) {
     console.error("Unable to load language for file", filepath, e);
     return undefined;
   }
 }
-<<<<<<< HEAD
-=======
 
 export enum TSQueryType {
   CodeSnippets = "code-snippet-queries",
@@ -197,4 +164,3 @@ async function loadLanguageForFileExt(
   );
   return await Parser.Language.load(wasmPath);
 }
->>>>>>> v0.9.184-vscode

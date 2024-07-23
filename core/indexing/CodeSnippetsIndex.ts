@@ -1,34 +1,10 @@
-<<<<<<< HEAD
-import fs from "fs";
-import path from "path";
-import {
-=======
 import type {
->>>>>>> v0.9.184-vscode
   ChunkWithoutID,
   ContextItem,
   ContextSubmenuItem,
   IDE,
   IndexTag,
   IndexingProgressUpdate,
-<<<<<<< HEAD
-} from "..";
-import { getBasename, getLastNPathParts } from "../util/index.js";
-import {
-  getLanguageForFile,
-  getParserForFile,
-  supportedLanguages,
-} from "../util/treeSitter";
-import { DatabaseConnection, SqliteDb, tagToString } from "./refreshIndex";
-import {
-  CodebaseIndex,
-  IndexResultType,
-  MarkCompleteCallback,
-  RefreshIndexResults,
-} from "./types";
-
-export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
-=======
 } from "../index.js";
 import { getBasename, getLastNPathParts } from "../util/index.js";
 import {
@@ -46,7 +22,6 @@ import {
 
 export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
   relativeExpectedTime: number = 1;
->>>>>>> v0.9.184-vscode
   artifactId = "codeSnippets";
 
   constructor(private readonly ide: IDE) {}
@@ -70,45 +45,16 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
     )`);
   }
 
-<<<<<<< HEAD
-  private getQuerySource(filepath: string) {
-    const fullLangName = supportedLanguages[filepath.split(".").pop() ?? ""];
-    const sourcePath = path.join(
-      __dirname,
-      "..",
-      "tree-sitter",
-      "code-snippet-queries",
-      `tree-sitter-${fullLangName}-tags.scm`,
-    );
-    if (!fs.existsSync(sourcePath)) {
-      return "";
-    }
-    return fs.readFileSync(sourcePath).toString();
-  }
-
-=======
->>>>>>> v0.9.184-vscode
   async getSnippetsInFile(
     filepath: string,
     contents: string,
   ): Promise<(ChunkWithoutID & { title: string })[]> {
-<<<<<<< HEAD
-    const lang = await getLanguageForFile(filepath);
-    if (!lang) {
-      return [];
-    }
-=======
->>>>>>> v0.9.184-vscode
     const parser = await getParserForFile(filepath);
     if (!parser) {
       return [];
     }
     const ast = parser.parse(contents);
-<<<<<<< HEAD
-    const query = lang?.query(this.getQuerySource(filepath));
-=======
     const query = await getQueryForFile(filepath, TSQueryType.CodeSnippets);
->>>>>>> v0.9.184-vscode
     const matches = query?.matches(ast.rootNode);
 
     return (
@@ -138,12 +84,6 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
 
     for (let i = 0; i < results.compute.length; i++) {
       const compute = results.compute[i];
-<<<<<<< HEAD
-      const snippets = await this.getSnippetsInFile(
-        compute.path,
-        await this.ide.readFile(compute.path),
-      );
-=======
 
       let snippets: (ChunkWithoutID & { title: string })[] = [];
       try {
@@ -154,16 +94,11 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
       } catch (e) {
         // If can't parse, assume malformatted code
       }
->>>>>>> v0.9.184-vscode
 
       // Add snippets to sqlite
       for (const snippet of snippets) {
         const { lastID } = await db.run(
-<<<<<<< HEAD
-          `INSERT INTO code_snippets (path, cacheKey, content, title, startLine, endLine) VALUES (?, ?, ?, ?, ?, ?)`,
-=======
           "INSERT INTO code_snippets (path, cacheKey, content, title, startLine, endLine) VALUES (?, ?, ?, ?, ?, ?)",
->>>>>>> v0.9.184-vscode
           [
             compute.path,
             compute.cacheKey,
@@ -175,21 +110,13 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
         );
 
         await db.run(
-<<<<<<< HEAD
-          `INSERT INTO code_snippets_tags (snippetId, tag) VALUES (?, ?)`,
-=======
           "INSERT INTO code_snippets_tags (snippetId, tag) VALUES (?, ?)",
->>>>>>> v0.9.184-vscode
           [lastID, tagString],
         );
       }
 
       yield {
-<<<<<<< HEAD
-        desc: `Indexing ${compute.path}`,
-=======
         desc: `Indexing ${getBasename(compute.path)}`,
->>>>>>> v0.9.184-vscode
         progress: i / results.compute.length,
         status: "indexing",
       };
@@ -199,17 +126,10 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
     for (let i = 0; i < results.del.length; i++) {
       const del = results.del[i];
       const deleted = await db.run(
-<<<<<<< HEAD
-        `DELETE FROM code_snippets WHERE path = ? AND cacheKey = ?`,
-        [del.path, del.cacheKey],
-      );
-      await db.run(`DELETE FROM code_snippets_tags WHERE snippetId = ?`, [
-=======
         "DELETE FROM code_snippets WHERE path = ? AND cacheKey = ?",
         [del.path, del.cacheKey],
       );
       await db.run("DELETE FROM code_snippets_tags WHERE snippetId = ?", [
->>>>>>> v0.9.184-vscode
         deleted.lastID,
       ]);
       markComplete([del], IndexResultType.Delete);
@@ -217,21 +137,13 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
 
     for (let i = 0; i < results.addTag.length; i++) {
       const snippetsWithPath = await db.all(
-<<<<<<< HEAD
-        `SELECT * FROM code_snippets WHERE cacheKey = ?`,
-=======
         "SELECT * FROM code_snippets WHERE cacheKey = ?",
->>>>>>> v0.9.184-vscode
         [results.addTag[i].cacheKey],
       );
 
       for (const snippet of snippetsWithPath) {
         await db.run(
-<<<<<<< HEAD
-          `INSERT INTO code_snippets_tags (snippetId, tag) VALUES (?, ?)`,
-=======
           "INSERT INTO code_snippets_tags (snippetId, tag) VALUES (?, ?)",
->>>>>>> v0.9.184-vscode
           [snippet.id, tagString],
         );
       }
@@ -258,11 +170,7 @@ export class CodeSnippetsCodebaseIndex implements CodebaseIndex {
 
   static async getForId(id: number): Promise<ContextItem> {
     const db = await SqliteDb.get();
-<<<<<<< HEAD
-    const row = await db.get(`SELECT * FROM code_snippets WHERE id = ?`, [id]);
-=======
     const row = await db.get("SELECT * FROM code_snippets WHERE id = ?", [id]);
->>>>>>> v0.9.184-vscode
 
     return {
       name: row.title,

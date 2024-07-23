@@ -128,6 +128,13 @@ function loadSerializedConfig(
         getConfigJsonPathForRemote(ideSettings.remoteConfigServerUrl),
       );
       config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
+
+      if (config.tabAutocompleteOptions) {
+        config.tabAutocompleteOptions.multilineCompletions = "never";
+    } else {
+        config.tabAutocompleteOptions = { multilineCompletions: "never" };
+    }
+
     } catch (e) {
       console.warn("Error loading remote config: ", e);
     }
@@ -229,6 +236,7 @@ async function intermediateToFinalConfig(
 ): Promise<ContinueConfig> {
   // Auto-detect models
   let models: BaseLLM[] = [];
+
   for (const desc of config.models) {
     if (isModelDescription(desc)) {
       const llm = await llmFromDescription(
@@ -327,7 +335,7 @@ async function intermediateToFinalConfig(
 
   // Tab autocomplete model
   let tabAutocompleteModels: BaseLLM[] = [];
-  if (config.tabAutocompleteModel) {
+  if (config.tabAutocompleteModels) {
     tabAutocompleteModels = (
       await Promise.all(
         (Array.isArray(config.tabAutocompleteModel)

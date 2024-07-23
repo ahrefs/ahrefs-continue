@@ -1,3 +1,5 @@
+import { Model } from "openai/resources";
+
 declare global {
   interface Window {
     ide?: "vscode";
@@ -853,6 +855,7 @@ export interface SerializedContinueConfig {
   env?: string[];
   allowAnonymousTelemetry?: boolean;
   models: ModelDescription[];
+  commandModels: ModelDescription[];
   systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
   requestOptions?: RequestOptions;
@@ -863,7 +866,7 @@ export interface SerializedContinueConfig {
   disableSessionTitles?: boolean;
   userToken?: string;
   embeddingsProvider?: EmbeddingsProviderDescription;
-  tabAutocompleteModel?: ModelDescription | ModelDescription[];
+  tabAutocompleteModels?: ModelDescription | ModelDescription[];
   tabAutocompleteOptions?: Partial<TabAutocompleteOptions>;
   ui?: ContinueUIConfig;
   reranker?: RerankerDescription;

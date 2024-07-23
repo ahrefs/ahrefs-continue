@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { IndexTag, IndexingProgressUpdate } from "..";
-=======
 import { IndexTag, IndexingProgressUpdate } from "../index.js";
->>>>>>> v0.9.184-vscode
 
 export enum IndexResultType {
   Compute = "compute",
@@ -18,10 +14,7 @@ export type MarkCompleteCallback = (
 
 export interface CodebaseIndex {
   artifactId: string;
-<<<<<<< HEAD
-=======
   relativeExpectedTime: number;
->>>>>>> v0.9.184-vscode
   update(
     tag: IndexTag,
     results: RefreshIndexResults,

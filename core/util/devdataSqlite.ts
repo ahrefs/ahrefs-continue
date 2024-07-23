@@ -1,13 +1,8 @@
 import fs from "fs";
-<<<<<<< HEAD
-import { DatabaseConnection } from "../indexing/refreshIndex";
-import { getDevDataSqlitePath } from "./paths";
-=======
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 import { DatabaseConnection } from "../indexing/refreshIndex.js";
 import { getDevDataSqlitePath } from "./paths.js";
->>>>>>> v0.9.184-vscode
 
 export class DevDataSqliteDb {
   static db: DatabaseConnection | null = null;
@@ -19,11 +14,6 @@ export class DevDataSqliteDb {
             model TEXT NOT NULL,
             provider TEXT NOT NULL,
             tokens_generated INTEGER NOT NULL,
-<<<<<<< HEAD
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`,
-    );
-=======
             tokens_prompt INTEGER NOT NULL DEFAULT 0,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )`,
@@ -41,7 +31,6 @@ export class DevDataSqliteDb {
         `ALTER TABLE tokens_generated ADD COLUMN tokens_prompt INTEGER NOT NULL DEFAULT 0;`,
       );
     }
->>>>>>> v0.9.184-vscode
   }
 
   public static async logTokensGenerated(
@@ -59,36 +48,20 @@ export class DevDataSqliteDb {
 
   public static async getTokensPerDay() {
     const db = await DevDataSqliteDb.get();
-<<<<<<< HEAD
-    // Return a sum of tokens_generated column aggregated by day
-    const result = await db?.all(
-      `SELECT date(timestamp) as day, sum(tokens_generated) as tokens
-        FROM tokens_generated
-        GROUP BY date(timestamp)`,
-      // WHERE model = ? AND provider = ?
-      // [model, provider],
-=======
     const result = await db?.all(
       // Return a sum of tokens_generated and tokens_prompt columns aggregated by day
       `SELECT date(timestamp) as day, sum(tokens_prompt) as promptTokens, sum(tokens_generated) as generatedTokens
         FROM tokens_generated
         GROUP BY date(timestamp)`,
->>>>>>> v0.9.184-vscode
     );
     return result ?? [];
   }
 
   public static async getTokensPerModel() {
     const db = await DevDataSqliteDb.get();
-<<<<<<< HEAD
-    // Return a sum of tokens_generated column aggregated by model
-    const result = await db?.all(
-      `SELECT model, sum(tokens_generated) as tokens
-=======
     const result = await db?.all(
       // Return a sum of tokens_generated and tokens_prompt columns aggregated by model
       `SELECT model, sum(tokens_prompt) as promptTokens, sum(tokens_generated) as generatedTokens
->>>>>>> v0.9.184-vscode
         FROM tokens_generated
         GROUP BY model`,
     );
@@ -101,11 +74,6 @@ export class DevDataSqliteDb {
       return DevDataSqliteDb.db;
     }
 
-<<<<<<< HEAD
-    const { open } = require("sqlite");
-    const sqlite3 = require("sqlite3");
-=======
->>>>>>> v0.9.184-vscode
     DevDataSqliteDb.db = await open({
       filename: devDataSqlitePath,
       driver: sqlite3.Database,

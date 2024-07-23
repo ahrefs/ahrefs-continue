@@ -1,29 +1,15 @@
 import * as fs from "fs";
-<<<<<<< HEAD
-import { PersistedSessionInfo, SessionInfo } from "..";
-import { getSessionFilePath, getSessionsListPath } from "./paths";
-
-class HistoryManager {
-  list(): SessionInfo[] {
-=======
 import { PersistedSessionInfo, SessionInfo } from "../index.js";
 import { ListHistoryOptions } from "../protocol/core.js";
 import { getSessionFilePath, getSessionsListPath } from "./paths.js";
 
 class HistoryManager {
   list(options: ListHistoryOptions): SessionInfo[] {
->>>>>>> v0.9.184-vscode
     const filepath = getSessionsListPath();
     if (!fs.existsSync(filepath)) {
       return [];
     }
     const content = fs.readFileSync(filepath, "utf8");
-<<<<<<< HEAD
-    const sessions = JSON.parse(content).filter((session: any) => {
-      // Filter out old format
-      return typeof session.session_id !== "string";
-    });
-=======
     let sessions = JSON.parse(content).filter((session: any) => {
       // Filter out old format
       return typeof session.session_id !== "string";
@@ -35,7 +21,6 @@ class HistoryManager {
       sessions = sessions.slice(offset, offset + options.limit);
     }
 
->>>>>>> v0.9.184-vscode
     return sessions;
   }
 
@@ -78,11 +63,7 @@ class HistoryManager {
       session.sessionId = sessionId;
       return session;
     } catch (e) {
-<<<<<<< HEAD
-      console.log(`Error migrating session: ${e}`);
-=======
       console.log(`Error loading session: ${e}`);
->>>>>>> v0.9.184-vscode
       return {
         history: [],
         title: "Failed to load session",
@@ -121,10 +102,6 @@ class HistoryManager {
         if (sessionInfo.sessionId === session.sessionId) {
           sessionInfo.title = session.title;
           sessionInfo.workspaceDirectory = session.workspaceDirectory;
-<<<<<<< HEAD
-          sessionInfo.dateCreated = String(Date.now());
-=======
->>>>>>> v0.9.184-vscode
           found = true;
           break;
         }
@@ -146,18 +123,10 @@ class HistoryManager {
         throw new Error(
           `It looks like there is a JSON formatting error in your sessions.json file (${sessionsListFilePath}). Please fix this before creating a new session.`,
         );
-<<<<<<< HEAD
-      } else {
-        throw new Error(
-          `It looks like there is a validation error in your sessions.json file (${sessionsListFilePath}). Please fix this before creating a new session. Error: ${error}`,
-        );
-      }
-=======
       }
       throw new Error(
         `It looks like there is a validation error in your sessions.json file (${sessionsListFilePath}). Please fix this before creating a new session. Error: ${error}`,
       );
->>>>>>> v0.9.184-vscode
     }
   }
 }

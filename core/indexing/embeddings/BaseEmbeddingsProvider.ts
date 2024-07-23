@@ -4,11 +4,8 @@ import {
   FetchFunction,
 } from "../../index.js";
 
-<<<<<<< HEAD
-=======
 import { MAX_CHUNK_SIZE } from "../../llm/constants.js";
 
->>>>>>> v0.9.184-vscode
 export interface IBaseEmbeddingsProvider extends EmbeddingsProvider {
   options: EmbedOptions;
   fetch: FetchFunction;
@@ -34,27 +31,20 @@ abstract class BaseEmbeddingsProvider implements IBaseEmbeddingsProvider {
       ...options,
     };
     this.fetch = fetch;
-<<<<<<< HEAD
-    this.id = this.options.model || this.constructor.name;
-=======
     // Include the `max_chunk_size` if it is not the default, since we need to create other indices for different chunk_sizes
     if (this.maxChunkSize !== MAX_CHUNK_SIZE) {
       this.id = `${this.constructor.name}::${this.options.model}::${this.maxChunkSize}`;
     } else {
       this.id = `${this.constructor.name}::${this.options.model}`;
     }
->>>>>>> v0.9.184-vscode
   }
 
   abstract embed(chunks: string[]): Promise<number[][]>;
 
-<<<<<<< HEAD
-=======
   get maxChunkSize(): number {
     return this.options.maxChunkSize ?? MAX_CHUNK_SIZE;
   }
 
->>>>>>> v0.9.184-vscode
   static getBatchedChunks(chunks: string[]): string[][] {
     if (!this.maxBatchSize) {
       console.warn(
@@ -79,8 +69,4 @@ abstract class BaseEmbeddingsProvider implements IBaseEmbeddingsProvider {
   }
 }
 
-<<<<<<< HEAD
 export default BaseEmbeddingsProvider;
-=======
-export default BaseEmbeddingsProvider;
->>>>>>> v0.9.184-vscode
