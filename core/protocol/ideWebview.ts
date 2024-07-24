@@ -1,4 +1,4 @@
-import type { ContextSubmenuItem } from "..";
+import type { ChatHistory, ContextSubmenuItem } from "..";
 import type { RangeInFileWithContents } from "../commands/util";
 import { ToIdeFromWebviewOrCoreProtocol } from "./ide.js";
 import { ToWebviewFromIdeOrCoreProtocol } from "./webview.js";
@@ -27,6 +27,7 @@ export type ToIdeFromWebviewProtocol = ToIdeFromWebviewOrCoreProtocol & {
   copyText: [{ text: string }, void];
   "jetbrains/editorInsetHeight": [{ height: number }, void];
   setGitHubAuthToken: [{ token: string }, void];
+  saveSessionChatHistory: [ { chatHistory: ChatHistory, defaultTitle: string }, void];
 };
 
 export type ToWebviewFromIdeProtocol = ToWebviewFromIdeOrCoreProtocol & {
@@ -60,4 +61,5 @@ export type ToWebviewFromIdeProtocol = ToWebviewFromIdeOrCoreProtocol & {
   setupLocalModel: [undefined, void];
   incrementFtc: [undefined, void];
   openOnboarding: [undefined, void];
+  sendSessionChatHistory: [undefined, void]
 };
