@@ -115,12 +115,12 @@ class VsCodeIde implements IDE {
               // Remove free trial models
               editConfigJson((config) => {
                 let tabAutocompleteModel = undefined;
-                if (Array.isArray(config.tabAutocompleteModel)) {
-                  tabAutocompleteModel = config.tabAutocompleteModel.filter(
+                if (Array.isArray(config.tabAutocompleteModels)) {
+                  tabAutocompleteModel = config.tabAutocompleteModels.filter(
                     (model) => model.provider !== "free-trial",
                   );
                 } else if (
-                  config.tabAutocompleteModel?.provider === "free-trial"
+                  config.tabAutocompleteModels?.provider === "free-trial"
                 ) {
                   tabAutocompleteModel = undefined;
                 }
@@ -178,7 +178,7 @@ class VsCodeIde implements IDE {
                 configJson.models = configJson.models.filter(
                   (model) => model.provider !== "free-trial",
                 );
-                configJson.tabAutocompleteModel = undefined;
+                configJson.tabAutocompleteModels = undefined;
                 return configJson;
               });
             } else if (selection === "Open config.json") {

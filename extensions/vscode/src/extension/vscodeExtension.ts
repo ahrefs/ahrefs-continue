@@ -1,5 +1,5 @@
 import { IContextProvider } from "core";
-import { ConfigHandler } from "core/config/ConfigHandler";
+import { IConfigHandler } from "core/config/IConfigHandler";
 import { Core } from "core/core";
 import { FromCoreProtocol, ToCoreProtocol } from "core/protocol/index";
 import { InProcessMessenger } from "core/util/messenger";
@@ -14,15 +14,13 @@ import {
   setupStatusBar,
 } from "../autocomplete/statusBar";
 import { registerAllCommands } from "../commands";
-import { ContinueGUIWebviewViewProvider } from "../ContinueGUIWebviewViewProvider";
 import { registerDebugTracker } from "../debug/debug";
+import { ContinueGUIWebviewViewProvider } from "../debugPanel";
 import { DiffManager } from "../diff/horizontal";
 import { VerticalPerLineDiffManager } from "../diff/verticalPerLine/manager";
 import { VsCodeIde } from "../ideProtocol";
 import { registerAllCodeLensProviders } from "../lang-server/codeLens";
-import { QuickEdit } from "../quickEdit/QuickEditQuickPick";
 import { setupRemoteConfigSync } from "../stubs/activation";
-import { getControlPlaneSessionInfo } from "../stubs/WorkOsAuthProvider";
 import { Battery } from "../util/battery";
 import { TabAutocompleteModel } from "../util/loadAutocompleteModel";
 import type { VsCodeWebviewProtocol } from "../webviewProtocol";
@@ -31,7 +29,7 @@ import { VsCodeMessenger } from "./VsCodeMessenger";
 export class VsCodeExtension {
   // Currently some of these are public so they can be used in testing (test/test-suites)
 
-  private configHandler: ConfigHandler;
+  private configHandler: IConfigHandler;
   private extensionContext: vscode.ExtensionContext;
   private ide: VsCodeIde;
   private tabAutocompleteModel: TabAutocompleteModel;
@@ -42,6 +40,7 @@ export class VsCodeExtension {
   webviewProtocolPromise: Promise<VsCodeWebviewProtocol>;
   private core: Core;
   private battery: Battery;
+  private quickActionsCodeLensDisposable?: vscode.Disposable;
 
   constructor(context: vscode.ExtensionContext) {
     let resolveWebviewProtocol: any = undefined;
@@ -55,6 +54,9 @@ export class VsCodeExtension {
     this.extensionContext = context;
     this.windowId = uuidv4();
 
+    const ideSettings = this.ide.getIdeSettingsSync();
+    const { remoteConfigServerUrl } = ideSettings;
+
     // Dependencies of core
     let resolveVerticalDiffManager: any = undefined;
     const verticalDiffManagerPromise = new Promise<VerticalPerLineDiffManager>(
@@ -63,7 +65,7 @@ export class VsCodeExtension {
       },
     );
     let resolveConfigHandler: any = undefined;
-    const configHandlerPromise = new Promise<ConfigHandler>((resolve) => {
+    const configHandlerPromise = new Promise<IConfigHandler>((resolve) => {
       resolveConfigHandler = resolve;
     });
     this.sidebar = new ContinueGUIWebviewViewProvider(
@@ -75,7 +77,7 @@ export class VsCodeExtension {
     // Sidebar
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
-        "continue.continueGUIView",
+        "ahrefs-continue.continueGUIView",
         this.sidebar,
         {
           webviewOptions: { retainContextWhenHidden: true },
@@ -86,14 +88,14 @@ export class VsCodeExtension {
 
     // Config Handler with output channel
     const outputChannel = vscode.window.createOutputChannel(
-      "Continue - LLM Prompt/Completion",
+      "Ahrefs-Continue - LLM Prompt/Completion",
     );
     const inProcessMessenger = new InProcessMessenger<
       ToCoreProtocol,
       FromCoreProtocol
     >();
 
-   new VsCodeMessenger(
+    new VsCodeMessenger(
       inProcessMessenger,
       this.sidebar.webviewProtocol,
       this.ide,
@@ -102,14 +104,14 @@ export class VsCodeExtension {
     );
 
     this.core = new Core(inProcessMessenger, this.ide, async (log: string) => {
-        outputChannel.appendLine(
-          "==========================================================================",
-        );
-        outputChannel.appendLine(
-          "==========================================================================",
-        );
-        outputChannel.append(log);
-      });
+      outputChannel.appendLine(
+        "==========================================================================",
+      );
+      outputChannel.appendLine(
+        "==========================================================================",
+      );
+      outputChannel.append(log);
+    });
     this.configHandler = this.core.configHandler;
     resolveConfigHandler?.(this.configHandler);
 
@@ -132,7 +134,7 @@ export class VsCodeExtension {
         context,
         this.diffManager,
         this.verticalDiffManager.filepathToCodeLens,
-        config
+        config,
       );
 
       this.verticalDiffManager.refreshCodeLens =
@@ -148,12 +150,12 @@ export class VsCodeExtension {
         context,
         this.diffManager,
         this.verticalDiffManager.filepathToCodeLens,
-        newConfig
+        newConfig,
       );
     });
 
     // Tab autocomplete
-    const config = vscode.workspace.getConfiguration("ahrefs-continue");
+    const config = vscode.workspace.getConfiguration("continue");
     const enabled = config.get<boolean>("enableTabAutocomplete");
 
     // Register inline completion provider
@@ -176,14 +178,6 @@ export class VsCodeExtension {
     context.subscriptions.push(this.battery);
     context.subscriptions.push(monitorBatteryChanges(this.battery));
 
-    const quickEdit = new QuickEdit(
-      this.verticalDiffManager,
-      this.configHandler,
-      this.sidebar.webviewProtocol,
-      this.ide,
-      context,
-    );
-
     // Commands
     registerAllCommands(
       context,
@@ -195,8 +189,6 @@ export class VsCodeExtension {
       this.verticalDiffManager,
       this.core.continueServerClientPromise,
       this.battery,
-      quickEdit,
-      this.core
     );
 
     registerDebugTracker(this.sidebar.webviewProtocol, this.ide);
@@ -250,13 +242,6 @@ export class VsCodeExtension {
     vscode.authentication.onDidChangeSessions((e) => {
       if (e.provider.id === "github") {
         this.configHandler.reloadConfig();
-      } else if (e.provider.id === "continue") {
-        this.webviewProtocolPromise.then(async (webviewProtocol) => {
-          const sessionInfo = await getControlPlaneSessionInfo(true);
-          webviewProtocol.request("didChangeControlPlaneSessionInfo", {
-            sessionInfo,
-          });
-        });
       }
     });
 

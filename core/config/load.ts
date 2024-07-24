@@ -368,6 +368,7 @@ async function intermediateToFinalConfig(
         }),
       )
     ).filter((x) => x !== undefined) as BaseLLM[];
+  }
 
   // Command model
   let commandModels: BaseLLM[] = [];
@@ -475,7 +476,6 @@ async function intermediateToFinalConfig(
     tabAutocompleteModels,
     reranker: config.reranker as any,
   };
-}
 }
 
 function finalToBrowserConfig(

@@ -3,7 +3,6 @@ import path from "path";
 import * as vscode from "vscode";
 import { getPlatform } from "../../../util/util";
 import { getExtensionUri } from "../../../util/vscode";
-import { QuickEditShowParams } from "../../../quickEdit/QuickEditQuickPick";
 
 interface TutorialCodeLensItems {
   lineIncludes: string;
@@ -45,7 +44,7 @@ const actions: TutorialCodeLensItems[] = [
       {
         title: `${cmdCtrl}+I`,
         command: "continue.quickEdit",
-        arguments: [{ initialPrompt: "Add comments" } as QuickEditShowParams],
+        arguments: ["Add comments"],
       },
     ],
   },
