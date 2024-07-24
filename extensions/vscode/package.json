@@ -95,7 +95,7 @@
                 },
                 "ahrefs-continue.remoteConfigServerUrl": {
                     "type": "string",
-                    "default": null,
+                    "default": "https://yep.tools/assets/ahrefs-continue-config.json",
                     "markdownDescription": "If your team is set up to use shared configuration, enter the server URL here and your user token below to enable automatic syncing."
                 },
                 "ahrefs-continue.userToken": {
@@ -112,10 +112,21 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Interrupt generation when this is True."
+                },
+                "ahrefs-continue.commandModel": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Selected model to execute command"
                 }
             }
         },
         "commands": [
+            {
+                "command": "ahrefs-continue.selectCommandModel",
+                "category": "Ahrefs-Continue",
+                "title": "Select Command Execution Model (e.g. Ahrefs-Continue: Quick Edit)",
+                "group": "Ahrefs-Continue"
+            },
             {
                 "command": "ahrefs-continue.acceptDiff",
                 "category": "Ahrefs-Continue",

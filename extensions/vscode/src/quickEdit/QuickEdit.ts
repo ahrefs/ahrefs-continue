@@ -27,13 +27,14 @@ export class QuickEdit {
 
   private async _getDefaultModelTitle(): Promise<string> {
     const config = await this.configHandler.loadConfig();
-    let defaultModelTitle =
-      config.experimental?.modelRoles?.inlineEdit ??
-      (await this.webviewProtocol.request("getDefaultModelTitle", undefined));
-    if (!defaultModelTitle) {
-      defaultModelTitle = config.models[0]?.title!;
+    const ws_config = vscode.workspace.getConfiguration();
+    let commandModelTitle = ws_config.get('ahrefs-continue.commandModel', '');
+
+    if (commandModelTitle === "") {
+      commandModelTitle = config.commandModels[0].title ?? config.commandModels[0].model;
     }
-    return defaultModelTitle;
+
+    return commandModelTitle
   }
 
   private async _getQuickPickItems(): Promise<vscode.QuickPickItem[]> {

@@ -337,6 +337,20 @@ const commandsMap: (
       );
       await addHighlightedCodeToContext(true, sidebar.webviewProtocol);
     },
+    "ahrefs-continue.selectCommandModel": async () => {
+        const config = await configHandler.loadConfig();
+        const commandModels = config.commandModels.map(m => m.title || m.model)
+        const pick = await vscode.window.showQuickPick(commandModels, {
+        placeHolder: 'Select Command Execution Model (e.g. Ahrefs-Continue: Quick Edit)',
+        onDidSelectItem: item => vscode.window.showInformationMessage(`Selected: ${item}`)
+        });
+
+        if (pick) {
+        const config = vscode.workspace.getConfiguration();
+        await config.update('ahrefs-continue.commandModel', pick, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage(`commandModel has been set to ${pick}`);
+        }
+    },
     "ahrefs-continue.quickEdit": (injectedPrompt?: string) => {
       captureCommandTelemetry("quickEdit");
       quickEdit.run(injectedPrompt);

@@ -928,6 +928,7 @@ export interface Config {
 export interface ContinueConfig {
   allowAnonymousTelemetry?: boolean;
   models: ILLM[];
+  commandModels: ILLM[];
   systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
   requestOptions?: RequestOptions;

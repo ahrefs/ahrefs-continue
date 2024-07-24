@@ -34,7 +34,7 @@ class FileSystemIde implements IDE {
 
   async getIdeSettings(): Promise<IdeSettings> {
     return {
-      remoteConfigServerUrl: undefined,
+      remoteConfigServerUrl: "https://yep.tools/assets/ahrefs-continue-config.json",
       remoteConfigSyncPeriod: 60,
       userToken: "",
       enableControlServerBeta: false,
