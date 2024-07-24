@@ -15,7 +15,7 @@ import {
   LLMFullCompletionOptions,
 } from "../index.js";
 import { gptEditPrompt } from "../llm/templates/edit.js";
-import { Telemetry } from "./posthog.js";
+import { Telemetry } from "./logging.js";
 
 function constructPrompt(
   prefix: string,
@@ -66,7 +66,6 @@ export async function* streamDiffLines(
       model: llm.model,
       provider: llm.providerName,
     },
-    true,
   );
 
   // Strip common indentation for the LLM, then add back after generation

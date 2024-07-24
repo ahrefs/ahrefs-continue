@@ -8,7 +8,7 @@ import { CodebaseIndexer, PauseToken } from "core/indexing/indexCodebase";
 import { logDevData } from "core/util/devdata";
 import historyManager from "core/util/history";
 import { Message } from "core/util/messenger";
-import { Telemetry } from "core/util/posthog";
+import { Telemetry } from "core/util/logging";
 import { streamDiffLines } from "core/util/verticalEdit";
 import { v4 as uuidv4 } from "uuid";
 import { IpcMessenger } from "./messenger";

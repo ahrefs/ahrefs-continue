@@ -7,7 +7,7 @@ import {
     IdeSettings,
     ILLM,
   } from "../index.js";
-  import { Telemetry } from "../util/posthog.js";
+  import { Telemetry } from "../util/logging.js";
   import { IConfigHandler } from "./IConfigHandler.js";
   import { finalToBrowserConfig, loadFullConfigNode } from "./load.js";
   

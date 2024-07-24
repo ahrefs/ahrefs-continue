@@ -20,7 +20,7 @@ import {
   COUNT_COMPLETION_REJECTED_AFTER,
   DEFAULT_AUTOCOMPLETE_OPTS,
 } from "../util/parameters.js";
-import { Telemetry } from "../util/posthog.js";
+import { Telemetry } from "../util/logging.js";
 import { getRangeInString } from "../util/ranges.js";
 import { ImportDefinitionsService } from "./ImportDefinitionsService.js";
 import { BracketMatchingService } from "./brackets.js";
@@ -210,8 +210,7 @@ export class CompletionProvider {
           modelProvider: outcome.modelProvider,
           time: outcome.time,
           cacheHit: outcome.cacheHit,
-        },
-        true,
+        }
       );
       this._outcomes.delete(completionId);
 
@@ -367,8 +366,7 @@ export class CompletionProvider {
         "autocomplete",
         {
           ...restOfOutcome,
-        },
-        true,
+        }
       );
       this._logRejectionTimeouts.delete(completionId);
     }, COUNT_COMPLETION_REJECTED_AFTER);

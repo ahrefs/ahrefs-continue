@@ -1,5 +1,5 @@
 import { constants, getTimestamp } from "../../deploy/constants";
-import { Telemetry } from "../../util/posthog";
+import { Telemetry } from "../../util/logging";
 
 export async function getHeaders() {
   return {

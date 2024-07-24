@@ -8,7 +8,7 @@ import {
 import { ControlPlaneClient } from "../../control-plane/client";
 import { TeamAnalytics } from "../../control-plane/TeamAnalytics";
 import ContinueProxy from "../../llm/llms/stubs/ContinueProxy";
-import { Telemetry } from "../../util/posthog";
+import { Telemetry } from "../../util/logging";
 import {
   defaultContextProvidersJetBrains,
   defaultContextProvidersVsCode,

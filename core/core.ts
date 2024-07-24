@@ -29,7 +29,7 @@ import { fetchwithRequestOptions } from "./util/fetchWithOptions.js";
 import historyManager from "./util/history.js";
 import type { IMessenger, Message } from "./util/messenger";
 import { editConfigJson } from "./util/paths.js";
-import { Telemetry } from "./util/posthog.js";
+import { Telemetry } from "./util/logging.js";
 import { streamDiffLines } from "./util/verticalEdit.js";
 
 export class Core {

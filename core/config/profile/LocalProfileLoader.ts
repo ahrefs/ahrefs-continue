@@ -1,5 +1,5 @@
 import { ContinueConfig, ContinueRcJson, IDE, IdeSettings } from "../..";
-import { Telemetry } from "../../util/posthog";
+import { Telemetry } from "../../util/logging";
 import { loadFullConfigNode } from "../load";
 import { IProfileLoader } from "./IProfileLoader";
 

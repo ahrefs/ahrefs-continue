@@ -10,7 +10,7 @@ import { IConfigHandler } from "core/config/IConfigHandler";
 import { ContinueServerClient } from "core/continueServer/stubs/client";
 import { GlobalContext } from "core/util/GlobalContext";
 import { getConfigJsonPath, getDevDataFilePath } from "core/util/paths";
-import { Telemetry } from "core/util/posthog";
+import { Telemetry } from "core/util/logging";
 import readLastLines from "read-last-lines";
 import {
   StatusBarStatus,

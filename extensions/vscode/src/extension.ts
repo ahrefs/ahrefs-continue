@@ -3,7 +3,7 @@
  */
 
 import { setupCa } from "core/util/ca";
-import { Telemetry } from "core/util/posthog";
+import { Telemetry } from "core/util/logging";
 import * as vscode from "vscode";
 import { getExtensionVersion } from "./util/util";
 
@@ -41,8 +41,5 @@ export function deactivate() {
     {
       extensionVersion: getExtensionVersion(),
     },
-    true,
   );
-
-  Telemetry.shutdownPosthogClient();
 }

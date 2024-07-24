@@ -5,7 +5,7 @@ import {
   getContinueWorkspaceConfig,
 } from "../../../util/workspaceConfig";
 import { isTutorialFile } from "./TutorialCodeLensProvider";
-import { Telemetry } from "core/util/posthog";
+import { Telemetry } from "core/util/logging";
 
 export const ENABLE_QUICK_ACTIONS_KEY = "enableQuickActions";
 

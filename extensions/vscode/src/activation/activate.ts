@@ -1,5 +1,5 @@
 import { getTsConfigPath, getContinueRcPath, migrate } from "core/util/paths";
-import { Telemetry } from "core/util/posthog";
+import { Telemetry } from "core/util/logging";
 import path from "node:path";
 import * as vscode from "vscode";
 import { VsCodeExtension } from "../extension/VsCodeExtension";
@@ -44,8 +44,7 @@ export async function activateExtension(context: vscode.ExtensionContext) {
       "install",
       {
         extensionVersion: getExtensionVersion(),
-      },
-      true,
+      }
     );
   }
 
