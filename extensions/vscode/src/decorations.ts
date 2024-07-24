@@ -112,11 +112,7 @@ class DecorationManager {
   }
 
   deleteDecoration(key: DecorationKey) {
-<<<<<<< HEAD
-    let decorationTypes = this.editorToDecorations.get(key.editorUri);
-=======
     const decorationTypes = this.editorToDecorations.get(key.editorUri);
->>>>>>> v0.9.184-vscode
     if (!decorationTypes) {
       return;
     }
@@ -132,20 +128,12 @@ class DecorationManager {
   }
 
   deleteAllDecorations(editorUri: string) {
-<<<<<<< HEAD
-    let decorationTypes = this.editorToDecorations.get(editorUri)?.keys();
-=======
     const decorationTypes = this.editorToDecorations.get(editorUri)?.keys();
->>>>>>> v0.9.184-vscode
     if (!decorationTypes) {
       return;
     }
     this.editorToDecorations.delete(editorUri);
-<<<<<<< HEAD
-    for (let decorationType of decorationTypes) {
-=======
     for (const decorationType of decorationTypes) {
->>>>>>> v0.9.184-vscode
       this.rerenderDecorations(editorUri, decorationType);
     }
   }
@@ -168,27 +156,6 @@ function constructBaseKey(
   };
 }
 
-<<<<<<< HEAD
-const gutterSpinnerDecorationType =
-  vscode.window.createTextEditorDecorationType({
-    gutterIconPath: vscode.Uri.file(
-      path.join(__dirname, "..", "media", "spinner.gif"),
-    ),
-    gutterIconSize: "contain",
-  });
-
-export function showGutterSpinner(
-  editor: vscode.TextEditor,
-  lineno: number,
-): DecorationKey {
-  const key = constructBaseKey(editor, lineno, gutterSpinnerDecorationType);
-  decorationManager.addDecoration(key);
-
-  return key;
-}
-
-=======
->>>>>>> v0.9.184-vscode
 export function showLintMessage(
   editor: vscode.TextEditor,
   lineno: number,
@@ -213,11 +180,7 @@ export function showLintMessage(
 export function highlightCode(
   editor: vscode.TextEditor,
   range: vscode.Range,
-<<<<<<< HEAD
-  removeOnClick: boolean = true,
-=======
   removeOnClick = true,
->>>>>>> v0.9.184-vscode
 ): DecorationKey {
   const decorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: "rgb(255, 255, 0, 0.1)",
