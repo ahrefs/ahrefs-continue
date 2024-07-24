@@ -21,7 +21,7 @@ import { CodebaseIndexer, PauseToken } from "./indexing/CodebaseIndexer.js";
 import { DocsService } from "./indexing/docs/DocsService";
 import TransformersJsEmbeddingsProvider from "./indexing/embeddings/TransformersJsEmbeddingsProvider.js";
 import Ollama from "./llm/llms/Ollama.js";
-import type { FromCoreProtocol, ToCoreProtocol } from "./protocol";
+import type { FromCoreProtocol, ToCoreProtocol } from "./protocol/index";
 import { GlobalContext } from "./util/GlobalContext.js";
 import { logDevData } from "./util/devdata.js";
 import { DevDataSqliteDb } from "./util/devdataSqlite.js";

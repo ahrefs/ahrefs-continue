@@ -199,6 +199,7 @@ export class VerticalPerLineDiffManager {
   async streamEdit(
     input: string,
     modelTitle: string | undefined,
+    context?: vscode.ExtensionContext,
     onlyOneInsertion?: boolean,
     quickEdit?: string,
     range?: vscode.Range,
@@ -330,6 +331,7 @@ export class VerticalPerLineDiffManager {
           getMarkdownLanguageTagForFile(filepath),
           onlyOneInsertion,
         ),
+        context
       );
 
       // enable a listener for user edits to file while diff is open

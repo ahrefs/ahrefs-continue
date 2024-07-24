@@ -1,9 +1,16 @@
-import { FromWebviewProtocol, ToWebviewProtocol } from "core/protocol";
 import { Message } from "core/util/messenger";
 import fs from "node:fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
+import {
+  ToCoreFromWebviewProtocol,
+  ToWebviewFromCoreProtocol,
+} from "../../../core/protocol/coreWebview";
+import {
+  ToIdeFromWebviewProtocol,
+  ToWebviewFromIdeProtocol,
+} from "../../../core/protocol/ideWebview";
 import { IMessenger } from "../../../core/util/messenger";
 import { getExtensionUri } from "./util/vscode";
 
@@ -25,11 +32,19 @@ export async function showTutorial() {
   await vscode.window.showTextDocument(doc, { preview: false });
 }
 
+export type ToCoreOrIdeFromWebviewProtocol = ToCoreFromWebviewProtocol &
+  ToIdeFromWebviewProtocol;
+type FullToWebviewFromIdeOrCoreProtocol = ToWebviewFromIdeProtocol &
+  ToWebviewFromCoreProtocol;
 export class VsCodeWebviewProtocol
-  implements IMessenger<FromWebviewProtocol, ToWebviewProtocol>
+  implements
+    IMessenger<
+      ToCoreOrIdeFromWebviewProtocol,
+      FullToWebviewFromIdeOrCoreProtocol
+    >
 {
   listeners = new Map<
-    keyof FromWebviewProtocol,
+    keyof ToCoreOrIdeFromWebviewProtocol,
     ((message: Message) => any)[]
   >();
 
@@ -43,11 +58,13 @@ export class VsCodeWebviewProtocol
     return id;
   }
 
-  on<T extends keyof FromWebviewProtocol>(
+  on<T extends keyof ToCoreOrIdeFromWebviewProtocol>(
     messageType: T,
     handler: (
-      message: Message<FromWebviewProtocol[T][0]>,
-    ) => Promise<FromWebviewProtocol[T][1]> | FromWebviewProtocol[T][1],
+      message: Message<ToCoreOrIdeFromWebviewProtocol[T][0]>,
+    ) =>
+      | Promise<ToCoreOrIdeFromWebviewProtocol[T][1]>
+      | ToCoreOrIdeFromWebviewProtocol[T][1],
   ): void {
     if (!this.listeners.has(messageType)) {
       this.listeners.set(messageType, []);
@@ -179,11 +196,11 @@ export class VsCodeWebviewProtocol
   }
 
   constructor(private readonly reloadConfig: () => void) {}
-  invoke<T extends keyof FromWebviewProtocol>(
+  invoke<T extends keyof ToCoreOrIdeFromWebviewProtocol>(
     messageType: T,
-    data: FromWebviewProtocol[T][0],
+    data: ToCoreOrIdeFromWebviewProtocol[T][0],
     messageId?: string,
-  ): FromWebviewProtocol[T][1] {
+  ): ToCoreOrIdeFromWebviewProtocol[T][1] {
     throw new Error("Method not implemented.");
   }
 
@@ -191,10 +208,10 @@ export class VsCodeWebviewProtocol
     throw new Error("Method not implemented.");
   }
 
-  public request<T extends keyof ToWebviewProtocol>(
+  public request<T extends keyof FullToWebviewFromIdeOrCoreProtocol>(
     messageType: T,
-    data: ToWebviewProtocol[T][0],
-  ): Promise<ToWebviewProtocol[T][1]> {
+    data: FullToWebviewFromIdeOrCoreProtocol[T][0],
+  ): Promise<FullToWebviewFromIdeOrCoreProtocol[T][1]> {
     const messageId = uuidv4();
     return new Promise(async (resolve) => {
       let i = 0;
@@ -210,7 +227,7 @@ export class VsCodeWebviewProtocol
 
       this.send(messageType, data, messageId);
       const disposable = this.webview.onDidReceiveMessage(
-        (msg: Message<ToWebviewProtocol[T][1]>) => {
+        (msg: Message<FullToWebviewFromIdeOrCoreProtocol[T][1]>) => {
           if (msg.messageId === messageId) {
             resolve(msg.data);
             disposable?.dispose();

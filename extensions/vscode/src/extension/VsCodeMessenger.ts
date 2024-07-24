@@ -3,7 +3,7 @@ import {
   FromCoreProtocol,
   FromWebviewProtocol,
   ToCoreProtocol,
-} from "core/protocol";
+} from "core/protocol/index";
 import { ToWebviewFromCoreProtocol } from "core/protocol/coreWebview";
 import { ToIdeFromWebviewOrCoreProtocol } from "core/protocol/ide";
 import { ToIdeFromCoreProtocol } from "core/protocol/ideCore";

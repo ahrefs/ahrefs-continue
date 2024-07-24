@@ -42,48 +42,39 @@ function linesMatch(lineA: string, lineB: string, linesBetween = 0): boolean {
  * Also return a version of the line with correct indentation if needs fixing
  */
 export function matchLine(
-  newLine: string,
-  oldLines: string[],
-  permissiveAboutIndentation = false,
-): MatchLineResult {
-  // Only match empty lines if it's the next one:
-  if (newLine.trim() === "" && oldLines[0]?.trim() === "") {
-    return {
-      matchIndex: 0,
-      isPerfectMatch: true,
-      newLine: newLine.trim(),
-    };
-  }
-
-  const isEndBracket = END_BRACKETS.includes(newLine.trim());
-
-  for (let i = 0; i < oldLines.length; i++) {
-    // Don't match end bracket lines if too far away
-    if (i > 4 && isEndBracket) {
-      return { matchIndex: -1, isPerfectMatch: false, newLine };
+    newLine: string,
+    oldLines: string[],
+    permissiveAboutIndentation = false,
+  ): [number, boolean, string] {
+    // Only match empty lines if it's the next one:
+    if (newLine.trim() === "" && oldLines[0]?.trim() === "") {
+      return [0, true, newLine.trim()];
     }
-
-    if (linesMatchPerfectly(newLine, oldLines[i])) {
-      return { matchIndex: i, isPerfectMatch: true, newLine };
-    }
-    if (linesMatch(newLine, oldLines[i], i)) {
-      // This is a way to fix indentation, but only for sufficiently long lines to avoid matching whitespace or short lines
-      if (
-        newLine.trimStart() === oldLines[i].trimStart() &&
-        (permissiveAboutIndentation || newLine.trim().length > 8)
-      ) {
-        return {
-          matchIndex: i,
-          isPerfectMatch: true,
-          newLine: oldLines[i],
-        };
+  
+    const isEndBracket = END_BRACKETS.includes(newLine.trim());
+    for (let i = 0; i < oldLines.length; i++) {
+      // Don't match end bracket lines if too far away
+      if (i > 4 && isEndBracket) {
+        return [-1, false, newLine];
       }
-      return { matchIndex: i, isPerfectMatch: false, newLine };
+  
+      if (linesMatchPerfectly(newLine, oldLines[i])) {
+        return [i, true, newLine];
+      }
+      if (linesMatch(newLine, oldLines[i], i)) {
+        // This is a way to fix indentation, but only for sufficiently long lines to avoid matching whitespace or short lines
+        if (
+          newLine.trimStart() === oldLines[i].trimStart() &&
+          (permissiveAboutIndentation || newLine.trim().length > 8)
+        ) {
+          return [i, true, oldLines[i]];
+        }
+        return [i, false, newLine];
+      }
     }
+  
+    return [-1, false, newLine];
   }
-
-  return { matchIndex: -1, isPerfectMatch: false, newLine };
-}
 
 /**
  * Convert a stream of arbitrary chunks to a stream of lines

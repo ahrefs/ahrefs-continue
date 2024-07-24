@@ -1,7 +1,7 @@
 import { IContextProvider } from "core";
 import { ConfigHandler } from "core/config/ConfigHandler";
 import { Core } from "core/core";
-import { FromCoreProtocol, ToCoreProtocol } from "core/protocol";
+import { FromCoreProtocol, ToCoreProtocol } from "core/protocol/index";
 import { InProcessMessenger } from "core/util/messenger";
 import { getConfigJsonPath, getConfigTsPath } from "core/util/paths";
 import fs from "fs";
@@ -93,7 +93,7 @@ export class VsCodeExtension {
       FromCoreProtocol
     >();
 
-    new VsCodeMessenger(
+   new VsCodeMessenger(
       inProcessMessenger,
       this.sidebar.webviewProtocol,
       this.ide,
@@ -102,14 +102,14 @@ export class VsCodeExtension {
     );
 
     this.core = new Core(inProcessMessenger, this.ide, async (log: string) => {
-      outputChannel.appendLine(
-        "==========================================================================",
-      );
-      outputChannel.appendLine(
-        "==========================================================================",
-      );
-      outputChannel.append(log);
-    });
+        outputChannel.appendLine(
+          "==========================================================================",
+        );
+        outputChannel.appendLine(
+          "==========================================================================",
+        );
+        outputChannel.append(log);
+      });
     this.configHandler = this.core.configHandler;
     resolveConfigHandler?.(this.configHandler);
 
@@ -132,7 +132,7 @@ export class VsCodeExtension {
         context,
         this.diffManager,
         this.verticalDiffManager.filepathToCodeLens,
-        config,
+        config
       );
 
       this.verticalDiffManager.refreshCodeLens =
@@ -148,12 +148,12 @@ export class VsCodeExtension {
         context,
         this.diffManager,
         this.verticalDiffManager.filepathToCodeLens,
-        newConfig,
+        newConfig
       );
     });
 
     // Tab autocomplete
-    const config = vscode.workspace.getConfiguration("continue");
+    const config = vscode.workspace.getConfiguration("ahrefs-continue");
     const enabled = config.get<boolean>("enableTabAutocomplete");
 
     // Register inline completion provider

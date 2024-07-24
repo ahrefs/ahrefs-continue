@@ -324,17 +324,17 @@ export class VerticalPerLineDiffHandler implements vscode.Disposable {
     }
   }
 
-  async run(diffLineGenerator: AsyncGenerator<DiffLine>, context: vscode.ExtensionContext) {
+  async run(diffLineGenerator: AsyncGenerator<DiffLine>, context?: vscode.ExtensionContext) {
     try {
       // As an indicator of loading
       this.updateIndexLineDecorations();
 
-      for await (let diffLine of diffLineGenerator) {
+      for await (const diffLine of diffLineGenerator) {
         if (this.isCancelled) {
           return;
         }
-        if (context.globalState.get<boolean>("interruptGeneration", false)) {
-            context.globalState.update("interruptGeneration", false)
+        if (context && context.globalState.get<boolean>("interruptGeneration", false)) {
+            context.globalState.update("interruptGeneration", false);
             break;
         }
         await this.queueDiffLine(diffLine);
