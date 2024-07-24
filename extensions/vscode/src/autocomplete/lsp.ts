@@ -11,6 +11,9 @@ import {
 import { intersection } from "core/util/ranges";
 import * as vscode from "vscode";
 import type Parser from "web-tree-sitter";
+import * as path from 'path';
+import * as fs from 'fs';
+import * as levenshtein from 'fast-levenshtein';
 
 type GotoProviderName =
   | "vscode.executeDefinitionProvider"
@@ -106,6 +109,40 @@ function findChildren(
   return matchingNodes;
 }
 
+function isAbsolutePath(inputPath: string): boolean {
+    return path.isAbsolute(inputPath);
+  }
+  
+  function findFunctionDefinitions(node: Parser.SyntaxNode, functionName: string): Array<Parser.SyntaxNode> {
+    const functions = [];
+    const queue = [node];
+  
+    while (queue.length > 0) {
+      const currentNode = queue.shift();
+  
+      if (currentNode) {
+        if (currentNode.type === 'function_declaration' || currentNode.type === 'method_definition') {
+          const nameNode = currentNode.childForFieldName('name');
+          if (nameNode && nameNode.text === functionName) {
+            functions.push(currentNode);
+          }
+          else if (functionName === "*") {
+              functions.push(currentNode);
+          }
+        }
+  
+        for (let i = 0; i < currentNode.childCount; i++) {
+          const childNode = currentNode.child(i);
+          if (childNode) {
+            queue.push(childNode);
+          }
+        }
+      }
+    }
+  
+    return functions;
+  }
+
 function findTypeIdentifiers(node: Parser.SyntaxNode): Parser.SyntaxNode[] {
   return findChildren(
     node,
@@ -116,6 +153,42 @@ function findTypeIdentifiers(node: Parser.SyntaxNode): Parser.SyntaxNode[] {
         childNode.text[0].toUpperCase() === childNode.text[0]),
   );
 }
+
+function findClosestMatchingFile(filepath: string): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+      const directory = path.dirname(filepath);
+      const targetFileName = path.basename(filepath);
+  
+      // Read the directory contents
+      fs.readdir(directory, (err, files) => {
+        if (err) {
+          console.error('Error reading directory:', err);
+          reject(err);
+          return;
+        }
+  
+        // Initialize variables to keep track of the closest match
+        let closestFile: string | null = null;
+        let closestDistance = Infinity;
+  
+        // Iterate over each file in the directory
+        files.forEach(file => {
+          const distance = levenshtein.get(targetFileName, file);
+  
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestFile = file;
+          }
+        });
+  
+        if (closestFile) {
+          resolve(path.resolve(directory, closestFile));
+        } else {
+          resolve(undefined);
+        }
+      });
+    });
+  }
 
 async function crawlTypes(
   rif: RangeInFile | RangeInFileWithContents,
