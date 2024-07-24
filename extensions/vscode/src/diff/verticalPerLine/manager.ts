@@ -325,6 +325,22 @@ export class VerticalPerLineDiffManager {
         context.globalState.update(interruptGenerationKey, false);
     }
 
+    if (context) {
+        const dontShowAgainKey = 'dontShowInfoAgain';
+        const showInfo = context.globalState.get<boolean>(dontShowAgainKey, true);
+
+        if (showInfo) {
+            const message = "Interrupt generation by pressing CMD+SHIFT+C on Mac or CTRL+SHIFT+C on Windows.";
+            const dontShowAgainButton = "Don't show this again";
+
+            vscode.window.showInformationMessage(message, dontShowAgainButton).then(selection => {
+                if (selection === dontShowAgainButton) {
+                    context.globalState.update(dontShowAgainKey, false);
+                }
+            });
+        }
+    }
+    
     try {
       await diffHandler.run(
         streamDiffLines(

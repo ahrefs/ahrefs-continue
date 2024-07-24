@@ -328,6 +328,11 @@
                 "mac": "cmd+k cmd+a",
                 "key": "ctrl+k ctrl+a",
                 "when": "!terminalFocus"
+            },
+            {
+                "command": "ahrefs-continue.interruptGeneration",
+                "mac": "cmd+shift+c",
+                "key": "ctrl+shift+c"
             }
         ],
         "submenus": [

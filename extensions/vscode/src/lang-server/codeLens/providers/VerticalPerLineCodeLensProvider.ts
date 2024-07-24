@@ -76,7 +76,7 @@ export class VerticalPerLineCodeLensProvider
               ? ` (${getAltOrOption()}${getMetaKeyLabel()}N)`
               : ""
           }`,
-          command: "continue.rejectVerticalDiffBlock",
+          command: "ahrefs-continue.rejectVerticalDiffBlock",
           arguments: [filepath, i],
         }),
       );
