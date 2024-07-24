@@ -9,7 +9,7 @@ import { VsCodeWebviewProtocol } from "./webviewProtocol";
 export class ContinueGUIWebviewViewProvider
   implements vscode.WebviewViewProvider
 {
-  public static readonly viewType = "continue.continueGUIView";
+  public static readonly viewType = "ahrefs-continue.ahrefs-continueGUIView";
   public webviewProtocol: VsCodeWebviewProtocol;
 
   resolveWebviewView(

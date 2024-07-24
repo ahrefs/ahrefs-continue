@@ -67,7 +67,7 @@ export class VerticalPerLineCodeLensProvider
               ? ` (${getAltOrOption()}${getMetaKeyLabel()}Y)`
               : ""
           }`,
-          command: "continue.acceptVerticalDiffBlock",
+          command: "ahrefs-continue.acceptVerticalDiffBlock",
           arguments: [filepath, i],
         }),
         new vscode.CodeLens(range, {

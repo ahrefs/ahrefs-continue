@@ -32,8 +32,8 @@ class ContinueQuickFixProvider implements vscode.CodeActionProvider {
     );
 
     quickFix.command = {
-      command: "continue.quickFix",
-      title: "Continue Quick Fix",
+      command: "ahrefs-continue.quickFix",
+      title: "Ahrefs-Continue Quick Fix",
       arguments: [surroundingRange, diagnostic.message],
     };
 

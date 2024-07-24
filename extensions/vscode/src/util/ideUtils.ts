@@ -547,7 +547,7 @@ export class VsCodeIdeUtils {
     );
     if (parentDir) {
       // Check if the repository is already cached
-      const cachedRepo = this.repoCache.get(parentDir);
+      const cachedRepo = this.repoCache.get(parentDir); 
       if (cachedRepo) {
         return cachedRepo;
       }

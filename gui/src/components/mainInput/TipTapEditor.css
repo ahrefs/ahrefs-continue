@@ -22,7 +22,6 @@
   float: left;
   height: 0;
   pointer-events: none;
-  white-space: nowrap;
 }
 
 .gap-cursor {

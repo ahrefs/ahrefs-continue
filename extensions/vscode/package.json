@@ -107,6 +107,11 @@
                     "type": "number",
                     "default": 60,
                     "description": "The period of time in minutes between automatic syncs."
+                },
+                "ahrefs-continue.interruptGeneration": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Interrupt generation when this is True."
                 }
             }
         },

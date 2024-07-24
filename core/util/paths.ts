@@ -9,7 +9,7 @@ import { IdeType, SerializedContinueConfig } from "../index.js";
 
 dotenv.config();
 const CONTINUE_GLOBAL_DIR =
-  process.env.CONTINUE_GLOBAL_DIR ?? path.join(os.homedir(), ".continue");
+  process.env.CONTINUE_GLOBAL_DIR ?? path.join(os.homedir(), ".ahrefs-continue");
 
 export function getContinueGlobalPath(): string {
   // This is ~/.continue on mac/linux
@@ -88,7 +88,7 @@ export function getConfigTsPath(): string {
     fs.writeFileSync(
       packageJsonPath,
       JSON.stringify({
-        name: "continue-config",
+        name: "ahrefs-continue-config",
         version: "1.0.0",
         description: "My Continue Configuration",
         main: "config.js",
@@ -141,7 +141,7 @@ export function getTsConfigPath(): string {
 
 export function getContinueRcPath(): string {
   // Disable indexing of the config folder to prevent infinite loops
-  const continuercPath = path.join(getContinueGlobalPath(), ".continuerc.json");
+  const continuercPath = path.join(getContinueGlobalPath(), ".ahrefs-continuerc.json");
   if (!fs.existsSync(continuercPath)) {
     fs.writeFileSync(
       continuercPath,

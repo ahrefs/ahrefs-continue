@@ -1,4 +1,4 @@
-import { ConfigHandler } from "../config/ConfigHandler.js";
+import { IConfigHandler } from "../config/IConfigHandler.js";
 import { IContinueServerClient } from "../continueServer/interface.js";
 import { IDE, IndexTag, IndexingProgressUpdate } from "../index.js";
 import { CodeSnippetsCodebaseIndex } from "./CodeSnippetsIndex.js";
@@ -23,7 +23,7 @@ export class PauseToken {
 
 export class CodebaseIndexer {
   constructor(
-    private readonly configHandler: ConfigHandler,
+    private readonly configHandler: IConfigHandler,
     private readonly ide: IDE,
     private readonly pauseToken: PauseToken,
     private readonly continueServerClient: IContinueServerClient,
@@ -36,7 +36,6 @@ export class CodebaseIndexer {
       new ChunkCodebaseIndex(
         this.ide.readFile.bind(this.ide),
         this.continueServerClient,
-        config.embeddingsProvider.maxChunkSize,
       ), // Chunking must come first
       new LanceDbIndex(
         config.embeddingsProvider,

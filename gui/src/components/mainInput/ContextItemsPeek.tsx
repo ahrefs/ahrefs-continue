@@ -15,16 +15,15 @@ import FileIcon from "../FileIcon";
 
 const ContextItemDiv = styled.div`
   cursor: pointer;
-  padding: 6px 10px 6px 6px;
+  padding-left: 6px;
+  padding-right: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   margin-left: 4px;
   display: flex;
   align-items: center;
   border-radius: ${defaultBorderRadius};
-  font-size: ${getFontSize()};
-  max-width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  width: fit-content;
 
   &:hover {
     background-color: #fff1;

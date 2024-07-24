@@ -7,6 +7,7 @@ import type {
 } from ".";
 import { CompletionProvider } from "./autocomplete/completionProvider.js";
 import { ConfigHandler } from "./config/ConfigHandler.js";
+import { IConfigHandler } from "./config/IConfigHandler";
 import {
   setupApiKeysMode,
   setupFreeTrialMode,
@@ -16,7 +17,6 @@ import {
 import { createNewPromptFile } from "./config/promptFile.js";
 import { addModel, addOpenAIKey, deleteModel } from "./config/util.js";
 import { ContinueServerClient } from "./continueServer/stubs/client.js";
-import { ControlPlaneClient } from "./control-plane/client";
 import { CodebaseIndexer, PauseToken } from "./indexing/CodebaseIndexer.js";
 import { DocsService } from "./indexing/docs/DocsService";
 import TransformersJsEmbeddingsProvider from "./indexing/embeddings/TransformersJsEmbeddingsProvider.js";
@@ -34,12 +34,11 @@ import { streamDiffLines } from "./util/verticalEdit.js";
 
 export class Core {
   // implements IMessenger<ToCoreProtocol, FromCoreProtocol>
-  configHandler: ConfigHandler;
+  configHandler: IConfigHandler;
   codebaseIndexerPromise: Promise<CodebaseIndexer>;
   completionProvider: CompletionProvider;
   continueServerClientPromise: Promise<ContinueServerClient>;
   indexingState: IndexingProgressUpdate;
-  controlPlaneClient: ControlPlaneClient;
   private globalContext = new GlobalContext();
   private docsService = DocsService.getInstance();
   private readonly indexingPauseToken = new PauseToken(
@@ -74,21 +73,13 @@ export class Core {
   ) {
     this.indexingState = { status: "loading", desc: "loading", progress: 0 };
     const ideSettingsPromise = messenger.request("getIdeSettings", undefined);
-    const sessionInfoPromise = messenger.request("getControlPlaneSessionInfo", {
-      silent: true,
-    });
-    this.controlPlaneClient = new ControlPlaneClient(sessionInfoPromise);
     this.configHandler = new ConfigHandler(
       this.ide,
       ideSettingsPromise,
       this.onWrite,
-      this.controlPlaneClient,
     );
     this.configHandler.onConfigUpdate(
       (() => this.messenger.send("configUpdate", undefined)).bind(this),
-    );
-    this.configHandler.onDidChangeAvailableProfiles((profiles) =>
-      this.messenger.send("didChangeAvailableProfiles", { profiles }),
     );
 
     // Codebase Indexer and ContinueServerClient depend on IdeSettings
@@ -215,9 +206,6 @@ export class Core {
     on("config/ideSettingsUpdate", (msg) => {
       this.configHandler.updateIdeSettings(msg.data);
     });
-    on("config/listProfiles", (msg) => {
-      return this.configHandler.listProfiles();
-    });
 
     // Context providers
     on("context/addDocs", async (msg) => {
@@ -241,19 +229,6 @@ export class Core {
       const baseUrl = msg.data.baseUrl;
       await this.docsService.delete(baseUrl);
       this.messenger.send("refreshSubmenuItems", undefined);
-    });
-    on("context/indexDocs", async (msg) => {
-      const config = await this.config();
-      const provider: any = config.contextProviders?.find(
-        (provider) => provider.description.title === "docs",
-      );
-
-      const siteIndexingOptions: SiteIndexingConfig[] = provider ?
-        (mProvider => mProvider?.options?.sites || [])({ ...provider }) :
-        [];
-
-      await this.indexDocs(siteIndexingOptions, msg.data.reIndex);
-      this.ide.infoPopup("Docs indexing completed");
     });
     on("context/loadSubmenuItems", async (msg) => {
       const config = await this.config();
@@ -293,13 +268,9 @@ export class Core {
             fetchwithRequestOptions(url, init, config.requestOptions),
         });
 
-        Telemetry.capture(
-          "useContextProvider",
-          {
-            name: provider.description.title,
-          },
-          true,
-        );
+        Telemetry.capture("useContextProvider", {
+          name: provider.description.title,
+        });
 
         return items.map((item) => ({
           ...item,
@@ -311,15 +282,12 @@ export class Core {
       }
     });
 
-    on("config/getSerializedProfileInfo", async (msg) => {
-      return {
-        config: await this.configHandler.getSerializedConfig(),
-        profileId: this.configHandler.currentProfile.profileId,
-      };
+    on("config/getBrowserSerialized", (msg) => {
+      return this.configHandler.getSerializedConfig();
     });
 
     async function* llmStreamChat(
-      configHandler: ConfigHandler,
+      configHandler: IConfigHandler,
       abortedMessageIds: Set<string>,
       msg: Message<ToCoreProtocol["llm/streamChat"][0]>,
     ) {
@@ -354,7 +322,7 @@ export class Core {
     );
 
     async function* llmStreamComplete(
-      configHandler: ConfigHandler,
+      configHandler: IConfigHandler,
       abortedMessageIds: Set<string>,
 
       msg: Message<ToCoreProtocol["llm/streamComplete"][0]>,
@@ -420,7 +388,7 @@ export class Core {
     });
 
     async function* runNodeJsSlashCommand(
-      configHandler: ConfigHandler,
+      configHandler: IConfigHandler,
       abortedMessageIds: Set<string>,
       msg: Message<ToCoreProtocol["command/run"][0]>,
       messenger: IMessenger<ToCoreProtocol, FromCoreProtocol>,
@@ -445,13 +413,9 @@ export class Core {
         throw new Error(`Unknown slash command ${slashCommandName}`);
       }
 
-      Telemetry.capture(
-        "useSlashCommand",
-        {
-          name: slashCommandName,
-        },
-        true,
-      );
+      Telemetry.capture("useSlashCommand", {
+        name: slashCommandName,
+      });
 
       const checkActiveInterval = setInterval(() => {
         if (abortedMessageIds.has(msg.messageId)) {
@@ -513,7 +477,7 @@ export class Core {
     });
 
     async function* streamDiffLinesGenerator(
-      configHandler: ConfigHandler,
+      configHandler: IConfigHandler,
       abortedMessageIds: Set<string>,
       msg: Message<ToCoreProtocol["streamDiffLines"][0]>,
     ) {
@@ -615,10 +579,6 @@ export class Core {
         this.messenger.request("indexProgress", this.indexingState);
       }
     });
-
-    on("didChangeSelectedProfile", (msg) => {
-      this.configHandler.setSelectedProfile(msg.data.id);
-    });
   }
 
   private indexingCancellationController: AbortController | undefined;
@@ -634,18 +594,6 @@ export class Core {
     )) {
       this.messenger.request("indexProgress", update);
       this.indexingState = update;
-    }
-  }
-
-  private async indexDocs(sites: SiteIndexingConfig[], reIndex: boolean): Promise<void> {
-    for (const site of sites) {
-      for await (const update of this.docsService.indexAndAdd(site, new TransformersJsEmbeddingsProvider(), reIndex)) {
-        // Temporary disabled posting progress updates to the UI due to
-        // possible collision with code indexing progress updates.
-
-        // this.messenger.request("indexProgress", update);
-        // this.indexingState = update;
-      }
     }
   }
 }

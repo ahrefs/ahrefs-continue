@@ -31,7 +31,7 @@ let fullScreenPanel: vscode.WebviewPanel | undefined;
 function getFullScreenTab() {
   const tabs = vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs);
   return tabs.find((tab) =>
-    (tab.input as any)?.viewType?.endsWith("continue.continueGUIView"),
+    (tab.input as any)?.viewType?.endsWith("ahrefs-continue.ahrefs-continueGUIView"),
   );
 }
 
@@ -235,7 +235,7 @@ const commandsMap: (
     "ahrefs-continue.interruptGeneration": () => {
         extensionContext.globalState.update("interruptGeneration", true);
     },
-    "continue.acceptDiff": async (newFilepath?: string | vscode.Uri) => {
+    "ahrefs-continue.acceptDiff": async (newFilepath?: string | vscode.Uri) => {
       captureCommandTelemetry("acceptDiff");
 
       if (newFilepath instanceof vscode.Uri) {
@@ -244,7 +244,7 @@ const commandsMap: (
       verticalDiffManager.clearForFilepath(newFilepath, true);
       await diffManager.acceptDiff(newFilepath);
     },
-    "continue.rejectDiff": async (newFilepath?: string | vscode.Uri) => {
+    "ahrefs-continue.rejectDiff": async (newFilepath?: string | vscode.Uri) => {
       captureCommandTelemetry("rejectDiff");
 
       if (newFilepath instanceof vscode.Uri) {
@@ -253,15 +253,15 @@ const commandsMap: (
       verticalDiffManager.clearForFilepath(newFilepath, false);
       await diffManager.rejectDiff(newFilepath);
     },
-    "continue.acceptVerticalDiffBlock": (filepath?: string, index?: number) => {
+    "ahrefs-continue.acceptVerticalDiffBlock": (filepath?: string, index?: number) => {
       captureCommandTelemetry("acceptVerticalDiffBlock");
       verticalDiffManager.acceptRejectVerticalDiffBlock(true, filepath, index);
     },
-    "continue.rejectVerticalDiffBlock": (filepath?: string, index?: number) => {
+    "ahrefs-continue.rejectVerticalDiffBlock": (filepath?: string, index?: number) => {
       captureCommandTelemetry("rejectVerticalDiffBlock");
       verticalDiffManager.acceptRejectVerticalDiffBlock(false, filepath, index);
     },
-    "continue.quickFix": async (
+    "ahrefs-continue.quickFix": async (
       range: vscode.Range,
       diagnosticMessage: string,
     ) => {
@@ -271,9 +271,9 @@ const commandsMap: (
 
       addCodeToContextFromRange(range, sidebar.webviewProtocol, prompt);
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
     },
-    "continue.defaultQuickActionDocstring": async (range: vscode.Range) => {
+    "ahrefs-continue.defaultQuickActionDocstring": async (range: vscode.Range) => {
       captureCommandTelemetry("defaultQuickActionDocstring");
 
       streamInlineEdit(
@@ -283,7 +283,7 @@ const commandsMap: (
         range,
       );
     },
-    "continue.defaultQuickActionExplain": async (range: vscode.Range) => {
+    "ahrefs-continue.defaultQuickActionExplain": async (range: vscode.Range) => {
       captureCommandTelemetry("defaultQuickActionExplain");
 
       const prompt =
@@ -292,9 +292,9 @@ const commandsMap: (
 
       addCodeToContextFromRange(range, sidebar.webviewProtocol, prompt);
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
     },
-    "continue.customQuickActionSendToChat": async (
+    "ahrefs-continue.customQuickActionSendToChat": async (
       prompt: string,
       range: vscode.Range,
     ) => {
@@ -302,9 +302,9 @@ const commandsMap: (
 
       addCodeToContextFromRange(range, sidebar.webviewProtocol, prompt);
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
     },
-    "continue.customQuickActionStreamInlineEdit": async (
+    "ahrefs-continue.customQuickActionStreamInlineEdit": async (
       prompt: string,
       range: vscode.Range,
     ) => {
@@ -312,14 +312,14 @@ const commandsMap: (
 
       streamInlineEdit("docstring", prompt, false, range);
     },
-    "continue.toggleAuxiliaryBar": () => {
+    "ahrefs-continue.toggleAuxiliaryBar": () => {
       vscode.commands.executeCommand("workbench.action.toggleAuxiliaryBar");
     },
-    "continue.focusContinueInput": async () => {
+    "ahrefs-continue.focusContinueInput": async () => {
       const fullScreenTab = getFullScreenTab();
       if (!fullScreenTab) {
         // focus sidebar
-        vscode.commands.executeCommand("continue.continueGUIView.focus");
+        vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
       } else {
         // focus fullscreen
         fullScreenPanel?.reveal();
@@ -327,9 +327,9 @@ const commandsMap: (
       sidebar.webviewProtocol?.request("focusContinueInput", undefined);
       await addHighlightedCodeToContext(false, sidebar.webviewProtocol);
     },
-    "continue.focusContinueInputWithoutClear": async () => {
+    "ahrefs-continue.focusContinueInputWithoutClear": async () => {
       if (!getFullScreenTab()) {
-        vscode.commands.executeCommand("continue.continueGUIView.focus");
+        vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
       }
       sidebar.webviewProtocol?.request(
         "focusContinueInputWithoutClear",
@@ -337,11 +337,11 @@ const commandsMap: (
       );
       await addHighlightedCodeToContext(true, sidebar.webviewProtocol);
     },
-    "continue.quickEdit": (injectedPrompt?: string) => {
+    "ahrefs-continue.quickEdit": (injectedPrompt?: string) => {
       captureCommandTelemetry("quickEdit");
       quickEdit.run(injectedPrompt);
     },
-    "continue.writeCommentsForCode": async () => {
+    "ahrefs-continue.writeCommentsForCode": async () => {
       captureCommandTelemetry("writeCommentsForCode");
 
       streamInlineEdit(
@@ -349,7 +349,7 @@ const commandsMap: (
         "Write comments for this code. Do not change anything about the code itself.",
       );
     },
-    "continue.writeDocstringForCode": async () => {
+    "ahrefs-continue.writeDocstringForCode": async () => {
       captureCommandTelemetry("writeDocstringForCode");
 
       streamInlineEdit(
@@ -358,7 +358,7 @@ const commandsMap: (
         true,
       );
     },
-    "continue.fixCode": async () => {
+    "ahrefs-continue.fixCode": async () => {
       captureCommandTelemetry("fixCode");
 
       streamInlineEdit(
@@ -366,22 +366,22 @@ const commandsMap: (
         "Fix this code. If it is already 100% correct, simply rewrite the code.",
       );
     },
-    "continue.optimizeCode": async () => {
+    "ahrefs-continue.optimizeCode": async () => {
       captureCommandTelemetry("optimizeCode");
       streamInlineEdit("optimize", "Optimize this code");
     },
-    "continue.fixGrammar": async () => {
+    "ahrefs-continue.fixGrammar": async () => {
       captureCommandTelemetry("fixGrammar");
       streamInlineEdit(
         "fixGrammar",
         "If there are any grammar or spelling mistakes in this writing, fix them. Do not make other large changes to the writing.",
       );
     },
-    "continue.viewLogs": async () => {
+    "ahrefs-continue.viewLogs": async () => {
       captureCommandTelemetry("viewLogs");
 
-      // Open ~/.continue/continue.log
-      const logFile = path.join(os.homedir(), ".continue", "continue.log");
+      // Open ~/.ahrefs-continue/ahrefs-continue.log
+      const logFile = path.join(os.homedir(), ".ahrefs-continue", "ahrefs-continue.log");
       // Make sure the file/directory exist
       if (!fs.existsSync(logFile)) {
         fs.mkdirSync(path.dirname(logFile), { recursive: true });
@@ -391,40 +391,40 @@ const commandsMap: (
       const uri = vscode.Uri.file(logFile);
       await vscode.window.showTextDocument(uri);
     },
-    "continue.debugTerminal": async () => {
+    "ahrefs-continue.debugTerminal": async () => {
       captureCommandTelemetry("debugTerminal");
 
       const terminalContents = await ide.getTerminalContents();
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
 
       sidebar.webviewProtocol?.request("userInput", {
         input: `I got the following error, can you please help explain how to fix it?\n\n${terminalContents.trim()}`,
       });
     },
-    "continue.hideInlineTip": () => {
+    "ahrefs-continue.hideInlineTip": () => {
       vscode.workspace
         .getConfiguration("continue")
         .update("showInlineTip", false, vscode.ConfigurationTarget.Global);
     },
 
     // Commands without keyboard shortcuts
-    "continue.addModel": () => {
+    "ahrefs-continue.addModel": () => {
       captureCommandTelemetry("addModel");
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
       sidebar.webviewProtocol?.request("addModel", undefined);
     },
-    "continue.openSettingsUI": () => {
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+    "ahrefs-continue.openSettingsUI": () => {
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
       sidebar.webviewProtocol?.request("openSettings", undefined);
     },
-    "continue.sendMainUserInput": (text: string) => {
+    "ahrefs-continue.sendMainUserInput": (text: string) => {
       sidebar.webviewProtocol?.request("userInput", {
         input: text,
       });
     },
-    "continue.selectRange": (startLine: number, endLine: number) => {
+    "ahrefs-continue.selectRange": (startLine: number, endLine: number) => {
       if (!vscode.window.activeTextEditor) {
         return;
       }
@@ -435,7 +435,7 @@ const commandsMap: (
         0,
       );
     },
-    "continue.foldAndUnfold": (
+    "ahrefs-continue.foldAndUnfold": (
       foldSelectionLines: number[],
       unfoldSelectionLines: number[],
     ) => {
@@ -446,21 +446,21 @@ const commandsMap: (
         selectionLines: foldSelectionLines,
       });
     },
-    "continue.sendToTerminal": (text: string) => {
+    "ahrefs-continue.sendToTerminal": (text: string) => {
       captureCommandTelemetry("sendToTerminal");
       ide.runCommand(text);
     },
-    "continue.newSession": () => {
+    "ahrefs-continue.newSession": () => {
       sidebar.webviewProtocol?.request("newSession", undefined);
     },
-    "continue.viewHistory": () => {
+    "ahrefs-continue.viewHistory": () => {
       sidebar.webviewProtocol?.request("viewHistory", undefined);
     },
-    "continue.toggleFullScreen": () => {
+    "ahrefs-continue.toggleFullScreen": () => {
       // Check if full screen is already open by checking open tabs
       const fullScreenTab = getFullScreenTab();
 
-      // Check if the active editor is the Continue GUI View
+      // Check if the active editor is the Ahrefs-Continue GUI View
       if (fullScreenTab && fullScreenTab.isActive) {
         //Full screen open and focused - close it
         vscode.commands.executeCommand("workbench.action.closeActiveEditor"); //this will trigger the onDidDispose listener below
@@ -483,8 +483,8 @@ const commandsMap: (
 
       //create the full screen panel
       let panel = vscode.window.createWebviewPanel(
-        "continue.continueGUIView",
-        "Continue",
+        "ahrefs-continue.ahrefs-continueGUIView",
+        "Ahrefs-Continue",
         vscode.ViewColumn.One,
         {
           retainContextWhenHidden: true,
@@ -505,32 +505,32 @@ const commandsMap: (
       panel.onDidDispose(
         () => {
           sidebar.resetWebviewProtocolWebview();
-          vscode.commands.executeCommand("continue.focusContinueInput");
+          vscode.commands.executeCommand("ahrefs-continue.focusContinueInput");
         },
         null,
         extensionContext.subscriptions,
       );
     },
-    "continue.openConfigJson": () => {
+    "ahrefs-continue.openConfigJson": () => {
       ide.openFile(getConfigJsonPath());
     },
-    "continue.selectFilesAsContext": (
+    "ahrefs-continue.selectFilesAsContext": (
       firstUri: vscode.Uri,
       uris: vscode.Uri[],
     ) => {
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
 
       for (const uri of uris) {
         addEntireFileToContext(uri, false, sidebar.webviewProtocol);
       }
     },
-    "continue.logAutocompleteOutcome": (
+    "ahrefs-continue.logAutocompleteOutcome": (
       completionId: string,
       completionProvider: CompletionProvider,
     ) => {
       completionProvider.accept(completionId);
     },
-    "continue.toggleTabAutocompleteEnabled": () => {
+    "ahrefs-continue.toggleTabAutocompleteEnabled": () => {
       captureCommandTelemetry("toggleTabAutocompleteEnabled");
 
       const config = vscode.workspace.getConfiguration("continue");
@@ -566,7 +566,7 @@ const commandsMap: (
         }
       }
     },
-    "continue.openTabAutocompleteConfigMenu": async () => {
+    "ahrefs-continue.openTabAutocompleteConfigMenu": async () => {
       captureCommandTelemetry("openTabAutocompleteConfigMenu");
 
       const config = vscode.workspace.getConfiguration("continue");
@@ -642,17 +642,17 @@ const commandsMap: (
           );
           configHandler.reloadConfig();
         } else if (selectedOption === "$(feedback) Give feedback") {
-          vscode.commands.executeCommand("continue.giveAutocompleteFeedback");
+          vscode.commands.executeCommand("ahrefs-continue.giveAutocompleteFeedback");
         }
         quickPick.dispose();
       });
       quickPick.show();
     },
-    "continue.giveAutocompleteFeedback": async () => {
+    "ahrefs-continue.giveAutocompleteFeedback": async () => {
       const feedback = await vscode.window.showInputBox({
         ignoreFocusOut: true,
         prompt:
-          "Please share what went wrong with the last completion. The details of the completion as well as this message will be sent to the Continue team in order to improve.",
+          "Please share what went wrong with the last completion. The details of the completion as well as this message will be sent to the Ahrefs-Continue team in order to improve.",
       });
       if (feedback) {
         const client = await continueServerClientPromise;
@@ -662,13 +662,16 @@ const commandsMap: (
         client.sendFeedback(feedback, lastLines);
       }
     },
-    "continue.quickEditHistoryUp": async () => {
+    "ahrefs-continue.quickEditHistoryUp": async () => {
       captureCommandTelemetry("quickEditHistoryUp");
       historyUpEventEmitter.fire();
     },
-    "continue.quickEditHistoryDown": async () => {
+    "ahrefs-continue.quickEditHistoryDown": async () => {
       captureCommandTelemetry("quickEditHistoryDown");
       historyDownEventEmitter.fire();
+    },
+    "ahrefs-continue.saveChatSession": () => {
+        sidebar.webviewProtocol.request("sendSessionChatHistory", undefined);
     },
   };
 };

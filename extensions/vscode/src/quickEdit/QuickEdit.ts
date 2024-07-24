@@ -181,7 +181,7 @@ export class QuickEdit {
     await this.verticalDiffManager.streamEdit(
       input,
       stuff.defaultModelTitle,
-      undefined,
+      this.context,
       undefined,
       stuff.previousInput,
     );

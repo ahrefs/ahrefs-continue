@@ -61,7 +61,7 @@ export default class InputBoxWithHistory implements vscode.Disposable {
     this.disposables.forEach((disposable) => disposable.dispose());
     vscode.commands.executeCommand(
       "setContext",
-      "continue.quickEditHistoryFocused",
+      "ahrefs-continue.quickEditHistoryFocused",
       false,
     );
   }
@@ -150,7 +150,7 @@ export default class InputBoxWithHistory implements vscode.Disposable {
     try {
       vscode.commands.executeCommand(
         "setContext",
-        "continue.quickEditHistoryFocused",
+        "ahrefs-continue.quickEditHistoryFocused",
         true,
       );
 
@@ -173,7 +173,7 @@ export default class InputBoxWithHistory implements vscode.Disposable {
     } finally {
       vscode.commands.executeCommand(
         "setContext",
-        "continue.quickEditHistoryFocused",
+        "ahrefs-continue.quickEditHistoryFocused",
         false,
       );
     }

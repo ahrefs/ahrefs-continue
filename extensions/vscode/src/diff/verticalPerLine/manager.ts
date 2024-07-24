@@ -122,7 +122,7 @@ export class VerticalPerLineDiffManager {
 
     this.disableDocumentChangeListener();
 
-    vscode.commands.executeCommand("setContext", "continue.diffVisible", false);
+    vscode.commands.executeCommand("setContext", "ahrefs-continue.diffVisible", false);
   }
 
   async acceptRejectVerticalDiffBlock(
@@ -204,7 +204,7 @@ export class VerticalPerLineDiffManager {
     quickEdit?: string,
     range?: vscode.Range,
   ) {
-    vscode.commands.executeCommand("setContext", "continue.diffVisible", true);
+    vscode.commands.executeCommand("setContext", "ahrefs-continue.diffVisible", true);
 
     let editor = vscode.window.activeTextEditor;
 
@@ -316,9 +316,14 @@ export class VerticalPerLineDiffManager {
 
     vscode.commands.executeCommand(
       "setContext",
-      "continue.streamingDiff",
+      "ahrefs-continue.streamingDiff",
       true,
     );
+
+    let interruptGenerationKey = "interruptGeneration";
+    if (context && context.globalState.get<boolean>(interruptGenerationKey) === undefined) {
+        context.globalState.update(interruptGenerationKey, false);
+    }
 
     try {
       await diffHandler.run(
@@ -342,7 +347,7 @@ export class VerticalPerLineDiffManager {
     } finally {
       vscode.commands.executeCommand(
         "setContext",
-        "continue.streamingDiff",
+        "ahrefs-continue.streamingDiff",
         false,
       );
     }

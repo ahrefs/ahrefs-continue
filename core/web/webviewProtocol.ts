@@ -1,4 +1,3 @@
-import { Message } from "ollama";
 import {
   ChatHistory,
   ContextItemWithId,

@@ -34,7 +34,7 @@ export async function activateExtension(context: vscode.ExtensionContext) {
       ),
     );
 
-    vscode.commands.executeCommand("continue.focusContinueInput");
+    vscode.commands.executeCommand("ahrefs-continue.focusContinueInput");
   });
 
   // Load Continue configuration

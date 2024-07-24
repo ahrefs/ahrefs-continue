@@ -1,6 +1,6 @@
-import { usePostHog } from "posthog-js/react";
 import { useEffect } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { usePostHog } from "posthog-js/react";
+import { useSearchParams, useLocation } from "react-router-dom";
 
 /**
  * This is copied from here: https://posthog.com/tutorials/single-page-app-pageviews#tracking-pageviews-in-nextjs-app-router

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import type {
   BrowserSerializedContinueConfig,
   ChatMessage,
@@ -16,7 +15,6 @@ import type {
   SiteIndexingConfig,
 } from "..";
 import type { AutocompleteInput } from "../autocomplete/completionProvider";
-import { ProfileDescription } from "../config/ConfigHandler";
 
 export type ProtocolGeneratorType<T> = AsyncGenerator<{
   done?: boolean;
@@ -49,13 +47,9 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   ];
   "config/newPromptFile": [undefined, void];
   "config/ideSettingsUpdate": [IdeSettings, void];
-  "config/getSerializedProfileInfo": [
-    undefined,
-    { config: BrowserSerializedContinueConfig; profileId: string },
-  ];
+  "config/getBrowserSerialized": [undefined, BrowserSerializedContinueConfig];
   "config/deleteModel": [{ title: string }, void];
   "config/reload": [undefined, BrowserSerializedContinueConfig];
-  "config/listProfiles": [undefined, ProfileDescription[]];
   "context/getContextItems": [
     {
       name: string;
@@ -69,7 +63,6 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   "autocomplete/complete": [AutocompleteInput, string[]];
   "context/addDocs": [SiteIndexingConfig, void];
   "context/removeDocs": [{ baseUrl: string }, void];
-  "context/indexDocs": [{ reIndex: boolean }, void];
   "autocomplete/cancel": [undefined, void];
   "autocomplete/accept": [{ completionId: string }, void];
   "command/run": [
@@ -145,6 +138,4 @@ export type ToCoreFromIdeOrWebviewProtocol = {
     void,
   ];
   addAutocompleteModel: [{ model: ModelDescription }, void];
-
-  "profiles/switch": [{ id: string }, undefined];
 };

@@ -58,7 +58,7 @@ const InputBoxDiv = styled.div`
   resize: none;
 
   padding: 8px;
-  padding-bottom: 4px;
+  padding-bottom: 24px;
   font-family: inherit;
   border-radius: ${defaultBorderRadius};
   margin: 0;
@@ -70,6 +70,7 @@ const InputBoxDiv = styled.div`
   border: 0.5px solid ${vscInputBorder};
   outline: none;
   font-size: ${getFontSize()}px;
+
   &:focus {
     outline: none;
 
@@ -149,6 +150,8 @@ function TipTapEditor(props: TipTapEditorProps) {
     (store: RootState) => store.state.history.length,
   );
   const useActiveFile = useSelector(selectUseActiveFile);
+
+  const [inputFocused, setInputFocused] = useState(false);
 
   const { saveSession } = useHistory(dispatch);
 
@@ -652,14 +655,16 @@ function TipTapEditor(props: TipTapEditorProps) {
     ],
   );
 
-  useWebviewListener(
-    "isContinueInputFocused",
-    async () => {
-      return props.isMainInput && editorFocusedRef.current;
-    },
-    [editorFocusedRef, props.isMainInput],
-    !props.isMainInput,
-  );
+  // On linux+jetbrains only was stealing focus
+  // useEffect(() => {
+  //   if (props.isMainInput && editor && document.hasFocus()) {
+  //     editor.commands.focus();
+  //     // setTimeout(() => {
+  //     //   // https://github.com/continuedev/continue/pull/881
+  //     //   editor.commands.blur();
+  //     // }, 0);
+  //   }
+  // }, [editor, props.isMainInput, historyLength, ignoreHighlightedCode]);
 
   const [showDragOverMsg, setShowDragOverMsg] = useState(false);
 
@@ -743,13 +748,22 @@ function TipTapEditor(props: TipTapEditorProps) {
       <EditorContent
         spellCheck={false}
         editor={editor}
+        onFocus={() => {
+          setInputFocused(true);
+        }}
+        onBlur={() => {
+          // hack to stop from cancelling press of "Enter"
+          setTimeout(() => {
+            setInputFocused(false);
+          }, 100);
+        }}
         onClick={(event) => {
           event.stopPropagation();
         }}
       />
       <InputToolbar
         showNoContext={optionKeyHeld}
-        hidden={!(editorFocusedRef.current || props.isMainInput)}
+        hidden={!(inputFocused || props.isMainInput)}
         onAddContextItem={() => {
           if (editor.getText().endsWith("@")) {
           } else {
