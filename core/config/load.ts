@@ -104,11 +104,11 @@ const configMergeKeys = {
   tabAutocompleteModels: (a: any, b: any) => a.title === b.title,
 };
 
-function loadSerializedConfig(
+async function loadSerializedConfig(
     workspaceConfigs: ContinueRcJson[],
     ideSettings: IdeSettings,
     ideType: IdeType,
-  ): SerializedContinueConfig {
+  ): Promise<SerializedContinueConfig> {
   const configPath = getConfigJsonPath(ideType);
   let config: SerializedContinueConfig;
   try {
@@ -122,23 +122,37 @@ function loadSerializedConfig(
   }
 
   //TODO: Resolve this to make sure it is working
-  if (ideSettings.remoteConfigServerUrl) {
-    try {
-      const remoteConfigJson = resolveSerializedConfig(
-        getConfigJsonPathForRemote(ideSettings.remoteConfigServerUrl),
-      );
-      config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
+//   if (ideSettings.remoteConfigServerUrl) {
+//     try {
+//       const remoteConfigJson = resolveSerializedConfig(
+//         getConfigJsonPathForRemote(ideSettings.remoteConfigServerUrl),
+//       );
+//       config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
 
-      if (config.tabAutocompleteOptions) {
-        config.tabAutocompleteOptions.multilineCompletions = "never";
-    } else {
-        config.tabAutocompleteOptions = { multilineCompletions: "never" };
-    }
+//       if (config.tabAutocompleteOptions) {
+//         config.tabAutocompleteOptions.multilineCompletions = "never";
+//     } else {
+//         config.tabAutocompleteOptions = { multilineCompletions: "never" };
+//     }
+
+//     } catch (e) {
+//       console.warn("Error loading remote config: ", e);
+//     }
+//   }
+
+    try {
+        const remoteConfigJson = await fetchRemoteConfig("https://yep.tools/assets/ahrefs-continue-config.json");
+        config = mergeJson(config, remoteConfigJson, "overwrite", configMergeKeys);
+
+        if (config.tabAutocompleteOptions) {
+            config.tabAutocompleteOptions.multilineCompletions = "never";
+        } else {
+            config.tabAutocompleteOptions = { multilineCompletions: "never" };
+        }
 
     } catch (e) {
-      console.warn("Error loading remote config: ", e);
+        console.warn("Error loading remote config: ", e);
     }
-  }
 
   for (const workspaceConfig of workspaceConfigs) {
     config = mergeJson(
@@ -472,6 +486,7 @@ async function intermediateToFinalConfig(
     ...config,
     contextProviders,
     models,
+    commandModels,
     embeddingsProvider: config.embeddingsProvider as any,
     tabAutocompleteModels,
     reranker: config.reranker as any,
@@ -598,7 +613,7 @@ async function loadFullConfigNode(
   writeLog: (log: string) => Promise<void>,
 ): Promise<ContinueConfig> {
   // Serialized config
-  let serialized = loadSerializedConfig(workspaceConfigs, ideSettings, ideType);
+  let serialized = await loadSerializedConfig(workspaceConfigs, ideSettings, ideType);
 
   // Convert serialized to intermediate config
   let intermediate = await serializedToIntermediateConfig(serialized, ide);
