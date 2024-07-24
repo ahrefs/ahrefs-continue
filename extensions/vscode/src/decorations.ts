@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import * as path from "path";
-=======
 import * as path from "node:path";
->>>>>>> v0.9.184-vscode
 import * as vscode from "vscode";
 import { uriFromFilePath } from "./util/vscode";
 
@@ -24,15 +20,9 @@ export function showAnswerInTextEditor(
         vscode.TextEditorRevealType.InCenter,
       );
 
-<<<<<<< HEAD
-      let decorationType = vscode.window.createTextEditorDecorationType({
-        after: {
-          contentText: answer + "\n",
-=======
       const decorationType = vscode.window.createTextEditorDecorationType({
         after: {
           contentText: `${answer}\n`,
->>>>>>> v0.9.184-vscode
           color: "rgb(0, 255, 0, 0.8)",
         },
         backgroundColor: "rgb(0, 255, 0, 0.2)",

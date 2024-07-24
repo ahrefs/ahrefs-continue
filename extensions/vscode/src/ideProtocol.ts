@@ -1,32 +1,12 @@
-<<<<<<< HEAD
-import * as child_process from "child_process";
-import { exec } from "child_process";
-import {
-=======
 import * as child_process from "node:child_process";
 import { exec } from "node:child_process";
 import * as path from "node:path";
 
 import type {
->>>>>>> v0.9.184-vscode
   ContinueRcJson,
   FileType,
   IDE,
   IdeInfo,
-<<<<<<< HEAD
-  IndexTag,
-  Problem,
-  Range,
-  Thread,
-} from "core";
-import { getContinueGlobalPath } from "core/util/paths";
-import { defaultIgnoreFile } from "core/indexing/ignore";
-import * as path from "path";
-import * as vscode from "vscode";
-import { DiffManager } from "./diff/horizontal";
-import { VsCodeIdeUtils } from "./util/ideUtils";
-import { traverseDirectory } from "./util/traverseDirectory";
-=======
   IdeSettings,
   IndexTag,
   Location,
@@ -47,25 +27,16 @@ import { executeGotoProvider } from "./autocomplete/lsp";
 import { DiffManager } from "./diff/horizontal";
 import { Repository } from "./otherExtensions/git";
 import { VsCodeIdeUtils } from "./util/ideUtils";
->>>>>>> v0.9.184-vscode
 import {
   getExtensionUri,
   openEditorAndRevealRange,
   uriFromFilePath,
 } from "./util/vscode";
-<<<<<<< HEAD
-=======
 import { VsCodeWebviewProtocol } from "./webviewProtocol";
->>>>>>> v0.9.184-vscode
 
 class VsCodeIde implements IDE {
   ideUtils: VsCodeIdeUtils;
 
-<<<<<<< HEAD
-  constructor(private readonly diffManager: DiffManager) {
-    this.ideUtils = new VsCodeIdeUtils();
-  }
-=======
   constructor(
     private readonly diffManager: DiffManager,
     private readonly vscodeWebviewProtocolPromise: Promise<VsCodeWebviewProtocol>,
@@ -100,15 +71,11 @@ class VsCodeIde implements IDE {
       }
     });
   }
->>>>>>> v0.9.184-vscode
 
   private authToken: string | undefined;
   private askedForAuth = false;
 
   async getGitHubAuthToken(): Promise<string | undefined> {
-<<<<<<< HEAD
-    console.log("Reading Github Auth Token is not supported.")
-=======
     // Saved auth token
     if (this.authToken) {
       return this.authToken;
@@ -222,7 +189,6 @@ class VsCodeIde implements IDE {
     } catch (error) {
       console.error("Failed to get GitHub authentication session:", error);
     }
->>>>>>> v0.9.184-vscode
     return undefined;
   }
 
@@ -236,33 +202,20 @@ class VsCodeIde implements IDE {
 
   async getRepoName(dir: string): Promise<string | undefined> {
     const repo = await this.getRepo(vscode.Uri.file(dir));
-<<<<<<< HEAD
-    const remote =
-      repo?.repository.remotes.find((r: any) => r.name === "origin") ??
-      repo?.repository.remotes[0];
-=======
     const remotes = repo?.state.remotes;
     if (!remotes) {
       return undefined;
     }
     const remote =
       remotes?.find((r: any) => r.name === "origin") ?? remotes?.[0];
->>>>>>> v0.9.184-vscode
     if (!remote) {
       return undefined;
     }
     const ownerAndRepo = remote.fetchUrl
-<<<<<<< HEAD
-      .replace(".git", "")
-      .split("/")
-      .slice(-2);
-    return ownerAndRepo.join("/");
-=======
       ?.replace(".git", "")
       .split("/")
       .slice(-2);
     return ownerAndRepo?.join("/");
->>>>>>> v0.9.184-vscode
   }
 
   async getTags(artifactId: string): Promise<IndexTag[]> {
@@ -287,11 +240,7 @@ class VsCodeIde implements IDE {
       version: vscode.version,
       remoteName: vscode.env.remoteName || "local",
       extensionVersion:
-<<<<<<< HEAD
         vscode.extensions.getExtension("ahrefs-continue.ahrefs-continue")?.packageJSON
-=======
-        vscode.extensions.getExtension("continue.continue")?.packageJSON
->>>>>>> v0.9.184-vscode
           .version,
     });
   }
@@ -317,36 +266,14 @@ class VsCodeIde implements IDE {
     return pathToLastModified;
   }
 
-<<<<<<< HEAD
-  async getStats(directory: string): Promise<{ [path: string]: number }> {
-    const scheme = vscode.workspace.workspaceFolders?.[0].uri.scheme;
-    const files = await this.listWorkspaceContents(directory);
-    const pathToLastModified: { [path: string]: number } = {};
-    await Promise.all(
-      files.map(async (file) => {
-        let stat = await vscode.workspace.fs.stat(uriFromFilePath(file));
-        pathToLastModified[file] = stat.mtime;
-      }),
-    );
-
-    return pathToLastModified;
-  }
-
-  async getRepo(dir: vscode.Uri): Promise<any> {
-=======
   async getRepo(dir: vscode.Uri): Promise<Repository | undefined> {
->>>>>>> v0.9.184-vscode
     return this.ideUtils.getRepo(dir);
   }
 
   async isTelemetryEnabled(): Promise<boolean> {
     return (
       (await vscode.workspace
-<<<<<<< HEAD
         .getConfiguration("ahrefs-continue")
-=======
-        .getConfiguration("continue")
->>>>>>> v0.9.184-vscode
         .get("telemetryEnabled")) ?? true
     );
   }
@@ -379,22 +306,6 @@ class VsCodeIde implements IDE {
     return await this.ideUtils.getAvailableThreads();
   }
 
-<<<<<<< HEAD
-  async listWorkspaceContents(directory?: string): Promise<string[]> {
-    if (directory) {
-      return await this.ideUtils.getDirectoryContents(directory, true);
-    } else {
-      const contents = await Promise.all(
-        this.ideUtils
-          .getWorkspaceDirectories()
-          .map((dir) => this.ideUtils.getDirectoryContents(dir, true)),
-      );
-      return contents.flat();
-    }
-  }
-
-=======
->>>>>>> v0.9.184-vscode
   async getWorkspaceConfigs() {
     const workspaceDirs =
       vscode.workspace.workspaceFolders?.map((folder) => folder.uri) || [];
@@ -402,11 +313,7 @@ class VsCodeIde implements IDE {
     for (const workspaceDir of workspaceDirs) {
       const files = await vscode.workspace.fs.readDirectory(workspaceDir);
       for (const [filename, type] of files) {
-<<<<<<< HEAD
         if (type === vscode.FileType.File && filename === ".ahrefs-continuerc.json") {
-=======
-        if (type === vscode.FileType.File && filename === ".continuerc.json") {
->>>>>>> v0.9.184-vscode
           const contents = await this.ideUtils.readFile(
             vscode.Uri.joinPath(workspaceDir, filename).fsPath,
           );
@@ -422,19 +329,8 @@ class VsCodeIde implements IDE {
 
     const workspaceDirs = await this.getWorkspaceDirs();
     for (const directory of workspaceDirs) {
-<<<<<<< HEAD
-      for await (const dir of traverseDirectory(
-        directory,
-        [],
-        false,
-        undefined,
-      )) {
-        allDirs.push(dir);
-      }
-=======
       const dirs = await walkDir(directory, this, { onlyDirs: true });
       allDirs.push(...dirs);
->>>>>>> v0.9.184-vscode
     }
 
     return allDirs;
@@ -472,38 +368,21 @@ class VsCodeIde implements IDE {
       new vscode.Position(startLine, 0),
       new vscode.Position(endLine, 0),
     );
-<<<<<<< HEAD
-    openEditorAndRevealRange(filepath, range).then(() => {
-      // TODO: Highlight lines
-      // this.ideUtils.highlightCode(
-      //   {
-      //     filepath,
-      //     range,
-      //   },
-      //   "#fff1"
-      // );
-=======
     openEditorAndRevealRange(filepath, range).then((editor) => {
       // Select the lines
       editor.selection = new vscode.Selection(
         new vscode.Position(startLine, 0),
         new vscode.Position(endLine, 0),
       );
->>>>>>> v0.9.184-vscode
     });
   }
 
   async runCommand(command: string): Promise<void> {
     if (vscode.window.terminals.length) {
-<<<<<<< HEAD
-      vscode.window.terminals[0].show();
-      vscode.window.terminals[0].sendText(command, false);
-=======
       const terminal =
         vscode.window.activeTerminal ?? vscode.window.terminals[0];
       terminal.show();
       terminal.sendText(command, false);
->>>>>>> v0.9.184-vscode
     } else {
       const terminal = vscode.window.createTerminal();
       terminal.show();
@@ -575,13 +454,8 @@ class VsCodeIde implements IDE {
   }
 
   async getSearchResults(query: string): Promise<string> {
-<<<<<<< HEAD
-    let results = [];
-    for (let dir of await this.getWorkspaceDirs()) {
-=======
     const results = [];
     for (const dir of await this.getWorkspaceDirs()) {
->>>>>>> v0.9.184-vscode
       results.push(await this._searchDir(query, dir));
     }
 
@@ -631,14 +505,6 @@ class VsCodeIde implements IDE {
   }
 
   async listDir(dir: string): Promise<[string, FileType][]> {
-<<<<<<< HEAD
-    const files = await vscode.workspace.fs.readDirectory(uriFromFilePath(dir));
-    return files
-      .filter(([name, type]) => {
-        !(type === vscode.FileType.File && defaultIgnoreFile.ignores(name));
-      })
-      .map(([name, type]) => [path.join(dir, name), type]) as any;
-=======
     return vscode.workspace.fs.readDirectory(uriFromFilePath(dir)) as any;
   }
 
@@ -666,7 +532,6 @@ class VsCodeIde implements IDE {
 
   async getIdeSettings(): Promise<IdeSettings> {
     return this.getIdeSettingsSync();
->>>>>>> v0.9.184-vscode
   }
 }
 

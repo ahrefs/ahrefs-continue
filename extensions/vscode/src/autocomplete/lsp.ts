@@ -417,8 +417,4 @@ export const getDefinitionsFromLsp: GetLspDefinitionsFunction = async (
     console.warn("Error getting definitions from LSP: ", e);
     return [];
   }
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> v0.9.184-vscode

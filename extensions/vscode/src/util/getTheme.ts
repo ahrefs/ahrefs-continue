@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import mergeJson from "core/util/merge";
-import * as fs from "fs";
-import { convertTheme } from "monaco-vscode-textmate-theme-converter/lib/cjs";
-import * as path from "path";
-=======
 import * as fs from "node:fs";
 import * as path from "node:path";
 import mergeJson from "core/util/merge";
 import { convertTheme } from "monaco-vscode-textmate-theme-converter/lib/cjs";
->>>>>>> v0.9.184-vscode
 import * as vscode from "vscode";
 import { getExtensionUri } from "./vscode";
 
@@ -64,11 +57,7 @@ export function getTheme() {
     }
 
     if (currentTheme === undefined && builtinThemes[colorTheme]) {
-<<<<<<< HEAD
-      const filename = builtinThemes[colorTheme] + ".json";
-=======
       const filename = `${builtinThemes[colorTheme]}.json`;
->>>>>>> v0.9.184-vscode
       currentTheme = fs
         .readFileSync(
           path.join(getExtensionUri().fsPath, "builtin-themes", filename),
@@ -95,13 +84,8 @@ export function getTheme() {
       ["vs", "hc-black"].includes(converted.base)
         ? converted.base
         : colorTheme.includes("Light")
-<<<<<<< HEAD
-        ? "vs"
-        : "vs-dark"
-=======
           ? "vs"
           : "vs-dark"
->>>>>>> v0.9.184-vscode
     ) as any;
 
     return converted;

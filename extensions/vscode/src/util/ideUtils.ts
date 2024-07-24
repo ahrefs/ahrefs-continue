@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-import { FileEdit, RangeInFile, Thread } from "core";
-import { defaultIgnoreFile } from "core/indexing/ignore";
-import path from "path";
-import * as vscode from "vscode";
-import { threadStopped } from "../debug/debug";
-import { VsCodeExtension } from "../extension/vscodeExtension";
-=======
 import type { FileEdit, RangeInFile, Thread } from "core";
 import path from "node:path";
 import * as vscode from "vscode";
 import { threadStopped } from "../debug/debug";
 import { VsCodeExtension } from "../extension/VsCodeExtension";
 import { GitExtension, Repository } from "../otherExtensions/git";
->>>>>>> v0.9.184-vscode
 import {
   SuggestionRanges,
   acceptSuggestionCommand,
@@ -20,25 +11,16 @@ import {
   rejectSuggestionCommand,
   showSuggestion as showSuggestionInEditor,
 } from "../suggestions";
-<<<<<<< HEAD
-import { traverseDirectory } from "./traverseDirectory";
-=======
->>>>>>> v0.9.184-vscode
 import {
   getUniqueId,
   openEditorAndRevealRange,
   uriFromFilePath,
 } from "./vscode";
 
-<<<<<<< HEAD
-const util = require("util");
-const asyncExec = util.promisify(require("child_process").exec);
-=======
 import _ from "lodash";
 
 const util = require("node:util");
 const asyncExec = util.promisify(require("node:child_process").exec);
->>>>>>> v0.9.184-vscode
 
 export class VsCodeIdeUtils {
   visibleMessages: Set<string> = new Set();
@@ -80,13 +62,6 @@ export class VsCodeIdeUtils {
     );
   }
 
-<<<<<<< HEAD
-  getWorkspaceDirectories(): string[] {
-    return (
-      vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath) ||
-      []
-    );
-=======
   private _workspaceDirectories: string[] | undefined = undefined;
   getWorkspaceDirectories(): string[] {
     if (this._workspaceDirectories === undefined) {
@@ -96,7 +71,6 @@ export class VsCodeIdeUtils {
     }
 
     return this._workspaceDirectories;
->>>>>>> v0.9.184-vscode
   }
 
   getUniqueId() {
@@ -164,13 +138,8 @@ export class VsCodeIdeUtils {
   showMultiFileEdit(edits: FileEdit[]) {
     vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
     const panel = vscode.window.createWebviewPanel(
-<<<<<<< HEAD
-      "ahrefs-continue.ahrefs-continueGUIView",
-      "Ahrefs-Continue",
-=======
       "continue.continueGUIView",
       "Continue",
->>>>>>> v0.9.184-vscode
       vscode.ViewColumn.One,
     );
     // panel.webview.html = this.sidebar.getSidebarContent(
@@ -217,11 +186,7 @@ export class VsCodeIdeUtils {
 
   async getUserSecret(key: string) {
     // Check if secret already exists in VS Code settings (global)
-<<<<<<< HEAD
-    let secret = vscode.workspace.getConfiguration("ahrefs-continue").get(key);
-=======
     let secret = vscode.workspace.getConfiguration("continue").get(key);
->>>>>>> v0.9.184-vscode
     if (typeof secret !== "undefined" && secret !== null) {
       return secret;
     }
@@ -234,11 +199,7 @@ export class VsCodeIdeUtils {
 
     // Add secret to VS Code settings
     vscode.workspace
-<<<<<<< HEAD
-      .getConfiguration("ahrefs-continue")
-=======
       .getConfiguration("continue")
->>>>>>> v0.9.184-vscode
       .update(key, secret, vscode.ConfigurationTarget.Global);
 
     return secret;
@@ -261,18 +222,6 @@ export class VsCodeIdeUtils {
   // Checks to see if the editor is a code editor.
   // In some cases vscode.window.visibleTextEditors can return non-code editors
   // e.g. terminal editors in side-by-side mode
-<<<<<<< HEAD
-  private documentIsCode(document: vscode.TextDocument) {
-    return document.uri.scheme === "file";
-  }
-
-  getOpenFiles(): string[] {
-    return vscode.workspace.textDocuments
-      .filter((document) => this.documentIsCode(document))
-      .map((document) => {
-        return document.uri.fsPath;
-      });
-=======
   private documentIsCode(uri: vscode.Uri) {
     return uri.scheme === "file";
   }
@@ -288,16 +237,11 @@ export class VsCodeIdeUtils {
       .filter(Boolean) // filter out undefined values
       .filter((uri) => this.documentIsCode(uri)) // Filter out undesired documents
       .map((uri) => uri.fsPath);
->>>>>>> v0.9.184-vscode
   }
 
   getVisibleFiles(): string[] {
     return vscode.window.visibleTextEditors
-<<<<<<< HEAD
-      .filter((editor) => this.documentIsCode(editor.document))
-=======
       .filter((editor) => this.documentIsCode(editor.document.uri))
->>>>>>> v0.9.184-vscode
       .map((editor) => {
         return editor.document.uri.fsPath;
       });
@@ -305,11 +249,7 @@ export class VsCodeIdeUtils {
 
   saveFile(filepath: string) {
     vscode.window.visibleTextEditors
-<<<<<<< HEAD
-      .filter((editor) => this.documentIsCode(editor.document))
-=======
       .filter((editor) => this.documentIsCode(editor.document.uri))
->>>>>>> v0.9.184-vscode
       .forEach((editor) => {
         if (editor.document.uri.fsPath === filepath) {
           editor.document.save();
@@ -317,40 +257,6 @@ export class VsCodeIdeUtils {
       });
   }
 
-<<<<<<< HEAD
-  async getDirectoryContents(
-    directory: string,
-    recursive: boolean,
-  ): Promise<string[]> {
-    if (!recursive) {
-      return (
-        await vscode.workspace.fs.readDirectory(uriFromFilePath(directory))
-      )
-        .filter(([name, type]) => {
-          type === vscode.FileType.File && !defaultIgnoreFile.ignores(name);
-        })
-        .map(([name, type]) => path.join(directory, name));
-    }
-
-    const allFiles: string[] = [];
-    const gitRoot = await this.getGitRoot(directory);
-    let onlyThisDirectory = undefined;
-    if (gitRoot) {
-      onlyThisDirectory = directory.slice(gitRoot.length).split(path.sep);
-      if (onlyThisDirectory[0] === "") {
-        onlyThisDirectory.shift();
-      }
-    }
-    for await (const file of traverseDirectory(
-      gitRoot ?? directory,
-      [],
-      true,
-      gitRoot === directory ? undefined : onlyThisDirectory,
-    )) {
-      allFiles.push(file);
-    }
-    return allFiles;
-=======
   private _cachedPath: path.PlatformPath | undefined;
   get path(): path.PlatformPath {
     if (this._cachedPath) {
@@ -366,18 +272,12 @@ export class VsCodeIdeUtils {
 
     this._cachedPath = isWindows ? path.win32 : path.posix;
     return this._cachedPath;
->>>>>>> v0.9.184-vscode
   }
 
   getAbsolutePath(filepath: string): string {
     const workspaceDirectories = this.getWorkspaceDirectories();
-<<<<<<< HEAD
-    if (!path.isAbsolute(filepath) && workspaceDirectories.length === 1) {
-      return path.join(workspaceDirectories[0], filepath);
-=======
     if (!this.path.isAbsolute(filepath) && workspaceDirectories.length === 1) {
       return this.path.join(workspaceDirectories[0], filepath);
->>>>>>> v0.9.184-vscode
     } else {
       return filepath;
     }
@@ -390,9 +290,6 @@ export class VsCodeIdeUtils {
       filepath = this.getAbsolutePath(filepath);
       const uri = uriFromFilePath(filepath);
 
-<<<<<<< HEAD
-      // Check first whether it's an open document
-=======
       // First, check whether it's a notebook document
       // Need to iterate over the cells to get full contents
       const notebook =
@@ -410,7 +307,6 @@ export class VsCodeIdeUtils {
       }
 
       // Check whether it's an open document
->>>>>>> v0.9.184-vscode
       const openTextDocument = vscode.workspace.textDocuments.find(
         (doc) => doc.uri.fsPath === uri.fsPath,
       );
@@ -431,12 +327,8 @@ export class VsCodeIdeUtils {
       const truncatedBytes = bytes.slice(0, VsCodeIdeUtils.MAX_BYTES);
       const contents = new TextDecoder().decode(truncatedBytes);
       return contents;
-<<<<<<< HEAD
-    } catch {
-=======
     } catch (e) {
       console.warn("Error reading file", e);
->>>>>>> v0.9.184-vscode
       return "";
     }
   }
@@ -449,18 +341,6 @@ export class VsCodeIdeUtils {
       await vscode.workspace.fs.readFile(vscode.Uri.file(filepath)),
     );
     const lines = contents.split("\n");
-<<<<<<< HEAD
-    return (
-      lines.slice(range.start.line, range.end.line).join("\n") +
-      "\n" +
-      lines[
-        range.end.line < lines.length - 1 ? range.end.line : lines.length - 1
-      ].slice(0, range.end.character)
-    );
-  }
-
-  async getTerminalContents(commands: number = -1): Promise<string> {
-=======
     return `${lines
       .slice(range.start.line, range.end.line)
       .join("\n")}\n${lines[
@@ -469,7 +349,6 @@ export class VsCodeIdeUtils {
   }
 
   async getTerminalContents(commands = -1): Promise<string> {
->>>>>>> v0.9.184-vscode
     const tempCopyBuffer = await vscode.env.clipboard.readText();
     if (commands < 0) {
       await vscode.commands.executeCommand(
@@ -488,19 +367,13 @@ export class VsCodeIdeUtils {
     await vscode.commands.executeCommand(
       "workbench.action.terminal.clearSelection",
     );
-<<<<<<< HEAD
-    const terminalContents = await vscode.env.clipboard.readText();
-=======
     let terminalContents = (await vscode.env.clipboard.readText()).trim();
->>>>>>> v0.9.184-vscode
     await vscode.env.clipboard.writeText(tempCopyBuffer);
 
     if (tempCopyBuffer === terminalContents) {
       // This means there is no terminal open to select text from
       return "";
     }
-<<<<<<< HEAD
-=======
 
     // Sometimes the above won't successfully separate by command, so we attempt manually
     const lines = terminalContents.split("\n");
@@ -511,7 +384,6 @@ export class VsCodeIdeUtils {
       terminalContents = lines.slice(Math.max(i, 0)).join("\n");
     }
 
->>>>>>> v0.9.184-vscode
     return terminalContents;
   }
 
@@ -534,11 +406,7 @@ export class VsCodeIdeUtils {
     return threadsResponse.threads;
   }
 
-<<<<<<< HEAD
-  async getDebugLocals(threadIndex: number = 0): Promise<string> {
-=======
   async getDebugLocals(threadIndex = 0): Promise<string> {
->>>>>>> v0.9.184-vscode
     const session = vscode.debug.activeDebugSession;
 
     if (!session) {
@@ -578,11 +446,7 @@ export class VsCodeIdeUtils {
 
   async getTopLevelCallStackSources(
     threadIndex: number,
-<<<<<<< HEAD
-    stackDepth: number = 3,
-=======
     stackDepth = 3,
->>>>>>> v0.9.184-vscode
   ): Promise<string[]> {
     const session = vscode.debug.activeDebugSession;
     if (!session) return [];
@@ -602,13 +466,9 @@ export class VsCodeIdeUtils {
 
             const scope = scopeResponse.scopes[0];
 
-<<<<<<< HEAD
-            return await this.retrieveSource(scope.source ? scope : stackFrame);
-=======
             return await this.retrieveSource(
               scope.source && !_.isEmpty(scope.source) ? scope : stackFrame,
             );
->>>>>>> v0.9.184-vscode
           }),
       );
 
@@ -643,11 +503,7 @@ export class VsCodeIdeUtils {
       return await this.readRangeInFile(
         sourceContainer.source.path,
         new vscode.Range(
-<<<<<<< HEAD
-          sourceContainer.line - 3,
-=======
           Math.max(0, sourceContainer.line - 3),
->>>>>>> v0.9.184-vscode
           0,
           sourceContainer.line + 2,
           0,
@@ -656,18 +512,12 @@ export class VsCodeIdeUtils {
     else return "unavailable";
   }
 
-<<<<<<< HEAD
-  private async _getRepo(forDirectory: vscode.Uri): Promise<any | undefined> {
-    // Use the native git extension to get the branch name
-    const extension = vscode.extensions.getExtension("vscode.git");
-=======
   private async _getRepo(
     forDirectory: vscode.Uri,
   ): Promise<Repository | undefined> {
     // Use the native git extension to get the branch name
     const extension =
       vscode.extensions.getExtension<GitExtension>("vscode.git");
->>>>>>> v0.9.184-vscode
     if (
       typeof extension === "undefined" ||
       !extension.isActive ||
@@ -678,11 +528,7 @@ export class VsCodeIdeUtils {
 
     try {
       const git = extension.exports.getAPI(1);
-<<<<<<< HEAD
-      return git.getRepository(forDirectory);
-=======
       return git.getRepository(forDirectory) ?? undefined;
->>>>>>> v0.9.184-vscode
     } catch (e) {
       this._repoWasNone = true;
       console.warn("Git not found: ", e);
@@ -691,9 +537,6 @@ export class VsCodeIdeUtils {
   }
 
   private _repoWasNone: boolean = false;
-<<<<<<< HEAD
-  async getRepo(forDirectory: vscode.Uri): Promise<any | undefined> {
-=======
   private repoCache: Map<string, Repository> = new Map();
   private static secondsToWaitForGitToLoad =
     process.env.NODE_ENV === "test" ? 1 : 20;
@@ -710,7 +553,6 @@ export class VsCodeIdeUtils {
       }
     }
 
->>>>>>> v0.9.184-vscode
     let repo = await this._getRepo(forDirectory);
 
     let i = 0;
@@ -719,25 +561,18 @@ export class VsCodeIdeUtils {
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       i++;
-<<<<<<< HEAD
-      if (i >= 20) {
-=======
       if (i >= VsCodeIdeUtils.secondsToWaitForGitToLoad) {
->>>>>>> v0.9.184-vscode
         this._repoWasNone = true;
         return undefined;
       }
       repo = await this._getRepo(forDirectory);
     }
-<<<<<<< HEAD
-=======
 
     if (parentDir) {
       // Cache the repository for the parent directory
       this.repoCache.set(parentDir, repo);
     }
 
->>>>>>> v0.9.184-vscode
     return repo;
   }
 
@@ -747,11 +582,7 @@ export class VsCodeIdeUtils {
   }
 
   async getBranch(forDirectory: vscode.Uri) {
-<<<<<<< HEAD
-    let repo = await this.getRepo(forDirectory);
-=======
     const repo = await this.getRepo(forDirectory);
->>>>>>> v0.9.184-vscode
     if (repo?.state?.HEAD?.name === undefined) {
       try {
         const { stdout } = await asyncExec("git rev-parse --abbrev-ref HEAD", {
@@ -767,12 +598,8 @@ export class VsCodeIdeUtils {
   }
 
   async getDiff(): Promise<string> {
-<<<<<<< HEAD
-    let diffs = [];
-=======
     let diffs: string[] = [];
     let repos = [];
->>>>>>> v0.9.184-vscode
 
     for (const dir of this.getWorkspaceDirectories()) {
       const repo = await this.getRepo(vscode.Uri.file(dir));
@@ -780,12 +607,6 @@ export class VsCodeIdeUtils {
         continue;
       }
 
-<<<<<<< HEAD
-      diffs.push((await repo.getDiff()).join("\n"));
-    }
-
-    return diffs.join("\n\n");
-=======
       repos.push(repo.state.HEAD?.name);
       // Staged changes
       // const a = await repo.diffIndexWithHEAD();
@@ -805,20 +626,13 @@ export class VsCodeIdeUtils {
       console.log(`Diff empty for repos: ${repos}`);
     }
     return fullDiff;
->>>>>>> v0.9.184-vscode
   }
 
   getHighlightedCode(): RangeInFile[] {
     // TODO
-<<<<<<< HEAD
-    let rangeInFiles: RangeInFile[] = [];
-    vscode.window.visibleTextEditors
-      .filter((editor) => this.documentIsCode(editor.document))
-=======
     const rangeInFiles: RangeInFile[] = [];
     vscode.window.visibleTextEditors
       .filter((editor) => this.documentIsCode(editor.document.uri))
->>>>>>> v0.9.184-vscode
       .forEach((editor) => {
         editor.selections.forEach((selection) => {
           // if (!selection.isEmpty) {

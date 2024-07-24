@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-const os = require("os");
-import * as vscode from "vscode";
-
-function charIsEscapedAtIndex(index: number, str: string): boolean {
-  if (index === 0) return false;
-  if (str[index - 1] !== "\\") return false;
-=======
 const os = require("node:os");
 import * as vscode from "vscode";
 
@@ -16,7 +8,6 @@ function charIsEscapedAtIndex(index: number, str: string): boolean {
   if (str[index - 1] !== "\\") {
     return false;
   }
->>>>>>> v0.9.184-vscode
   return !charIsEscapedAtIndex(index - 1, str);
 }
 
@@ -64,15 +55,9 @@ export function convertSingleToDoubleQuoteJSON(json: string): string {
   return newJson;
 }
 
-<<<<<<< HEAD
-export function debounced(delay: number, fn: Function) {
-  let timerId: NodeJS.Timeout | null;
-  return function (...args: any[]) {
-=======
 export function debounced(delay: number, fn: (...args: any[]) => void) {
   let timerId: NodeJS.Timeout | null;
   return (...args: any[]) => {
->>>>>>> v0.9.184-vscode
     if (timerId) {
       clearTimeout(timerId);
     }
@@ -102,11 +87,7 @@ export function getAltOrOption() {
   if (getPlatform() === "mac") {
     return "⌥";
   } else {
-<<<<<<< HEAD
-    return "⎇";
-=======
     return "Alt";
->>>>>>> v0.9.184-vscode
   }
 }
 
@@ -123,11 +104,6 @@ export function getMetaKeyLabel() {
   }
 }
 
-<<<<<<< HEAD
-export function getExtensionVersion() {
-  const extension = vscode.extensions.getExtension("continue.continue");
-  return extension?.packageJSON.version || "";
-=======
 export function getMetaKeyName() {
   const platform = getPlatform();
   switch (platform) {
@@ -144,5 +120,4 @@ export function getMetaKeyName() {
 export function getExtensionVersion(): string {
   const extension = vscode.extensions.getExtension("continue.continue");
   return extension?.packageJSON.version || "0.1.0";
->>>>>>> v0.9.184-vscode
 }
