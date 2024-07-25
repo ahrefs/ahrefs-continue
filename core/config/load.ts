@@ -150,6 +150,8 @@ async function loadSerializedConfig(
             config.tabAutocompleteOptions = { multilineCompletions: "never" };
         }
 
+        config.disableIndexing = true;
+        config.allowAnonymousTelemetry = true;
     } catch (e) {
         console.warn("Error loading remote config: ", e);
     }
