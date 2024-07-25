@@ -228,7 +228,7 @@ jobs:
         continue-on-error: true
         run: |
           cd extensions/vscode
-          npx ovsx publish -p ${{ secrets.VSX_REGISTRY_TOKEN }} --packagePath ../../alpine-x64/*.vsix ../../darwin-arm64/*.vsix ../../darwin-x64/*.vsix ../../linux-arm64/*.vsix ../../linux-armhf/*.vsix ../../linux-x64/*.vsix ../../win32-x64/*.vsix ../../win32-arm64/*.vsix
+          npx ovsx publish -p ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ../../alpine-x64/*.vsix ../../darwin-arm64/*.vsix ../../darwin-x64/*.vsix ../../linux-arm64/*.vsix ../../linux-armhf/*.vsix ../../linux-x64/*.vsix ../../win32-x64/*.vsix ../../win32-arm64/*.vsix
 
       # 4. Update the package.json version and push changes
       - name: Update version in package.json
