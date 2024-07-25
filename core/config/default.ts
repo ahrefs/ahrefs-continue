@@ -162,7 +162,7 @@ export const defaultConfig: SerializedContinueConfig = {
       "params": {}
     }
   ],
-  "allowAnonymousTelemetry": false,
+  "allowAnonymousTelemetry": true,
   "embeddingsProvider": {
     "provider": "transformers.js"
   }
