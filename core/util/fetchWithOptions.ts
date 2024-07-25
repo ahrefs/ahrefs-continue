@@ -1,4 +1,4 @@
-import { http, https } from "follow-redirects";
+import * as followRedirects from "follow-redirects";
 import { HttpProxyAgent } from "http-proxy-agent";
 import { globalAgent } from "https";
 import { HttpsProxyAgent } from "https-proxy-agent";
@@ -6,6 +6,8 @@ import fetch, { RequestInit, Response } from "node-fetch";
 import * as fs from "node:fs";
 import tls from "node:tls";
 import { RequestOptions } from "../index.js";
+
+const { http, https } = (followRedirects as any).default;
 
 export function fetchwithRequestOptions(
   url_: URL | string,
@@ -40,7 +42,7 @@ export function fetchwithRequestOptions(
 
   const timeout = (requestOptions?.timeout ?? TIMEOUT) * 1000; // measured in ms
 
-  const agentOptions = {
+  const agentOptions: {[key: string]: any} = {
     ca,
     rejectUnauthorized: requestOptions?.verifySsl,
     timeout,
@@ -48,6 +50,15 @@ export function fetchwithRequestOptions(
     keepAlive: true,
     keepAliveMsecs: timeout,
   };
+
+  // Handle ClientCertificateOptions
+  if (requestOptions?.clientCertificate){
+    agentOptions.cert = fs.readFileSync(requestOptions.clientCertificate.cert,"utf8");
+    agentOptions.key = fs.readFileSync(requestOptions.clientCertificate.key,"utf8");
+    if(requestOptions.clientCertificate.passphrase){
+      agentOptions.passphrase = requestOptions.clientCertificate.passphrase;
+    }
+  }
 
   const proxy = requestOptions?.proxy;
 

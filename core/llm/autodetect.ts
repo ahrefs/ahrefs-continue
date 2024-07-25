@@ -1,4 +1,4 @@
-import { ModelProvider, TemplateType } from "..";
+import { ModelProvider, TemplateType } from "../index.js";
 import {
   anthropicTemplateMessages,
   chatmlTemplateMessages,
@@ -15,7 +15,7 @@ import {
   templateAlpacaMessages,
   xWinCoderTemplateMessages,
   zephyrTemplateMessages,
-} from "./templates/chat";
+} from "./templates/chat.js";
 import {
   alpacaEditPrompt,
   claudeEditPrompt,
@@ -23,6 +23,7 @@ import {
   deepseekEditPrompt,
   gemmaEditPrompt,
   gptEditPrompt,
+  llama3EditPrompt,
   mistralEditPrompt,
   neuralChatEditPrompt,
   openchatEditPrompt,
@@ -31,39 +32,60 @@ import {
   simplifiedEditPrompt,
   xWinCoderEditPrompt,
   zephyrEditPrompt,
-} from "./templates/edit";
+} from "./templates/edit.js";
 
 const PROVIDER_HANDLES_TEMPLATING: ModelProvider[] = [
   "lmstudio",
   "openai",
   "ollama",
   "together",
+  "msty",
   "anthropic",
   "bedrock",
+  "continue-proxy",
+  "mistral",
 ];
 
 const PROVIDER_SUPPORTS_IMAGES: ModelProvider[] = [
   "openai",
   "ollama",
+  "gemini",
   "free-trial",
+  "msty",
   "anthropic",
   "bedrock",
+  "continue-proxy",
 ];
 
-function modelSupportsImages(provider: ModelProvider, model: string): boolean {
+const MODEL_SUPPORTS_IMAGES: string[] = [
+  "llava",
+  "gpt-4-turbo",
+  "gpt-4o",
+  "gpt-4-vision",
+  "claude-3",
+  "gemini-ultra",
+  "gemini-1.5-pro",
+  "gemini-1.5-flash",
+  "sonnet",
+  "opus",
+  "haiku",
+];
+
+function modelSupportsImages(
+  provider: ModelProvider,
+  model: string,
+  title: string | undefined,
+): boolean {
   if (!PROVIDER_SUPPORTS_IMAGES.includes(provider)) {
     return false;
   }
 
-  if (model.includes("llava")) {
-    return true;
-  }
-
-  if (model.includes("claude-3")) {
-    return true;
-  }
-
-  if (["gpt-4-vision-preview"].includes(model)) {
+  const lower = model.toLowerCase();
+  if (
+    MODEL_SUPPORTS_IMAGES.some(
+      (modelName) => lower.includes(modelName) || title?.includes(modelName),
+    )
+  ) {
     return true;
   }
 
@@ -102,11 +124,16 @@ function autodetectTemplateType(model: string): TemplateType | undefined {
 
   if (
     lower.includes("gpt") ||
+    lower.includes("command") ||
     lower.includes("chat-bison") ||
     lower.includes("pplx") ||
     lower.includes("gemini")
   ) {
     return undefined;
+  }
+
+  if (lower.includes("llama3")) {
+    return "llama3";
   }
 
   if (lower.includes("llava")) {
@@ -147,6 +174,10 @@ function autodetectTemplateType(model: string): TemplateType | undefined {
 
   // Claude requests always sent through Messages API, so formatting not necessary
   if (lower.includes("claude")) {
+    return "none";
+  }
+
+  if (lower.includes("codestral")) {
     return "none";
   }
 
@@ -227,6 +258,7 @@ const USES_OS_MODELS_EDIT_PROMPT: TemplateType[] = [
   "phind",
   "xwin-coder",
   "zephyr",
+  "llama3",
 ];
 
 function autodetectPromptTemplates(
@@ -270,12 +302,18 @@ function autodetectPromptTemplates(
     editTemplate = claudeEditPrompt;
   } else if (templateType === "gemma") {
     editTemplate = gemmaEditPrompt;
+  } else if (templateType === "llama3") {
+    editTemplate = llama3EditPrompt;
+  } else if (templateType === "none") {
+    editTemplate = null;
   } else if (templateType) {
     editTemplate = gptEditPrompt;
+  } else if (model.includes("codestral")) {
+    editTemplate = osModelsEditPrompt;
   }
 
   if (editTemplate !== null) {
-    templates["edit"] = editTemplate;
+    templates.edit = editTemplate;
   }
 
   return templates;

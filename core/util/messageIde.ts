@@ -1,24 +1,65 @@
-import {
+import type {
   ContinueRcJson,
-  IDE,
   FileType,
+  IDE,
   IdeInfo,
+  IdeSettings,
   IndexTag,
+  Location,
   Problem,
   Range,
+  RangeInFile,
   Thread,
-} from "..";
+} from "../index.js";
+import { ToIdeFromWebviewOrCoreProtocol } from "../protocol/ide.js";
+import { FromIdeProtocol } from "../protocol/index.js";
 
 export class MessageIde implements IDE {
   constructor(
-    private readonly request: (messageType: string, data: any) => Promise<any>,
+    private readonly request: <T extends keyof ToIdeFromWebviewOrCoreProtocol>(
+      messageType: T,
+      data: ToIdeFromWebviewOrCoreProtocol[T][0],
+    ) => Promise<ToIdeFromWebviewOrCoreProtocol[T][1]>,
+    private readonly on: <T extends keyof FromIdeProtocol>(
+      messageType: T,
+      callback: (data: FromIdeProtocol[T][0]) => FromIdeProtocol[T][1],
+    ) => void,
   ) {}
+  pathSep(): Promise<string> {
+    return this.request("pathSep", undefined);
+  }
+  fileExists(filepath: string): Promise<boolean> {
+    return this.request("fileExists", { filepath });
+  }
+  async gotoDefinition(location: Location): Promise<RangeInFile[]> {
+    return this.request("gotoDefinition", { location });
+  }
+  onDidChangeActiveTextEditor(callback: (filepath: string) => void): void {
+    this.on("didChangeActiveTextEditor", (data) => callback(data.filepath));
+  }
 
+  getIdeSettings(): Promise<IdeSettings> {
+    return this.request("getIdeSettings", undefined);
+  }
   getGitHubAuthToken(): Promise<string | undefined> {
     return this.request("getGitHubAuthToken", undefined);
   }
   getLastModified(files: string[]): Promise<{ [path: string]: number }> {
     return this.request("getLastModified", { files });
+  }
+  getGitRootPath(dir: string): Promise<string | undefined> {
+    return this.request("getGitRootPath", { dir });
+  }
+  listDir(dir: string): Promise<[string, FileType][]> {
+    return this.request("listDir", { dir });
+  }
+
+  infoPopup(message: string): Promise<void> {
+    return this.request("errorPopup", { message });
+  }
+
+  errorPopup(message: string): Promise<void> {
+    return this.request("errorPopup", { message });
   }
 
   getRepoName(dir: string): Promise<string | undefined> {
@@ -27,13 +68,6 @@ export class MessageIde implements IDE {
 
   getDebugLocals(threadIndex: number): Promise<string> {
     return this.request("getDebugLocals", { threadIndex });
-  }
-
-  getGitRootPath(dir: string): Promise<string | undefined> {
-    return this.request("getGitRootPath", { dir });
-  }
-  listDir(dir: string): Promise<[string, FileType][]> {
-    return this.request("listDir", { dir });
   }
 
   getTopLevelCallStackSources(
@@ -62,10 +96,6 @@ export class MessageIde implements IDE {
     return this.request("readRangeInFile", { filepath, range });
   }
 
-  getStats(directory: string): Promise<{ [path: string]: number }> {
-    throw new Error("Method not implemented.");
-  }
-
   isTelemetryEnabled(): Promise<boolean> {
     return this.request("isTelemetryEnabled", undefined);
   }
@@ -84,10 +114,6 @@ export class MessageIde implements IDE {
 
   async getTerminalContents() {
     return await this.request("getTerminalContents", undefined);
-  }
-
-  async listWorkspaceContents(directory?: string): Promise<string[]> {
-    return await this.request("listWorkspaceContents", undefined);
   }
 
   async getWorkspaceDirs(): Promise<string[]> {
@@ -151,6 +177,10 @@ export class MessageIde implements IDE {
     return this.request("getOpenFiles", undefined);
   }
 
+  getCurrentFile(): Promise<string | undefined> {
+    return this.request("getCurrentFile", undefined);
+  }
+
   getPinnedFiles(): Promise<string[]> {
     return this.request("getPinnedFiles", undefined);
   }
@@ -159,7 +189,7 @@ export class MessageIde implements IDE {
     return this.request("getSearchResults", { query });
   }
 
-  getProblems(filepath?: string | undefined): Promise<Problem[]> {
+  getProblems(filepath: string): Promise<Problem[]> {
     return this.request("getProblems", { filepath });
   }
 
@@ -169,17 +199,5 @@ export class MessageIde implements IDE {
 
   async getBranch(dir: string): Promise<string> {
     return this.request("getBranch", { dir });
-  }
-
-  getCurrentFile(): Promise<string | undefined> {
-    return this.request("getCurrentFile", undefined);
-  }
-
-  infoPopup(message: string): Promise<void> {
-    return this.request("errorPopup", { message });
-  }
-
-  errorPopup(message: string): Promise<void> {
-    return this.request("errorPopup", { message });
   }
 }

@@ -14,14 +14,14 @@ export const selectSlashCommands = createSelector(
         };
       }) || []
     );
-  }
+  },
 );
 
 export const selectContextProviderDescriptions = createSelector(
   [(store: RootState) => store.state.config.contextProviders],
   (providers) => {
     return providers.filter((desc) => desc.type === "submenu") || [];
-  }
+  },
 );
 
 export const selectUseActiveFile = createSelector(

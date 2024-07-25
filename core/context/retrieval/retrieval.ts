@@ -1,19 +1,13 @@
-import { BranchAndDir, Chunk, ContextItem, ContextProviderExtras } from "../..";
-import { LanceDbIndex } from "../../indexing/LanceDbIndex";
+import {
+  BranchAndDir,
+  ContextItem,
+  ContextProviderExtras,
+} from "../../index.js";
 
-import { deduplicateArray, getBasename } from "../../util";
-import { RETRIEVAL_PARAMS } from "../../util/parameters";
-import { retrieveFts } from "./fullTextSearch";
-
-function deduplicateChunks(chunks: Chunk[]): Chunk[] {
-  return deduplicateArray(chunks, (a, b) => {
-    return (
-      a.filepath === b.filepath &&
-      a.startLine === b.startLine &&
-      a.endLine === b.endLine
-    );
-  });
-}
+import { getRelativePath } from "../../util/index.js";
+import { RetrievalPipelineOptions } from "./pipelines/BaseRetrievalPipeline.js";
+import NoRerankerRetrievalPipeline from "./pipelines/NoRerankerRetrievalPipeline.js";
+import RerankerRetrievalPipeline from "./pipelines/RerankerRetrievalPipeline.js";
 
 export async function retrieveContextItemsFromEmbeddings(
   extras: ContextProviderExtras,
@@ -24,12 +18,24 @@ export async function retrieveContextItemsFromEmbeddings(
     return [];
   }
 
-  const nFinal = options?.nFinal || RETRIEVAL_PARAMS.nFinal;
+  // transformers.js not supported in JetBrains IDEs right now
+  if (
+    extras.embeddingsProvider.id === "all-MiniLM-L6-v2" &&
+    (await extras.ide.getIdeInfo()).ideType === "jetbrains"
+  ) {
+    throw new Error(
+      "The transformers.js context provider is not currently supported in JetBrains. For now, you can use Ollama to set up local embeddings, or use our 'free-trial' embeddings provider. See here to learn more: https://docs.continue.dev/walkthroughs/codebase-embeddings#embeddings-providers",
+    );
+  }
+
+  // Fill half of the context length, up to a max of 100 snippets
+  const contextLength = extras.llm.contextLength;
+  const tokensPerSnippet = 512;
+  const nFinal =
+    options?.nFinal ?? Math.min(50, contextLength / tokensPerSnippet / 2);
   const useReranking = extras.reranker !== undefined;
   const nRetrieve =
-    useReranking === false
-      ? nFinal
-      : options?.nRetrieve || RETRIEVAL_PARAMS.nRetrieve;
+    useReranking === false ? nFinal : options?.nRetrieve || 2 * nFinal;
 
   // Get tags to retrieve for
   const workspaceDirs = await extras.ide.getWorkspaceDirs();
@@ -51,78 +57,21 @@ export async function retrieveContextItemsFromEmbeddings(
     branch: branches[i],
   }));
 
-  // Get all retrieval results
-  const retrievalResults: Chunk[] = [];
-
-  // Source: Full-text search
-  let ftsResults = await retrieveFts(
-    extras.fullInput,
-    nRetrieve / 2,
-    tags,
-    filterDirectory,
-  );
-  retrievalResults.push(...ftsResults);
-
-  // Source: expansion with code graph
-  // consider doing this after reranking? Or just having a lower reranking threshold
-  // This is VS Code only until we use PSI for JetBrains or build our own general solution
-  if ((await extras.ide.getIdeInfo()).ideType === "vscode") {
-    const { expandSnippet } = await import(
-      "../../../extensions/vscode/src/util/expandSnippet"
-    );
-    let expansionResults = (
-      await Promise.all(
-        extras.selectedCode.map(async (rif) => {
-          return expandSnippet(
-            rif.filepath,
-            rif.range.start.line,
-            rif.range.end.line,
-            extras.ide,
-          );
-        }),
-      )
-    ).flat() as Chunk[];
-    retrievalResults.push(...expansionResults);
-  }
-
-  // Source: Open file exact match
-  // Source: Class/function name exact match
-
-  // Source: Embeddings
-  const lanceDbIndex = new LanceDbIndex(extras.embeddingsProvider, (path) =>
-    extras.ide.readFile(path),
-  );
-  let vecResults = await lanceDbIndex.retrieve(
-    extras.fullInput,
+  const pipelineType = useReranking
+    ? RerankerRetrievalPipeline
+    : NoRerankerRetrievalPipeline;
+  const pipelineOptions: RetrievalPipelineOptions = {
+    nFinal,
     nRetrieve,
     tags,
+    embeddingsProvider: extras.embeddingsProvider,
+    reranker: extras.reranker,
     filterDirectory,
-  );
-  retrievalResults.push(...vecResults);
-
-  // De-duplicate
-  let results: Chunk[] = deduplicateChunks(retrievalResults);
-
-  // Re-rank
-  if (useReranking && extras.reranker) {
-    let scores: number[] = await extras.reranker.rerank(
-      extras.fullInput,
-      results,
-    );
-
-    // Filter out low-scoring results
-    results = results.filter(
-      (_, i) => scores[i] >= RETRIEVAL_PARAMS.rerankThreshold,
-    );
-    scores = scores.filter(
-      (score) => score >= RETRIEVAL_PARAMS.rerankThreshold,
-    );
-
-    results.sort(
-      (a, b) => scores[results.indexOf(b)] - scores[results.indexOf(a)],
-    );
-    results = results.slice(0, nFinal);
-  }
+    ide: extras.ide,
+    input: extras.fullInput,
+  };
+  const pipeline = new pipelineType(pipelineOptions);
+  const results = await pipeline.run();
 
   if (results.length === 0) {
     throw new Error(
@@ -132,7 +81,7 @@ export async function retrieveContextItemsFromEmbeddings(
 
   return [
     ...results.map((r) => {
-      const name = `${getBasename(r.filepath)} (${r.startLine}-${r.endLine})`;
+      const name = `${getRelativePath(r.filepath, workspaceDirs)} (${r.startLine}-${r.endLine})`;
       const description = `${r.filepath} (${r.startLine}-${r.endLine})`;
       return {
         name,

@@ -6,6 +6,7 @@ import com.github.continuedev.continueintellijextension.services.ContinuePluginS
 import com.github.continuedev.continueintellijextension.utils.getAltKeyLabel
 import com.google.gson.Gson
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -49,6 +50,10 @@ class InlineEditAction : AnAction(), DumbAware {
         e.presentation.isVisible = true
     }
 
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.EDT
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
         if (e.project == null) return
 
@@ -59,10 +64,9 @@ class InlineEditAction : AnAction(), DumbAware {
         // Get list of model titles
         val continuePluginService = project.service<ContinuePluginService>()
         val modelTitles = mutableListOf<String>()
-        continuePluginService.coreMessenger?.request("config/getBrowserSerialized", null, null) { response ->
-            val gson = Gson()
-            val config = gson.fromJson(response, Map::class.java)
-            val models = config["models"] as List<Map<String, Any>>
+        continuePluginService.coreMessenger?.request("config/getSerializedProfileInfo", null, null) { response ->
+            val config = response as Map<String, Any>
+            val models = (config["config"] as Map<String, Any>)["models"] as List<Map<String, Any>>
             modelTitles.addAll(models.map { it["title"] as String })
         }
         val maxWaitTime = 200
@@ -73,8 +77,10 @@ class InlineEditAction : AnAction(), DumbAware {
 
         // Get highlighted range
         val selectionModel = editor.selectionModel
-        val start = selectionModel.selectionStart
-        val end = selectionModel.selectionEnd
+        val startLineNumber = editor.document.getLineNumber(selectionModel.selectionStart)
+        val endLineNumber = editor.document.getLineNumber(selectionModel.selectionEnd)
+        val start = editor.document.getLineStartOffset(startLineNumber)
+        val end = editor.document.getLineEndOffset(endLineNumber)
         val prefix = editor.document.getText(TextRange(0, start))
         val highlighted = editor.document.getText(TextRange(start, end))
         val suffix = editor.document.getText(TextRange(end, editor.document.textLength))

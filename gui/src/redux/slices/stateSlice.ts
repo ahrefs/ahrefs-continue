@@ -7,11 +7,23 @@ import {
   ContextItemId,
   ContextItemWithId,
   PersistedSessionInfo,
-  PromptLog
+  PromptLog,
 } from "core";
 import { BrowserSerializedContinueConfig } from "core/config/load";
 import { stripImages } from "core/llm/countTokens";
+import { createSelector } from "reselect";
 import { v4 } from "uuid";
+import { RootState } from "../store";
+
+export const memoizedContextItemsSelector = createSelector(
+  [(state: RootState) => state.state.history],
+  (history) => {
+    return history.reduce<ContextItemWithId[]>((acc, item) => {
+      acc.push(...item.contextItems);
+      return acc;
+    }, []);
+  },
+);
 
 const TEST_CONTEXT_ITEMS: ContextItemWithId[] = [
   {
@@ -91,6 +103,7 @@ type State = {
   title: string;
   sessionId: string;
   defaultModelTitle: string;
+  mainEditorContent?: JSONContent;
 };
 
 const initialState: State = {
@@ -109,7 +122,7 @@ const initialState: State = {
       },
       {
         name: "share",
-        description: "Download and share this session",
+        description: "Export the current chat session to markdown",
       },
       {
         name: "cmd",
@@ -117,38 +130,7 @@ const initialState: State = {
       },
     ],
     contextProviders: [],
-    models: [
-      {
-        title: "GPT-4 Vision (Free Trial)",
-        provider: "free-trial",
-        model: "gpt-4-vision-preview",
-      },
-      {
-        title: "GPT-3.5-Turbo (Free Trial)",
-        provider: "free-trial",
-        model: "gpt-3.5-turbo",
-      },
-      {
-        title: "Gemini Pro (Free Trial)",
-        provider: "free-trial",
-        model: "gemini-pro",
-      },
-      {
-        title: "Codellama 70b (Free Trial)",
-        provider: "free-trial",
-        model: "codellama-70b",
-      },
-      {
-        title: "Mixtral (Free Trial)",
-        provider: "free-trial",
-        model: "mistral-8x7b",
-      },
-      {
-        title: "Claude 3 Sonnet (Free Trial)",
-        provider: "free-trial",
-        model: "claude-3-sonnet-20240229",
-      },
-    ],
+    models: [],
   },
   title: "New Session",
   sessionId: v4(),
@@ -165,7 +147,9 @@ export const stateSlice = createSlice({
     ) => {
       const defaultModelTitle =
         config.models.find((model) => model.title === state.defaultModelTitle)
-          ?.title || config.models[0].title;
+          ?.title ||
+        config.models[0]?.title ||
+        "";
       state.config = config;
       state.defaultModelTitle = defaultModelTitle;
     },
@@ -184,6 +168,17 @@ export const stateSlice = createSlice({
     },
     setActive: (state) => {
       state.active = true;
+    },
+    clearLastResponse: (state) => {
+      if (state.history.length < 2) {
+        return;
+      }
+      state.mainEditorContent =
+        state.history[state.history.length - 2].editorState;
+      state.history = state.history.slice(0, -2);
+    },
+    consumeMainEditorContent: (state) => {
+      state.mainEditorContent = undefined;
     },
     setContextItemsAtIndex: (
       state,
@@ -460,14 +455,17 @@ export const stateSlice = createSlice({
         };
       }
     },
-    setDefaultModel: (state, { payload }: PayloadAction<string>) => {
+    setDefaultModel: (
+      state,
+      { payload }: PayloadAction<{ title: string; force?: boolean }>,
+    ) => {
       const model = state.config.models.find(
-        (model) => model.title === payload,
+        (model) => model.title === payload.title,
       );
-      if (!model) return;
+      if (!model && !payload.force) return;
       return {
         ...state,
-        defaultModelTitle: payload,
+        defaultModelTitle: payload.title,
       };
     },
   },
@@ -491,5 +489,7 @@ export const {
   setEditingContextItemAtIndex,
   initNewActiveMessage,
   setMessageAtIndex,
+  clearLastResponse,
+  consumeMainEditorContent,
 } = stateSlice.actions;
 export default stateSlice.reducer;

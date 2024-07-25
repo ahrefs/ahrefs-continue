@@ -1,7 +1,7 @@
 {
     "name": "ahrefs-continue",
     "icon": "media/a_ahrefs_logo.png",
-    "version": "1.1.13",
+    "version": "1.1.15",
     "repository": {
         "type": "git",
         "url": "https://github.com/ahrefs/ahrefs-continue"
@@ -30,6 +30,8 @@
         "theme": "dark"
     },
     "categories": [
+        "AI",
+        "Chat",
         "Programming Languages",
         "Education",
         "Machine Learning",
@@ -39,9 +41,13 @@
         "chatgpt",
         "github",
         "copilot",
-        "llama",
+        "claude",
+        "sonnet",
+        "mistral",
+        "codestral",
         "codegpt",
-        "ai"
+        "ai",
+        "llama"
     ],
     "activationEvents": [
         "onStartupFinished",
@@ -50,23 +56,42 @@
     "main": "./out/extension.js",
     "browser": "./out/extension.js",
     "contributes": {
+        "languages": [
+            {
+                "filenames": [
+                    "config.json",
+                    ".ahrefs-continuerc.json"
+                ],
+                "id": "jsonc"
+            }
+        ],
         "configuration": {
             "title": "Ahrefs-Continue",
             "properties": {
                 "ahrefs-continue.telemetryEnabled": {
                     "type": "boolean",
-                    "default": false,
-                    "markdownDescription": "Ahrefs-Continue collects anonymous usage data, cleaned of PII, to help us improve the product for our users. Read more  at [continue.dev › Telemetry](https://continue.dev/docs/telemetry)."
+                    "default": true,
+                    "markdownDescription": "Ahrefs-Continue collects anonymous usage data, cleaned of PII, to help us improve the product for our users."
                 },
                 "ahrefs-continue.showInlineTip": {
                     "type": "boolean",
                     "default": true,
                     "description": "Show inline suggestion to use the Ahrefs-Continue keyboard shortcuts (e.g. \"Cmd/Ctrl L to select code, Cmd/Ctrl I to edit\")."
                 },
+                "ahrefs-continue.enableQuickActions": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Enable the experimental Quick Actions feature."
+                },
                 "ahrefs-continue.enableTabAutocomplete": {
                     "type": "boolean",
                     "default": true,
-                    "markdownDescription": "Enable Ahrefs-Continue's tab autocomplete feature. Read our walkthrough to learn about configuration and how to share feedback: [continue.dev › Walkthrough: Tab Autocomplete](https://continue.dev/docs/walkthroughs/tab-autocomplete)"
+                    "markdownDescription": "Enable Ahrefs-Continue's tab autocomplete feature."
+                },
+                "ahrefs-continue.pauseTabAutocompleteOnBattery": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Pause Ahrefs-Continue's tab autocomplete feature when your battery is low."
                 },
                 "ahrefs-continue.remoteConfigServerUrl": {
                     "type": "string",
@@ -83,20 +108,15 @@
                     "default": 60,
                     "description": "The period of time in minutes between automatic syncs."
                 },
-                "ahrefs-continue.commandModel": {
-                    "type": "string",
-                    "default": null,
-                    "description": "Selected model to execute command"
-                },
-                "ahrefs-continue.completionModel": {
-                    "type": "string",
-                    "default": null,
-                    "description": "Selected model for code completion"
-                },
                 "ahrefs-continue.interruptGeneration": {
                     "type": "boolean",
                     "default": false,
                     "description": "Interrupt generation when this is True."
+                },
+                "ahrefs-continue.commandModel": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Selected model to execute command"
                 }
             }
         },
@@ -105,12 +125,6 @@
                 "command": "ahrefs-continue.selectCommandModel",
                 "category": "Ahrefs-Continue",
                 "title": "Select Command Execution Model (e.g. Ahrefs-Continue: Quick Edit)",
-                "group": "Ahrefs-Continue"
-            },
-            {
-                "command": "ahrefs-continue.selectCompletionModel",
-                "category": "Ahrefs-Continue",
-                "title": "Select Code Completion Model",
                 "group": "Ahrefs-Continue"
             },
             {
@@ -141,13 +155,7 @@
             {
                 "command": "ahrefs-continue.quickEdit",
                 "category": "Ahrefs-Continue",
-                "title": "Quick Edit",
-                "group": "Ahrefs-Continue"
-            },
-            {
-                "command": "ahrefs-continue.toggleAuxiliaryBar",
-                "category": "Ahrefs-Continue",
-                "title": "Toggle Right Sidebar",
+                "title": "Generate Code",
                 "group": "Ahrefs-Continue"
             },
             {
@@ -165,7 +173,7 @@
             {
                 "command": "ahrefs-continue.debugTerminal",
                 "category": "Ahrefs-Continue",
-                "title": "Debug Terminal",
+                "title": "Ahrefs-Continue: Debug Terminal",
                 "group": "Ahrefs-Continue"
             },
             {
@@ -176,9 +184,15 @@
                 "group": "Ahrefs-Continue"
             },
             {
-                "command": "ahrefs-continue.saveChatSession",
+                "command": "ahrefs-continue.openConfigJson",
                 "category": "Ahrefs-Continue",
-                "title": "Save Chat Session",
+                "title": "Open config.json",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.toggleTabAutocompleteEnabled",
+                "category": "Ahrefs-Continue",
+                "title": "Toggle Autocomplete Enabled",
                 "group": "Ahrefs-Continue"
             },
             {
@@ -202,9 +216,51 @@
                 "group": "Ahrefs-Continue"
             },
             {
-                "command": "ahrefs-continue.toggleTabAutocompleteEnabled",
+                "command": "ahrefs-continue.writeCommentsForCode",
                 "category": "Ahrefs-Continue",
-                "title": "Toggle Autocomplete Enabled",
+                "title": "Write Comments for this Code",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.writeDocstringForCode",
+                "category": "Ahrefs-Continue",
+                "title": "Write a Docstring for this Code",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.fixCode",
+                "category": "Ahrefs-Continue",
+                "title": "Fix this Code",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.optimizeCode",
+                "category": "Ahrefs-Continue",
+                "title": "Optimize this Code",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.fixGrammar",
+                "category": "Ahrefs-Continue",
+                "title": "Fix Grammar / Spelling",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.docsIndex",
+                "category": "Ahrefs-Continue",
+                "title": "Docs Index",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.docsReIndex",
+                "category": "Ahrefs-Continue",
+                "title": "Docs Force Re-Index",
+                "group": "Ahrefs-Continue"
+            },
+            {
+                "command": "ahrefs-continue.saveChatSession",
+                "category": "Ahrefs-Continue",
+                "title": "Save Chat Session",
                 "group": "Ahrefs-Continue"
             }
         ],
@@ -218,6 +274,11 @@
                 "command": "ahrefs-continue.focusContinueInputWithoutClear",
                 "mac": "cmd+shift+l",
                 "key": "ctrl+shift+l"
+            },
+            {
+                "command": "ahrefs-continue.toggleAuxiliaryBar",
+                "mac": "alt+cmd+l",
+                "key": "alt+ctrl+l"
             },
             {
                 "command": "ahrefs-continue.acceptDiff",
@@ -236,6 +297,18 @@
                 "when": "ahrefs-continue.diffVisible"
             },
             {
+                "command": "ahrefs-continue.quickEditHistoryUp",
+                "mac": "up",
+                "key": "up",
+                "when": "ahrefs-continue.quickEditHistoryFocused"
+            },
+            {
+                "command": "ahrefs-continue.quickEditHistoryDown",
+                "mac": "down",
+                "key": "down",
+                "when": "ahrefs-continue.quickEditHistoryFocused"
+            },
+            {
                 "command": "ahrefs-continue.acceptVerticalDiffBlock",
                 "mac": "alt+cmd+y",
                 "key": "alt+ctrl+y"
@@ -251,11 +324,6 @@
                 "key": "ctrl+i"
             },
             {
-                "command": "ahrefs-continue.toggleAuxiliaryBar",
-                "mac": "alt+cmd+l",
-                "key": "alt+ctrl+l"
-            },
-            {
                 "command": "ahrefs-continue.debugTerminal",
                 "mac": "cmd+shift+r",
                 "key": "ctrl+shift+r"
@@ -269,7 +337,13 @@
             {
                 "command": "ahrefs-continue.toggleTabAutocompleteEnabled",
                 "mac": "cmd+k cmd+a",
-                "key": "ctrl+k ctrl+a"
+                "key": "ctrl+k ctrl+a",
+                "when": "!terminalFocus"
+            },
+            {
+                "command": "ahrefs-continue.interruptGeneration",
+                "mac": "cmd+shift+c",
+                "key": "ctrl+shift+c"
             }
         ],
         "submenus": [
@@ -282,9 +356,6 @@
             "commandPalette": [
                 {
                     "command": "ahrefs-continue.quickEdit"
-                },
-                {
-                    "command": "ahrefs-continue.toggleAuxiliaryBar"
                 },
                 {
                     "command": "ahrefs-continue.focusContinueInput"
@@ -305,7 +376,7 @@
             "editor/context": [
                 {
                     "submenu": "ahrefs-continue.ahrefs-continueSubMenu",
-                    "group": "0_aahrefs-continue"
+                    "group": "0_acontinue"
                 }
             ],
             "editor/title/run": [
@@ -320,6 +391,31 @@
                     "command": "ahrefs-continue.focusContinueInputWithoutClear",
                     "group": "Ahrefs-Continue",
                     "when": "editorHasSelection"
+                },
+                {
+                    "command": "ahrefs-continue.writeCommentsForCode",
+                    "group": "Ahrefs-Continue",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "ahrefs-continue.writeDocstringForCode",
+                    "group": "Ahrefs-Continue",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "ahrefs-continue.fixCode",
+                    "group": "Ahrefs-Continue",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "ahrefs-continue.optimizeCode",
+                    "group": "Ahrefs-Continue",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "ahrefs-continue.fixGrammar",
+                    "group": "Ahrefs-Continue",
+                    "when": "editorHasSelection && editorLangId == 'markdown'"
                 }
             ],
             "explorer/context": [
@@ -350,6 +446,12 @@
                     "command": "ahrefs-continue.toggleFullScreen",
                     "group": "navigation@1",
                     "when": "activeWebviewPanelId == ahrefs-continue.ahrefs-continueGUIView"
+                }
+            ],
+            "terminal/context": [
+                {
+                    "command": "ahrefs-continue.debugTerminal",
+                    "group": "navigation@top"
                 }
             ]
         },
@@ -417,13 +519,13 @@
                 "url": "./config_schema.json"
             },
             {
-                "fileMatch": ".continuerc.json",
-                "url": "./continue_rc_schema.json"
+                "fileMatch": ".ahrefs-continuerc.json",
+                "url": "./ahrefs-continue_rc_schema.json"
             }
         ]
     },
     "scripts": {
-        "esbuild-base": "node esbuild.js",
+        "esbuild-base": "node scripts/esbuild.js",
         "vscode:prepublish": "npm run esbuild-base -- --minify",
         "esbuild": "npm run esbuild-base -- --sourcemap",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
@@ -431,23 +533,27 @@
         "tsc-watch": "tsc -watch -p ./",
         "rebuild": "electron-rebuild -v 19.1.8 node-pty",
         "lint": "eslint src --ext ts",
-        "build-test": "tsc && node esbuild.test.mjs",
-        "test": "npm run build-test && node ./out/test-runner/runTestOnVSCodeHost.js",
+        "build-test": "npm run esbuild && node esbuild.test.mjs",
+        "test": "npm run build-test && node ./out/runTestOnVSCodeHost.js",
+        "quick-test": "npm run build-test && node ./out/runTestOnVSCodeHost.js",
         "prepackage": "node scripts/prepackage.js",
         "package": "node scripts/package.js",
+        "package-all": "node scripts/package-all.js",
         "package:pre-release": "node scripts/package.js --pre-release",
         "build:rust": "cargo-cp-artifact -ac sync sync.node -- cargo build --manifest-path ../../sync/Cargo.toml --message-format=json-render-diagnostics",
         "build-debug:rust": "npm run build:rust --",
         "build-release:rust": "npm run build:rust -- --release"
     },
     "devDependencies": {
+        "@biomejs/biome": "1.6.4",
         "@nestjs/common": "^8.4.7",
         "@openapitools/openapi-generator-cli": "^2.5.2",
+        "@types/fast-levenshtein": "^0.0.4",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
         "@types/follow-redirects": "^1.14.4",
         "@types/glob": "^8.0.0",
-        "@types/fast-levenshtein": "^0.0.4",
+        "@types/mocha": "^10.0.6",
         "@types/node": "16.x",
         "@types/react-dom": "^18.2.4",
         "@types/request": "^2.48.8",
@@ -457,23 +563,22 @@
         "@typescript-eslint/parser": "^5.45.0",
         "@vscode/vsce": "^2.22.0",
         "cargo-cp-artifact": "^0.1",
-        "esbuild": "0.17.19",
         "eslint": "^8.28.0",
         "glob": "^8.0.3",
         "json-schema-to-typescript": "^12.0.0",
+        "mocha": "^10.4.0",
         "ovsx": "^0.8.3",
         "rimraf": "^5.0.5",
         "typescript": "^5.3.3",
         "vite": "^4.3.9",
-        "vsce": "^2.15.0",
-        "fast-levenshtein": "^3.0.0"
+        "vsce": "^2.15.0"
     },
     "dependencies": {
         "@electron/rebuild": "^3.2.10",
         "@reduxjs/toolkit": "^1.9.3",
-        "@types/jest": "^29.5.11",
         "@types/node-fetch": "^2.6.11",
         "@types/fast-levenshtein": "^0.0.4",
+        "@types/uuid": "^9.0.8",
         "@vscode/ripgrep": "^1.15.9",
         "@vscode/test-electron": "^2.3.9",
         "axios": "^1.2.5",
@@ -481,7 +586,9 @@
         "cors": "^2.8.5",
         "dbinfoz": "^0.1.4",
         "downshift": "^7.6.0",
+        "esbuild": "^0.17.19",
         "express": "^4.18.2",
+        "fast-levenshtein": "^3.0.0",
         "fkill": "^8.1.0",
         "follow-redirects": "^1.15.4",
         "handlebars": "^4.7.8",
@@ -492,27 +599,28 @@
         "http-proxy-middleware": "^2.0.6",
         "https-proxy-agent": "^7.0.2",
         "ignore": "^5.3.0",
-        "jest": "^29.7.0",
         "jsdom": "^24.0.0",
-        "mocha": "^10.3.0",
+        "minisearch": "^7.0.0",
         "monaco-editor": "^0.45.0",
         "monaco-vscode-textmate-theme-converter": "^0.1.7",
         "ncp": "^2.0.0",
         "node-fetch": "^3.3.2",
         "node-machine-id": "^1.1.12",
-        "posthog-node": "^3.1.2",
+        "posthog-node": "^3.6.3",
         "react-markdown": "^8.0.7",
         "react-redux": "^8.0.5",
+        "read-last-lines": "^1.8.0",
         "request": "^2.88.2",
         "socket.io-client": "^4.7.2",
         "strip-ansi": "^7.1.0",
+        "systeminformation": "^5.22.10",
         "tailwindcss": "^3.3.2",
         "undici": "^6.2.0",
+        "uuid": "^9.0.1",
         "uuidv4": "^6.2.13",
-        "vectordb": "0.4.12",
+        "vectordb": "^0.4.20",
         "vscode-languageclient": "^8.0.2",
         "ws": "^8.13.0",
-        "yarn": "^1.22.21",
-        "fast-levenshtein": "^3.0.0"
+        "yarn": "^1.22.21"
     }
 }

@@ -1,6 +1,6 @@
-import { BaseLLM } from "..";
-import { CompletionOptions, LLMOptions, ModelProvider } from "../..";
-import { streamSse } from "../stream";
+import { CompletionOptions, LLMOptions, ModelProvider } from "../../index.js";
+import { BaseLLM } from "../index.js";
+import { streamSse } from "../stream.js";
 
 class LlamaCpp extends BaseLLM {
   static providerName: ModelProvider = "llama.cpp";
@@ -16,6 +16,9 @@ class LlamaCpp extends BaseLLM {
       min_p: options.minP,
       mirostat: options.mirostat,
       stop: options.stop,
+      top_k: options.topK,
+      top_p: options.topP,
+      temperature: options.temperature,
     };
 
     return finalOptions;

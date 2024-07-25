@@ -16,6 +16,14 @@ As an example, say you are working on solving a new GitHub Issue. You type '@iss
 
 To use any of the built-in context providers, open `~/.continue/config.json` and add it to the `contextProviders` list.
 
+### Files
+
+Type '@file' to reference any file in your current workspace.
+
+```json
+{ "name": "file" }
+```
+
 ### Code
 
 Type '@code' to reference specific functions or classes from throughout your project.
@@ -48,6 +56,30 @@ Type `@docs` to index and retrieve snippets from any documentation site. You can
 { "name": "docs" }
 ```
 
+Continue also pre-indexes a number of common sites, listed [here](https://github.com/continuedev/continue/blob/main/core/indexing/docs/preIndexedDocs.ts). The embeddings for these sites are hosted by us, but downloaded for local use after the first time. All other indexing occurs entirely locally.
+
+#### Adding a Documentation Site via Configuration
+
+To add a documentation site via configuration, update the `config.json` file as follows:
+
+```json
+{
+  "name": "docs",
+  "params": {
+    "sites": [
+      {
+        "title": "ExampleDocs",
+        "startUrl": "https://exampledocs.com/docs",
+        "rootUrl": "https://exampledocs.com",
+        "maxDepth": 3 // Default
+      }
+    ]
+  }
+}
+```
+
+The docs are indexed when you modify the configuration file, unless indexing is disabled. If you want to manually trigger the indexing, you can use the command `Continue: Docs Index`. For force indexing, you can use the command `Continue: Docs Force Re-Index`. Note that these commands will work even if automatic indexing is disabled.
+
 ### Open Files
 
 Type '@open' to reference the contents of all of your open files. Set `onlyPinned` to `true` to only reference pinned files.
@@ -78,6 +110,14 @@ Type '@search' to reference the results of codebase search, just like the result
 
 ```json
 { "name": "search" }
+```
+
+### URL
+
+Type '@url' and input a URL, then Continue will convert it to a markdown document to pass to the model.
+
+```json
+{ "name": "url" }
 ```
 
 ### File Tree
@@ -157,14 +197,13 @@ If you select some code to be edited, you can have the context provider filter o
 
 ### Jira Issues
 
-Type '@jira' to reference the conversation in a Jira issue. Make sure to include your own [Atlassian API Token](https://id.atlassian.com/manage-profile/security/api-tokens).
+Type '@jira' to reference the conversation in a Jira issue. Make sure to include your own [Atlassian API Token](https://id.atlassian.com/manage-profile/security/api-tokens), or use your `email` and `token`, with token set to your password for basic authentication. If you use your own Atlassian API Token, don't configure your email.
 
 ```json
 {
   "name": "jira",
   "params": {
     "domain": "company.atlassian.net",
-    "email": "someone@somewhere.com",
     "token ": "ATATT..."
   }
 }
@@ -193,7 +232,12 @@ assignee = currentUser() AND resolution = Unresolved order by updated DESC
 
 You can override this query by setting the `issueQuery` parameter.
 
-### Code Outline
+ <!-- 
+ Note: We are currently omitting the following providers due to bugs.
+ See this issue for details: https://github.com/continuedev/continue/issues/1365 
+ -->
+
+<!-- ### Code Outline
 
 Type '@outline' to reference the outline of all currently open files. The outline of a files consists of only the function and class definitions in the file. Supported file extensions are '.js', '.mjs', '.go', '.c', '.cc', '.cs', '.cpp', '.el', '.ex', '.elm', '.java', '.ml', '.php', '.ql', '.rb', '.rs', '.ts'
 
@@ -207,7 +251,7 @@ Type '@highlights' to reference the 'highlights' from all currently open files. 
 
 ```json
 { "name": "highlights" }
-```
+``` -->
 
 ### PostgreSQL
 
@@ -279,6 +323,14 @@ Type `@locals` to reference the contents of the local variables with top n level
 }
 ```
 
+### Operating System
+
+Type `@os` to reference the architecture and platform of your current operating system.
+
+```json
+{ "name": "os" }
+```
+
 ### Requesting Context Providers
 
 Not seeing what you want? Create an issue [here](https://github.com/continuedev/continue/issues/new?assignees=TyDunn&labels=enhancement&projects=&template=feature-request-%F0%9F%92%AA.md&title=) to request a new ContextProvider.
@@ -295,10 +347,15 @@ interface CustomContextProvider {
   title: string;
   displayTitle?: string;
   description?: string;
+  renderInlineAs?: string;
+  type?: ContextProviderType;
   getContextItems(
     query: string,
     extras: ContextProviderExtras,
   ): Promise<ContextItem[]>;
+  loadSubmenuItems?: (
+    args: LoadSubmenuItemsArgs,
+  ) => Promise<ContextSubmenuItem[]>;
 }
 ```
 
@@ -438,6 +495,7 @@ Continue will use [esbuild](https://esbuild.github.io/) to bundle your `config.t
 - `displayTitle` (optional): The title displayed in the dropdown
 - `description` (optional): The longer description displayed in the dropdown when hovered
 - `type` (optional): The type of context provider. Options are "normal", "query", and "submenu". Defaults to "normal".
+- `renderInlineAs` (optional): The string that will be rendered inline at the top of the prompt. If no value is provided, the `displayTitle` will be used. An empty string can be provided to prevent rendering the default `displayTitle`.
 - `getContextItems`: A function that returns the documents to include in the prompt. It should return a list of `ContextItem`s, and is given access to the following arguments:
   - `extras.fullInput`: A string representing the user's full input to the text box. This can be used for example to generate an embedding to compare against a set of other embedded documents
   - `extras.embeddingsProvider`: The embeddings provider has an `embed` function that will convert text (such as `fullInput`) to an embedding
@@ -463,3 +521,64 @@ If you'd like to write a context provider in a language other than TypeScript, y
 ```
 
 Then, create a server that responds to requests as are made from [HttpContextProvider.ts](../../../core/context/providers/HttpContextProvider.ts). See the `hello` endpoint in [context_provider_server.py](../../../core/context/providers/context_provider_server.py) for an example that uses FastAPI.
+
+### Extension API for VSCode
+
+Continue exposes an API for registering context providers from a 3rd party VSCode extension. This is useful if you have a VSCode extension that provides some additional context that you would like to use in Continue. To use this API, add the following to your `package.json`:
+
+```json
+{
+  "extensionDependencies": ["continue.continue"]
+}
+```
+
+Or copy `~/.continue/type/core/index.d.ts` to your extension repository.
+
+Then, you can use the `registerCustomContextProvider` function to register your context provider. Your custom context provider must implement the `IContextProvider` interface.
+Here is an example:
+
+```typescript
+import * as vscode from "vscode";
+
+class MyCustomProvider implements IContextProvider {
+  get description(): ContextProviderDescription {
+    return {
+      title: "custom",
+      displayTitle: "Custom",
+      description: "Custom description",
+      type: "normal",
+    };
+  }
+
+  async getContextItems(
+    query: string,
+    extras: ContextProviderExtras,
+  ): Promise<ContextItem[]> {
+    return [
+      {
+        name: "Custom",
+        description: "Custom description",
+        content: "Custom content",
+      },
+    ];
+  }
+
+  async loadSubmenuItems(
+    args: LoadSubmenuItemsArgs,
+  ): Promise<ContextSubmenuItem[]> {
+    return [];
+  }
+}
+
+// create an instance of your custom provider
+const customProvider = new MyCustomProvider();
+
+// get Continue extension using vscode API
+const continueExt = vscode.extensions.getExtension("continue.continue");
+
+// get the API from the extension
+const continueApi = continueExt?.exports;
+
+// register your custom provider
+continueApi?.registerCustomContextProvider(customProvider);
+```

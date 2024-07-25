@@ -1,4 +1,5 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useRemark } from "react-remark";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
@@ -11,7 +12,9 @@ import {
   vscEditorBackground,
   vscForeground,
 } from "..";
+import { RootState } from "../../redux/store";
 import { getFontSize } from "../../util";
+import LinkableCode from "./LinkableCode";
 import PreWithToolbar from "./PreWithToolbar";
 import { SyntaxHighlightedPre } from "./SyntaxHighlightedPre";
 import "./katex.css";
@@ -46,7 +49,7 @@ const StyledMarkdown = styled.div<{
     word-wrap: break-word;
     border-radius: ${defaultBorderRadius};
     background-color: ${vscEditorBackground};
-    font-size: 12px;
+    font-size: ${getFontSize() - 2}px;
     font-family: var(--vscode-editor-font-family);
   }
 
@@ -92,6 +95,18 @@ interface StyledMarkdownPreviewProps {
 const FadeInWords: React.FC = (props: any) => {
   const { children, ...otherProps } = props;
 
+  const active = useSelector((store: RootState) => store.state.active);
+
+  const [textWhenActiveStarted, setTextWhenActiveStarted] = useState(
+    props.children,
+  );
+
+  useEffect(() => {
+    if (active) {
+      setTextWhenActiveStarted(children);
+    }
+  }, [active]);
+
   // Split the text into words
   const words = children
     .map((child) => {
@@ -107,7 +122,11 @@ const FadeInWords: React.FC = (props: any) => {
     })
     .flat();
 
-  return <p {...otherProps}>{words}</p>;
+  return active && children !== textWhenActiveStarted ? (
+    <p {...otherProps}>{words}</p>
+  ) : (
+    <p>{children}</p>
+  );
 };
 
 const StyledMarkdownPreview = memo(function StyledMarkdownPreview(
@@ -151,6 +170,17 @@ const StyledMarkdownPreview = memo(function StyledMarkdownPreview(
             <SyntaxHighlightedPre {...preProps}></SyntaxHighlightedPre>
           );
         },
+        code: ({ node, ...codeProps }) => {
+          if (
+            codeProps.className?.split(" ").includes("hljs") ||
+            codeProps.children?.length > 1
+          ) {
+            return <code {...codeProps}>{codeProps.children}</code>;
+          }
+          return (
+            <LinkableCode {...codeProps}>{codeProps.children}</LinkableCode>
+          );
+        },
         //   pre: ({ node, ...preProps }) => {
         //     const codeString =
         //       preProps.children?.[0]?.props?.children?.[0].trim() || "";
@@ -173,9 +203,9 @@ const StyledMarkdownPreview = memo(function StyledMarkdownPreview(
         //       <SyntaxHighlightedPre {...preProps}></SyntaxHighlightedPre>
         //     );
         //   },
-        //   // p: ({ node, ...props }) => {
-        //   //   return <FadeInWords {...props}></FadeInWords>;
-        //   // },
+        // p: ({ node, ...props }) => {
+        //   return <FadeInWords {...props}></FadeInWords>;
+        // },
       },
     },
   });

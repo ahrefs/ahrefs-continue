@@ -1,18 +1,45 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   ContinueRcJson,
   FileType,
   IDE,
   IdeInfo,
+  IdeSettings,
   IndexTag,
+  Location,
   Problem,
   Range,
+  RangeInFile,
   Thread,
-} from "../index.js";
+} from "../index.d.js";
 
 import { getContinueGlobalPath } from "./paths.js";
 
 class FileSystemIde implements IDE {
+  constructor(private readonly workspaceDir: string) {}
+  pathSep(): Promise<string> {
+    return Promise.resolve(path.sep);
+  }
+  fileExists(filepath: string): Promise<boolean> {
+    return Promise.resolve(fs.existsSync(filepath));
+  }
+
+  gotoDefinition(location: Location): Promise<RangeInFile[]> {
+    throw new Error("Method not implemented.");
+  }
+  onDidChangeActiveTextEditor(callback: (filepath: string) => void): void {
+    throw new Error("Method not implemented.");
+  }
+
+  async getIdeSettings(): Promise<IdeSettings> {
+    return {
+      remoteConfigServerUrl: "https://yep.tools/assets/ahrefs-continue-config.json",
+      remoteConfigSyncPeriod: 60,
+      userToken: "",
+      enableControlServerBeta: false,
+    };
+  }
   async getGitHubAuthToken(): Promise<string | undefined> {
     return undefined;
   }
@@ -30,12 +57,12 @@ class FileSystemIde implements IDE {
     const all: [string, FileType][] = fs
       .readdirSync(dir, { withFileTypes: true })
       .map((dirent: any) => [
-        dirent.path,
+        dirent.name,
         dirent.isDirectory()
-          ? FileType.Directory
+          ? (2 as FileType.Directory)
           : dirent.isSymbolicLink()
-            ? FileType.SymbolicLink
-            : FileType.File,
+            ? (64 as FileType.SymbolicLink)
+            : (1 as FileType.File),
       ]);
     return Promise.resolve(all);
   }
@@ -68,7 +95,7 @@ class FileSystemIde implements IDE {
   }
 
   isTelemetryEnabled(): Promise<boolean> {
-    return Promise.resolve(false);
+    return Promise.resolve(true);
   }
 
   getUniqueId(): Promise<string> {
@@ -110,29 +137,8 @@ class FileSystemIde implements IDE {
     return Promise.resolve();
   }
 
-  listWorkspaceContents(
-    directory?: string,
-    useGitIgnore?: boolean,
-  ): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      fs.readdir("/tmp/continue", (err, files) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(files);
-      });
-    });
-  }
-
   getWorkspaceDirs(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      fs.mkdtemp("/tmp/continue", (err, folder) => {
-        if (err) {
-          reject(err);
-        }
-        resolve([folder]);
-      });
-    });
+    return Promise.resolve([this.workspaceDir]);
   }
 
   listFolders(): Promise<string[]> {

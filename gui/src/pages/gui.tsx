@@ -1,4 +1,5 @@
 import {
+  ArrowLeftIcon,
   ChatBubbleOvalLeftIcon,
   CodeBracketSquareIcon,
   ExclamationTriangleIcon,
@@ -9,6 +10,7 @@ import { usePostHog } from "posthog-js/react";
 import {
   Fragment,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -25,25 +27,34 @@ import {
   vscBackground,
   vscForeground,
 } from "../components";
-import FTCDialog from "../components/dialogs/FTCDialog";
 import StepContainer from "../components/gui/StepContainer";
 import TimelineItem from "../components/gui/TimelineItem";
 import ContinueInputBox from "../components/mainInput/ContinueInputBox";
 import { defaultInputModifiers } from "../components/mainInput/inputModifiers";
+import { IdeMessengerContext } from "../context/IdeMessenger";
 import useChatHandler from "../hooks/useChatHandler";
 import useHistory from "../hooks/useHistory";
 import { useWebviewListener } from "../hooks/useWebviewListener";
 import { defaultModelSelector } from "../redux/selectors/modelSelectors";
-import { newSession, setInactive } from "../redux/slices/stateSlice";
+import {
+  clearLastResponse,
+  newSession,
+  setInactive,
+} from "../redux/slices/stateSlice";
 import {
   setDialogEntryOn,
   setDialogMessage,
   setShowDialog,
 } from "../redux/slices/uiStateSlice";
 import { RootState } from "../redux/store";
-import { getMetaKeyLabel, isMetaEquivalentKeyPressed } from "../util";
-import { isJetBrains, ideRequest } from "../util/ide";
+import {
+  getFontSize,
+  getMetaKeyLabel,
+  isJetBrains,
+  isMetaEquivalentKeyPressed,
+} from "../util";
 import { getLocalStorage, setLocalStorage } from "../util/localStorage";
+import { FREE_TRIAL_LIMIT_REQUESTS } from "../util/freeTrial";
 
 const TopGuiDiv = styled.div`
   overflow-y: scroll;
@@ -63,7 +74,7 @@ const StopButton = styled.div`
   margin-right: auto;
   margin-left: auto;
 
-  font-size: 12px;
+  font-size: ${getFontSize() - 2}px;
 
   border: 0.5px solid ${lightGray};
   border-radius: ${defaultBorderRadius};
@@ -99,10 +110,10 @@ const NewSessionButton = styled.div`
   margin-left: 8px;
   margin-top: 4px;
 
-  font-size: 12px;
+  font-size: ${getFontSize() - 2}px;
 
   border-radius: ${defaultBorderRadius};
-  padding: 2px 8px;
+  padding: 2px 6px;
   color: ${lightGray};
 
   &:hover {
@@ -141,6 +152,7 @@ function GUI(props: GUIProps) {
   const posthog = usePostHog();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const ideMessenger = useContext(IdeMessengerContext);
 
   // #endregion
 
@@ -225,28 +237,26 @@ function GUI(props: GUIProps) {
 
   // #endregion
 
-  const { streamResponse } = useChatHandler(dispatch);
+  const { streamResponse } = useChatHandler(dispatch, ideMessenger);
 
   const sendInput = useCallback(
     (editorState: JSONContent, modifiers: InputModifiers) => {
       if (defaultModel?.provider === "free-trial") {
-        const ftc = localStorage.getItem("ftc");
-        if (ftc) {
-          const u = parseInt(ftc);
-          localStorage.setItem("ftc", (u + 1).toString());
+        const u = getLocalStorage("ftc");
+        if (u) {
+          setLocalStorage("ftc", u + 1);
 
-          if (u >= 250) {
-            dispatch(setShowDialog(true));
-            dispatch(setDialogMessage(<FTCDialog />));
+          if (u >= FREE_TRIAL_LIMIT_REQUESTS) {
+            navigate("/onboarding");
             posthog?.capture("ftc_reached");
             return;
           }
         } else {
-          localStorage.setItem("ftc", "1");
+          setLocalStorage("ftc", 1);
         }
       }
 
-      streamResponse(editorState, modifiers);
+      streamResponse(editorState, modifiers, ideMessenger);
 
       // Increment localstorage counter for popup
       const currentCount = getLocalStorage("mainTextEntryCounter");
@@ -256,10 +266,10 @@ function GUI(props: GUIProps) {
           dispatch(
             setDialogMessage(
               <div className="text-center p-4">
-                👋 Thanks for using Continue. We are a beta product and love
-                working closely with our first users. If you're interested in
-                speaking, enter your name and email. We won't use this
-                information for anything other than reaching out.
+                👋 Thanks for using Continue. We are always trying to improve
+                and love hearing from users. If you're interested in speaking,
+                enter your name and email. We won't use this information for
+                anything other than reaching out.
                 <br />
                 <br />
                 <form
@@ -327,7 +337,8 @@ function GUI(props: GUIProps) {
     ],
   );
 
-  const { saveSession } = useHistory(dispatch);
+  const { saveSession, getLastSessionId, loadLastSession } =
+    useHistory(dispatch);
 
   useWebviewListener(
     "newSession",
@@ -337,11 +348,11 @@ function GUI(props: GUIProps) {
     },
     [saveSession],
   );
-  
+
   useWebviewListener(
     "sendSessionChatHistory",
     async () => {
-      ideRequest("saveSessionChatHistory", { "chatHistory" : state.history, "defaultTitle" : state.defaultModelTitle} );
+      ideMessenger.request("saveSessionChatHistory", { "chatHistory" : state.history, "defaultTitle" : state.defaultModelTitle} );
     }
   );
 
@@ -376,7 +387,12 @@ function GUI(props: GUIProps) {
                     {item.message.role === "user" ? (
                       <ContinueInputBox
                         onEnter={async (editorState, modifiers) => {
-                          streamResponse(editorState, modifiers, index);
+                          streamResponse(
+                            editorState,
+                            modifiers,
+                            ideMessenger,
+                            index,
+                          );
                         }}
                         isLastUserInput={isLastUserInput(index)}
                         isMainInput={false}
@@ -429,6 +445,7 @@ function GUI(props: GUIProps) {
                               state.history[index - 1].editorState,
                               state.history[index - 1].modifiers ??
                                 defaultInputModifiers,
+                              ideMessenger,
                               index - 1,
                             );
                           }}
@@ -436,7 +453,10 @@ function GUI(props: GUIProps) {
                             window.postMessage(
                               {
                                 messageType: "userInput",
-                                data: { input: "Keep going" },
+                                data: {
+                                  input:
+                                    "Continue your response exactly where you left off:",
+                                },
                               },
                               "*",
                             );
@@ -474,6 +494,16 @@ function GUI(props: GUIProps) {
             >
               New Session ({getMetaKeyLabel()} {isJetBrains() ? "J" : "L"})
             </NewSessionButton>
+          ) : getLastSessionId() ? (
+            <NewSessionButton
+              onClick={async () => {
+                loadLastSession();
+              }}
+              className="mr-auto flex items-center gap-1"
+            >
+              <ArrowLeftIcon width="11px" height="11px" />
+              Last Session
+            </NewSessionButton>
           ) : null}
         </div>
       </TopGuiDiv>
@@ -482,6 +512,12 @@ function GUI(props: GUIProps) {
           className="mt-auto"
           onClick={() => {
             dispatch(setInactive());
+            if (
+              state.history[state.history.length - 1]?.message.content
+                .length === 0
+            ) {
+              dispatch(clearLastResponse());
+            }
           }}
         >
           {getMetaKeyLabel()} ⌫ Cancel

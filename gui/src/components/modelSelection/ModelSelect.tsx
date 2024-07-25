@@ -4,7 +4,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   vscListActiveBackground,
   vscListActiveForeground,
 } from "..";
+import { IdeMessengerContext } from "../../context/IdeMessenger";
 import { defaultModelSelector } from "../../redux/selectors/modelSelectors";
 import { setDefaultModel } from "../../redux/slices/stateSlice";
 import {
@@ -26,7 +27,6 @@ import {
 } from "../../redux/slices/uiStateSlice";
 import { RootState } from "../../redux/store";
 import { getMetaKeyLabel, isMetaEquivalentKeyPressed } from "../../util";
-import { postToIde } from "../../util/ide";
 import HeaderButtonWithText from "../HeaderButtonWithText";
 import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 
@@ -123,6 +123,8 @@ function ListBoxOption({
   idx: number;
   showDelete?: boolean;
 }) {
+  const ideMessenger = useContext(IdeMessengerContext);
+
   const dispatch = useDispatch();
   const [hovered, setHovered] = useState(false);
 
@@ -148,7 +150,7 @@ function ListBoxOption({
         <span>{option.title}</span>
         {hovered && showDelete && (
           <HeaderButtonWithText
-            text="Delete"
+            text={undefined}
             onClick={(e) => {
               dispatch(setShowDialog(true));
               dispatch(
@@ -156,7 +158,9 @@ function ListBoxOption({
                   <ConfirmationDialog
                     text={`Are you sure you want to delete this model? (${option.title})`}
                     onConfirm={() => {
-                      postToIde("config/deleteModel", { title: option.title });
+                      ideMessenger.post("config/deleteModel", {
+                        title: option.title,
+                      });
                     }}
                   />,
                 ),
@@ -164,7 +168,8 @@ function ListBoxOption({
               e.stopPropagation();
               e.preventDefault();
             }}
-            style={{ backgroundColor: vscInputBackground }}
+            backgroundColor={vscInputBackground}
+            hoverBackgroundColor={vscBackground}
             className="absolute right-0 p-1"
           >
             <TrashIcon width="1.2em" height="1.2em" />
@@ -224,7 +229,7 @@ function ModelSelect(props: {}) {
         );
         let nextIndex = (currentIndex + 1 * direction) % options.length;
         if (nextIndex < 0) nextIndex = options.length - 1;
-        dispatch(setDefaultModel(options[nextIndex].value));
+        dispatch(setDefaultModel({ title: options[nextIndex].value }));
       }
     };
 
@@ -241,7 +246,7 @@ function ModelSelect(props: {}) {
           value={"GPT-4"}
           onChange={(val: string) => {
             if (val === defaultModel?.title) return;
-            dispatch(setDefaultModel(val));
+            dispatch(setDefaultModel({ title: val }));
             // TODO
             // client?.setModelForRoleFromTitle("default", val);
           }}
@@ -289,7 +294,7 @@ function ModelSelect(props: {}) {
           width="1.3em"
           height="1.3em"
           onClick={() => {
-            navigate("/models");
+            navigate("/addModel");
           }}
         />
       </GridDiv>

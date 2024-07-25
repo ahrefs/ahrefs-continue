@@ -1,15 +1,21 @@
-import { ChatMessage, DiffLine, ILLM } from "..";
 import {
   filterCodeBlockLines,
   filterEnglishLinesAtEnd,
   filterEnglishLinesAtStart,
   filterLeadingAndTrailingNewLineInsertion,
+  skipLines,
   stopAtLines,
-} from "../autocomplete/lineStream";
-import { streamDiff } from "../diff/streamDiff";
-import { streamLines } from "../diff/util";
-import { gptEditPrompt } from "../llm/templates/edit";
-import { Telemetry } from "./posthog";
+} from "../autocomplete/lineStream.js";
+import { streamDiff } from "../diff/streamDiff.js";
+import { streamLines } from "../diff/util.js";
+import {
+  ChatMessage,
+  DiffLine,
+  ILLM,
+  LLMFullCompletionOptions,
+} from "../index.js";
+import { gptEditPrompt } from "../llm/templates/edit.js";
+import { Telemetry } from "./logging.js";
 
 function constructPrompt(
   prefix: string,
@@ -52,11 +58,15 @@ export async function* streamDiffLines(
   llm: ILLM,
   input: string,
   language: string | undefined,
+  onlyOneInsertion?: boolean,
 ): AsyncGenerator<DiffLine> {
-  Telemetry.capture("inlineEdit", {
-    model: llm.model,
-    provider: llm.providerName,
-  });
+  Telemetry.capture(
+    "inlineEdit",
+    {
+      model: llm.model,
+      provider: llm.providerName,
+    },
+  );
 
   // Strip common indentation for the LLM, then add back after generation
   let oldLines =
@@ -80,6 +90,7 @@ export async function* streamDiffLines(
   );
   const inept = modelIsInept(llm.model);
 
+  const options: LLMFullCompletionOptions = {};
   const completion =
     typeof prompt === "string"
       ? llm.streamComplete(prompt, { raw: true })
@@ -90,6 +101,7 @@ export async function* streamDiffLines(
   lines = filterEnglishLinesAtStart(lines);
   lines = filterCodeBlockLines(lines);
   lines = stopAtLines(lines, () => {});
+  lines = skipLines(lines);
   if (inept) {
     // lines = fixCodeLlamaFirstLineIndentation(lines);
     lines = filterEnglishLinesAtEnd(lines);
@@ -103,7 +115,13 @@ export async function* streamDiffLines(
     diffLines = addIndentation(diffLines, indentation);
   }
 
-  for await (let diffLine of diffLines) {
+  let seenGreen = false;
+  for await (const diffLine of diffLines) {
     yield diffLine;
+    if (diffLine.type === "new") {
+      seenGreen = true;
+    } else if (onlyOneInsertion && seenGreen && diffLine.type === "same") {
+      break;
+    }
   }
 }

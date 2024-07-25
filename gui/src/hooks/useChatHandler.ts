@@ -6,7 +6,6 @@ import {
   ChatHistoryItem,
   ChatMessage,
   InputModifiers,
-  LLMReturnValue,
   MessageContent,
   PromptLog,
   RangeInFile,
@@ -14,13 +13,16 @@ import {
 } from "core";
 import { constructMessages } from "core/llm/constructMessages";
 import { stripImages } from "core/llm/countTokens";
+import { getBasename, getRelativePath } from "core/util";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import resolveEditorContent from "../components/mainInput/resolveInput";
+import { IIdeMessenger } from "../context/IdeMessenger";
 import { defaultModelSelector } from "../redux/selectors/modelSelectors";
 import {
   addPromptCompletionPair,
+  clearLastResponse,
   initNewActiveMessage,
   resubmitAtIndex,
   setInactive,
@@ -28,9 +30,8 @@ import {
   streamUpdate,
 } from "../redux/slices/stateSlice";
 import { RootState } from "../redux/store";
-import { ideStreamRequest, llmStreamChat, postToIde } from "../util/ide";
 
-function useChatHandler(dispatch: Dispatch) {
+function useChatHandler(dispatch: Dispatch, ideMessenger: IIdeMessenger) {
   const posthog = usePostHog();
 
   const defaultModel = useSelector(defaultModelSelector);
@@ -53,24 +54,33 @@ function useChatHandler(dispatch: Dispatch) {
   async function _streamNormalInput(messages: ChatMessage[]) {
     const abortController = new AbortController();
     const cancelToken = abortController.signal;
-    const gen = llmStreamChat(defaultModel.title, cancelToken, messages);
-    let next = await gen.next();
 
-    while (!next.done) {
-      if (!activeRef.current) {
-        abortController.abort();
-        break;
+    try {
+      const gen = ideMessenger.llmStreamChat(
+        defaultModel.title,
+        cancelToken,
+        messages,
+      );
+      let next = await gen.next();
+
+      while (!next.done) {
+        if (!activeRef.current) {
+          abortController.abort();
+          break;
+        }
+        dispatch(
+          streamUpdate(stripImages((next.value as ChatMessage).content)),
+        );
+        next = await gen.next();
       }
-      dispatch(streamUpdate(stripImages((next.value as ChatMessage).content)));
-      next = await gen.next();
-    }
 
-    let returnVal = next.value as PromptLog;
-    if (returnVal) {
-      // dispatch(
-      //   addPromptCompletionPair([[returnVal?.prompt, returnVal?.completion]]),
-      // );
-      dispatch(addPromptCompletionPair([returnVal]));
+      let returnVal = next.value as PromptLog;
+      if (returnVal) {
+        dispatch(addPromptCompletionPair([returnVal]));
+      }
+    } catch (e) {
+      // If there's an error, we should clear the response so there aren't two input boxes
+      dispatch(clearLastResponse());
     }
   }
 
@@ -110,7 +120,14 @@ function useChatHandler(dispatch: Dispatch) {
     const cancelToken = abortController.signal;
     const modelTitle = defaultModel.title;
 
-    for await (const update of ideStreamRequest(
+    const checkActiveInterval = setInterval(() => {
+      if (!activeRef.current) {
+        abortController.abort();
+        clearInterval(checkActiveInterval);
+      }
+    }, 100);
+
+    for await (const update of ideMessenger.streamRequest(
       "command/run",
       {
         input,
@@ -132,11 +149,13 @@ function useChatHandler(dispatch: Dispatch) {
         dispatch(streamUpdate(update));
       }
     }
+    clearInterval(checkActiveInterval);
   }
 
   async function streamResponse(
     editorState: JSONContent,
     modifiers: InputModifiers,
+    ideMessenger: IIdeMessenger,
     index?: number,
   ) {
     try {
@@ -150,7 +169,37 @@ function useChatHandler(dispatch: Dispatch) {
       const [contextItems, selectedCode, content] = await resolveEditorContent(
         editorState,
         modifiers,
+        ideMessenger,
       );
+
+      // Automatically use currently open file
+      if (!modifiers.noContext && (history.length === 0 || index === 0)) {
+        const usingFreeTrial = defaultModel.provider === "free-trial";
+
+        const currentFilePath = await ideMessenger.ide.getCurrentFile();
+        if (typeof currentFilePath === "string") {
+          let currentFileContents =
+            await ideMessenger.ide.readFile(currentFilePath);
+          if (usingFreeTrial) {
+            currentFileContents = currentFileContents
+              .split("\n")
+              .slice(0, 1000)
+              .join("\n");
+          }
+          contextItems.unshift({
+            content: `The following file is currently open. Don't reference it if it's not relevant to the user's message.\n\n\`\`\`${getRelativePath(
+              currentFilePath,
+              await ideMessenger.ide.getWorkspaceDirs(),
+            )}\n${currentFileContents}\n\`\`\``,
+            name: `Active file: ${getBasename(currentFilePath)}`,
+            description: currentFilePath,
+            id: {
+              itemId: currentFilePath,
+              providerTitle: "file",
+            },
+          });
+        }
+      }
 
       const message: ChatMessage = {
         role: "user",
@@ -207,7 +256,7 @@ function useChatHandler(dispatch: Dispatch) {
       }
     } catch (e) {
       console.log("Continue: error streaming response: ", e);
-      postToIde("errorPopup", {
+      ideMessenger.post("errorPopup", {
         message: `Error streaming response: ${e.message}`,
       });
     } finally {

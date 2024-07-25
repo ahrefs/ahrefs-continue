@@ -1,9 +1,8 @@
-import { Chunk, ChunkWithoutID } from "../..";
-import { MAX_CHUNK_SIZE } from "../../llm/constants";
-import { countTokens } from "../../llm/countTokens";
-import { supportedLanguages } from "../../util/treeSitter";
-import { basicChunker } from "./basic";
-import { codeChunker } from "./code";
+import { Chunk, ChunkWithoutID } from "../../index.js";
+import { countTokens } from "../../llm/countTokens.js";
+import { supportedLanguages } from "../../util/treeSitter.js";
+import { basicChunker } from "./basic.js";
+import { codeChunker } from "./code.js";
 
 async function* chunkDocumentWithoutId(
   filepath: string,
@@ -38,12 +37,12 @@ export async function* chunkDocument(
   digest: string,
 ): AsyncGenerator<Chunk> {
   let index = 0;
-  for await (let chunkWithoutId of chunkDocumentWithoutId(
+  for await (const chunkWithoutId of chunkDocumentWithoutId(
     filepath,
     contents,
     maxChunkSize,
   )) {
-    if (countTokens(chunkWithoutId.content) > MAX_CHUNK_SIZE) {
+    if (countTokens(chunkWithoutId.content) > maxChunkSize) {
       console.warn(
         `Chunk with more than ${maxChunkSize} tokens constructed: `,
         filepath,

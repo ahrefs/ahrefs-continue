@@ -4,13 +4,18 @@ import {
   CompletionProvider,
   type AutocompleteInput,
 } from "core/autocomplete/completionProvider";
-import type { ConfigHandler } from "core/config/handler";
+import { IConfigHandler } from "core/config/IConfigHandler";
 import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
 import type { TabAutocompleteModel } from "../util/loadAutocompleteModel";
 import { getDefinitionsFromLsp } from "./lsp";
 import { RecentlyEditedTracker } from "./recentlyEdited";
-import { setupStatusBar, stopStatusBarLoading } from "./statusBar";
+import {
+  StatusBarStatus,
+  getStatusBarStatus,
+  setupStatusBar,
+  stopStatusBarLoading,
+} from "./statusBar";
 
 interface VsCodeCompletionInput {
   document: vscode.TextDocument;
@@ -43,7 +48,7 @@ export class ContinueCompletionProvider
   private recentlyEditedTracker = new RecentlyEditedTracker();
 
   constructor(
-    private readonly configHandler: ConfigHandler,
+    private readonly configHandler: IConfigHandler,
     private readonly ide: IDE,
     private readonly tabAutocompleteModel: TabAutocompleteModel,
   ) {
@@ -74,9 +79,7 @@ export class ContinueCompletionProvider
     //@ts-ignore
   ): ProviderResult<InlineCompletionItem[] | InlineCompletionList> {
     const enableTabAutocomplete =
-      vscode.workspace
-        .getConfiguration("ahrefs-continue")
-        .get<boolean>("enableTabAutocomplete") || false;
+      getStatusBarStatus() === StatusBarStatus.Enabled;
     if (token.isCancellationRequested || !enableTabAutocomplete) {
       return null;
     }
@@ -196,7 +199,7 @@ export class ContinueCompletionProvider
         injectDetails,
       };
 
-      setupStatusBar(true, true);
+      setupStatusBar(undefined, true);
       const outcome =
         await this.completionProvider.provideInlineCompletionItems(
           input,
@@ -244,11 +247,11 @@ export class ContinueCompletionProvider
         startPos.translate(0, outcome.completion.length),
       );
       const completionItem = new vscode.InlineCompletionItem(
-          outcome.completion,
+        outcome.completion,
         completionRange,
-          {
-            title: "Log Autocomplete Outcome",
-            command: "continue.logAutocompleteOutcome",
+        {
+          title: "Log Autocomplete Outcome",
+          command: "continue.logAutocompleteOutcome",
           arguments: [input.completionId, this.completionProvider],
         },
       );

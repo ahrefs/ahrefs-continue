@@ -9,39 +9,39 @@
 </div>
 
 
-# ⏩ Features
+<div align="center">
 
-# 🔎 Ask about highlighted code
+## Easily understand code sections
 
-![Editing With Continue](media/readme.gif)
+![understand](docs/static/img/understand.gif)
 
-Highlight + select code sections and ask a question to get another perspective
+`cmd+L` (MacOS) / `ctrl+L` (Windows)
 
-- “how can I set up a Prisma schema that cascades deletes?”
-- “where in the page should I be making this request to the backend?”
-- “how can I communicate between these iframes?”
+## Tab to autocomplete code suggestions
 
-# 🪄 Reference context inline
+![autocomplete](docs/static/img/autocomplete.gif)
 
-![Reference context inline](media/image.gif)
+`tab` (MacOS) / `tab` (Windows)
 
-- "@diff check my commit for mistakes"
-- "how does @server.py stream responses?"
-- "how do i fix this error in the @terminal?"
+## Refactor functions where you are coding
 
-# ⚡️ Get completions directly in your editor
+![inline](docs/static/img/inline.gif)
 
-![Continue autocomplete](media/autocomplete.gif)
+`cmd+I` (MacOS) / `ctrl+I` (Windows)
 
-# ✏️ Edit in natural language
+## Ask questions about your codebase
 
-Highlight + select a section of code and instruct Continue to refactor it
+![codebase](docs/static/img/codebase.gif)
 
-- “/edit migrate this digital ocean terraform file into one that works for GCP”
-- “/edit change this plot into a bar chart in this dashboard component”
-- “/edit rewrite this function to be async”
+`@codebase` (MacOS) / `@codebase` (Windows)
 
-![Above line edit](media/above-line-edit.gif)
+## Quickly use documentation as context
+
+![docs](docs/static/img/docs.gif)
+
+`@docs` (MacOS) / `@docs` (Windows)
+
+</div>
 
 ## License
 

@@ -3,5 +3,8 @@
     "@types/fast-levenshtein": "^0.0.4",
     "fast-levenshtein": "^3.0.0",
     "vite-plugin-node": "^3.1.0"
+  },
+  "dependencies": {
+    "react-tooltip": "^5.27.1"
   }
 }
