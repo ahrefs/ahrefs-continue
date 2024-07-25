@@ -2,7 +2,7 @@ import os from "os";
 
 export class Telemetry {
   // Set to undefined whenever telemetry is disabled
-  static serverUrl?: string = "https://ahrefs_continue_logging_prod.ahrefs.dev";
+  static serverUrl?: string = "https://ahrefs_continue_logging_prod.ahrefs.dev/user/log";
   static uniqueId: string = "NOT_UNIQUE";
   static os: string | undefined = undefined;
   static extensionVersion: string | undefined = undefined;
