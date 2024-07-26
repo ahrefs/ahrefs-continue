@@ -146,8 +146,14 @@ async function loadSerializedConfig(
 
         if (config.tabAutocompleteOptions) {
             config.tabAutocompleteOptions.multilineCompletions = "never";
+            config.tabAutocompleteOptions.useOtherFiles = true;
+            config.tabAutocompleteOptions.onlyMyCode = false;
         } else {
-            config.tabAutocompleteOptions = { multilineCompletions: "never" };
+            config.tabAutocompleteOptions = { 
+                multilineCompletions: "never",
+                useOtherFiles: true,
+                onlyMyCode: false,
+            };
         }
 
         config.disableIndexing = true;
