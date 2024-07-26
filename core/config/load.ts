@@ -59,6 +59,7 @@ import {
   getPromptFiles,
   slashCommandFromPromptFile,
 } from "./promptFile.js";
+import { contextItemToRangeInFileWithContents } from "../commands/util.js";
 const { execSync } = require("child_process");
 
 function resolveSerializedConfig(filepath: string): SerializedContinueConfig {
@@ -146,8 +147,14 @@ async function loadSerializedConfig(
 
         if (config.tabAutocompleteOptions) {
             config.tabAutocompleteOptions.multilineCompletions = "never";
+            config.tabAutocompleteOptions.useOtherFiles = true;
+            config.tabAutocompleteOptions.onlyMyCode = false;
         } else {
-            config.tabAutocompleteOptions = { multilineCompletions: "never" };
+            config.tabAutocompleteOptions = { 
+                multilineCompletions: "never",
+                useOtherFiles: true,
+                onlyMyCode: false,
+            };
         }
 
         config.disableIndexing = true;
