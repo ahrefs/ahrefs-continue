@@ -251,7 +251,7 @@ export class ContinueCompletionProvider
         completionRange,
         {
           title: "Log Autocomplete Outcome",
-          command: "continue.logAutocompleteOutcome",
+          command: "ahrefs-continue.logAutocompleteOutcome",
           arguments: [input.completionId, this.completionProvider],
         },
       );

@@ -327,6 +327,12 @@ const commandsMap: (
       sidebar.webviewProtocol?.request("focusContinueInput", undefined);
       await addHighlightedCodeToContext(false, sidebar.webviewProtocol);
     },
+    "ahrefs-continue.logAutocompleteOutcome": (
+      completionId: string,
+      completionProvider: CompletionProvider,
+    ) => {
+      completionProvider.accept(completionId);
+    },
     "ahrefs-continue.focusContinueInputWithoutClear": async () => {
       if (!getFullScreenTab()) {
         vscode.commands.executeCommand("ahrefs-continue.ahrefs-continueGUIView.focus");
