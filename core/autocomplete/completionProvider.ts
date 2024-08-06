@@ -68,6 +68,7 @@ export interface AutocompleteInput {
     range: Range;
   };
   injectDetails?: string;
+  language : string
 }
 
 export interface AutocompleteOutcome extends TabAutocompleteOptions {
@@ -85,6 +86,7 @@ export interface AutocompleteOutcome extends TabAutocompleteOptions {
   gitRepo?: string;
   completionId: string;
   uniqueId: string;
+  language: string;
 }
 
 const autocompleteCache = AutocompleteLruCache.get();
@@ -204,13 +206,7 @@ export class CompletionProvider {
       logDevData("autocomplete", outcome);
       Telemetry.capture(
         "autocomplete",
-        {
-          accepted: outcome.accepted,
-          modelName: outcome.modelName,
-          modelProvider: outcome.modelProvider,
-          time: outcome.time,
-          cacheHit: outcome.cacheHit,
-        }
+        outcome
       );
       this._outcomes.delete(completionId);
 
@@ -361,12 +357,9 @@ export class CompletionProvider {
       // Wait 10 seconds, then assume it wasn't accepted
       outcome.accepted = false;
       logDevData("autocomplete", outcome);
-      const { prompt, completion, ...restOfOutcome } = outcome;
       Telemetry.capture(
         "autocomplete",
-        {
-          ...restOfOutcome,
-        }
+        outcome
       );
       this._logRejectionTimeouts.delete(completionId);
     }, COUNT_COMPLETION_REJECTED_AFTER);
@@ -733,6 +726,7 @@ export class CompletionProvider {
       completionId: input.completionId,
       gitRepo: await this.ide.getRepoName(input.filepath),
       uniqueId: await this.ide.getUniqueId(),
+      language: input.language,
       ...options,
     };
   }
