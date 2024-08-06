@@ -281,6 +281,32 @@ export const Markdown: AutocompleteLanguageInfo = {
   },
 };
 
+export const OCaml: AutocompleteLanguageInfo = {
+    topLevelKeywords: [
+      "let",
+      "type",
+      "module",
+      "open",
+      "if",
+      "then",
+      "else",
+      "match",
+      "with",
+      "fun",
+      "val",
+      "exception",
+      "rec",
+      "struct",
+      "sig",
+      "end",
+    ],
+    singleLineComment: "(* *)",
+    endOfLine: [";"],
+    stopWords: [],
+    lineFilters: [],
+    useMultiline: undefined,
+  };
+
 export const LANGUAGES: { [extension: string]: AutocompleteLanguageInfo } = {
   ts: Typescript,
   js: Typescript,
@@ -321,4 +347,6 @@ export const LANGUAGES: { [extension: string]: AutocompleteLanguageInfo } = {
   yaml: YAML,
   yml: YAML,
   md: Markdown,
+  ml: OCaml,
+  mli: OCaml
 };
