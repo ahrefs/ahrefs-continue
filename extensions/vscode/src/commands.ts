@@ -544,12 +544,6 @@ const commandsMap: (
         addEntireFileToContext(uri, false, sidebar.webviewProtocol);
       }
     },
-    "ahrefs-continue.logAutocompleteOutcome": (
-      completionId: string,
-      completionProvider: CompletionProvider,
-    ) => {
-      completionProvider.accept(completionId);
-    },
     "ahrefs-continue.toggleTabAutocompleteEnabled": () => {
       captureCommandTelemetry("toggleTabAutocompleteEnabled");
 
