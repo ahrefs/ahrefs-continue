@@ -96,7 +96,7 @@ import {
         // Setup telemetry only after (and if) we know it is enabled
         await Telemetry.setup(
           newConfig.allowAnonymousTelemetry ?? true,
-          await this.ide.getUniqueId(),
+          uniqueId,
           ideInfo.extensionVersion,
         );
   
