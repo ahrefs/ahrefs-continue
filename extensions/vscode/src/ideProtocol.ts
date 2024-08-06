@@ -234,14 +234,14 @@ class VsCodeIde implements IDE {
     return tags;
   }
   getIdeInfo(): Promise<IdeInfo> {
+    let version = vscode.extensions.getExtension("ahrefs.ahrefs-continue")?.packageJSON.version;
     return Promise.resolve({
       ideType: "vscode",
       name: vscode.env.appName,
       version: vscode.version,
       remoteName: vscode.env.remoteName || "local",
       extensionVersion:
-        vscode.extensions.getExtension("ahrefs-continue.ahrefs-continue")?.packageJSON
-          .version,
+        vscode.extensions.getExtension("ahrefs.ahrefs-continue")?.packageJSON.version,
     });
   }
   readRangeInFile(filepath: string, range: Range): Promise<string> {
