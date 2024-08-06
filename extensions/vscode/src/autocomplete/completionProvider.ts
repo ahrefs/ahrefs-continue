@@ -184,6 +184,14 @@ export class ContinueCompletionProvider
         // manuallyPassPrefix = `${diff}\n\nCommit message: `;
       }
 
+      const editor = vscode.window.activeTextEditor;
+      let language;
+      if (editor) {
+        language = editor.document.languageId;
+      } else {
+        language = "undefined";
+      }
+
       const input: AutocompleteInput = {
         completionId: uuidv4(),
         filepath: document.uri.fsPath,
@@ -197,6 +205,7 @@ export class ContinueCompletionProvider
         manuallyPassPrefix,
         selectedCompletionInfo,
         injectDetails,
+        language
       };
 
       setupStatusBar(undefined, true);
