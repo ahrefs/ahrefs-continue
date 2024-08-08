@@ -9,9 +9,50 @@ import { getExtensionVersion } from "../util/util";
 import { getExtensionUri } from "../util/vscode";
 import { VsCodeContinueApi } from "./api";
 import { setupInlineTips } from "./inlineTips";
+import axios from 'axios';
+
+const EXTENSION_ID = 'ahrefs.ahrefs-continue';
+const CURRENT_VERSION = vscode.extensions.getExtension(EXTENSION_ID)?.packageJSON.version;
+
+async function checkForExtensionUpdate() {
+    try {
+        const response = await axios.get(`https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json;api-version=3.0-preview.1'
+            },
+            data: {
+                filters: [{
+                    criteria: [{ filterType: 7, value: EXTENSION_ID }]
+                }],
+                flags: 131
+            }
+        });
+
+        const latestVersion = response.data.results[0].extensions[0].versions[0].version;
+
+        if (latestVersion !== CURRENT_VERSION) {
+            notifyUpdateAvailable(latestVersion);
+        }
+    } catch (error) {
+        console.error('Failed to check for updates:', error);
+    }
+}
+
+function notifyUpdateAvailable(latestVersion: string) {
+    const message = `A new version (${latestVersion}) of Ahrefs-Continue is available!`;
+    const updateAction = 'Update Now';
+
+    vscode.window.showInformationMessage(message, updateAction).then(selection => {
+        if (selection === updateAction) {
+            vscode.commands.executeCommand('extension.open', EXTENSION_ID);
+        }
+    });
+}
 
 export async function activateExtension(context: vscode.ExtensionContext) {
   // Add necessary files
+  checkForExtensionUpdate();
   getTsConfigPath();
   getContinueRcPath();
 
