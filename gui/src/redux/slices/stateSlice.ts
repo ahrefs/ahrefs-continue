@@ -14,6 +14,7 @@ import { stripImages } from "core/llm/countTokens";
 import { createSelector } from "reselect";
 import { v4 } from "uuid";
 import { RootState } from "../store";
+import { Telemetry } from "core/util/logging";
 
 export const memoizedContextItemsSelector = createSelector(
   [(state: RootState) => state.state.history],
@@ -327,12 +328,14 @@ export const stateSlice = createSlice({
         state.history = payload.history;
         state.title = payload.title;
         state.sessionId = payload.sessionId;
+        Telemetry.capture("loadSession", payload)
       } else {
         state.history = [];
         state.contextItems = [];
         state.active = false;
         state.title = "New Session";
         state.sessionId = v4();
+        Telemetry.capture("newSession", {})
       }
     },
     deleteContextWithIds: (

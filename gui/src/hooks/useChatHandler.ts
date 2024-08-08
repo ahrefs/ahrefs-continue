@@ -30,6 +30,9 @@ import {
   streamUpdate,
 } from "../redux/slices/stateSlice";
 import { RootState } from "../redux/store";
+import { Telemetry } from "core/util/logging";
+
+// Log streaming responses, number of sessions, and number of tokens
 
 function useChatHandler(dispatch: Dispatch, ideMessenger: IIdeMessenger) {
   const posthog = usePostHog();
@@ -224,6 +227,8 @@ function useChatHandler(dispatch: Dispatch, ideMessenger: IIdeMessenger) {
         }),
       );
 
+      Telemetry.capture("streamChat", newHistory);
+
       // TODO: hacky way to allow rerender
       await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -232,6 +237,7 @@ function useChatHandler(dispatch: Dispatch, ideMessenger: IIdeMessenger) {
         params: {},
       });
       posthog.capture("userInput", {});
+      
 
       const messages = constructMessages(newHistory);
 
@@ -255,7 +261,7 @@ function useChatHandler(dispatch: Dispatch, ideMessenger: IIdeMessenger) {
         );
       }
     } catch (e) {
-      console.log("Continue: error streaming response: ", e);
+      console.log("Ahrefs-Continue: error streaming response: ", e);
       ideMessenger.post("errorPopup", {
         message: `Error streaming response: ${e.message}`,
       });
