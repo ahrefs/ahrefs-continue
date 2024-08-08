@@ -148,50 +148,7 @@ jobs:
         with:
           name: ${{ env.target }}
           path: "extensions/vscode/*.vsix"
-
-  release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      # Download the .vsix artifacts
-      - uses: actions/download-artifact@v3
-
-      - name: Tag the repository
-        id: tag
-        run: |
-          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
-          TAG=v$(grep -o '"version": "[^"]*' extensions/vscode/package.json | cut -d'"' -f4)-vscode
-          echo "$TAG"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
-          git push origin $TAG
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          files: |
-            alpine-x64/*.vsix
-            darwin-arm64/*.vsix
-            darwin-x64/*.vsix
-            linux-arm64/*.vsix
-            linux-armhf/*.vsix
-            linux-x64/*.vsix
-            win32-x64/*.vsix
-            win32-arm64/*.vsix
-          token: ${{ secrets.CI_GITHUB_TOKEN }}
-          repository: continuedev/continue
+        
 
   publish:
     runs-on: ubuntu-latest
@@ -223,13 +180,6 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
 
-      # 3. Publish the extension to Open VSX Registry
-      - name: Publish (Open VSX Registry)
-        continue-on-error: true
-        run: |
-          cd extensions/vscode
-          npx ovsx publish -p ${{ secrets.VS_MARKETPLACE_TOKEN }} --packagePath ../../alpine-x64/*.vsix ../../darwin-arm64/*.vsix ../../darwin-x64/*.vsix ../../linux-arm64/*.vsix ../../linux-armhf/*.vsix ../../linux-x64/*.vsix ../../win32-x64/*.vsix ../../win32-arm64/*.vsix
-
       # 4. Update the package.json version and push changes
       - name: Update version in package.json
         run: |
@@ -247,11 +197,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-
-      # 5 Send to Discord Webhook
-      - name: Discord Commits
-        uses: Sniddl/discord-commits@1.7
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          template: "avatar-with-link"
-          include-extras: true
