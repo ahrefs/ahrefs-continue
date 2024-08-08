@@ -583,7 +583,7 @@ const commandsMap: (
     "ahrefs-continue.openTabAutocompleteConfigMenu": async () => {
       captureCommandTelemetry("openTabAutocompleteConfigMenu");
 
-      const config = vscode.workspace.getConfiguration("continue");
+      const config = vscode.workspace.getConfiguration("ahrefs-continue");
       const quickPick = vscode.window.createQuickPick();
       const selected = new GlobalContext().get("selectedTabAutocompleteModel");
       const autocompleteModelTitles = ((
@@ -685,6 +685,7 @@ const commandsMap: (
       historyDownEventEmitter.fire();
     },
     "ahrefs-continue.saveChatSession": () => {
+        Telemetry.capture("saveChatSession", {});
         sidebar.webviewProtocol.request("sendSessionChatHistory", undefined);
     },
   };
