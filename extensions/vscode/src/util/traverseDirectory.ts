@@ -6,7 +6,7 @@ import { uriFromFilePath } from "./vscode";
 
 function isIgnoreFilepath(filepath: string): boolean {
   return (
-    filepath.endsWith(".gitignore") || filepath.endsWith(".continueignore")
+    filepath.endsWith(".gitignore") || filepath.endsWith(".ahrefs-continueignore")
   );
 }
 

@@ -138,8 +138,8 @@ export class VsCodeIdeUtils {
   showMultiFileEdit(edits: FileEdit[]) {
     vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
     const panel = vscode.window.createWebviewPanel(
-      "continue.continueGUIView",
-      "Continue",
+      "ahrefs-continue.ahrefs-continueGUIView",
+      "Ahrefs-Continue",
       vscode.ViewColumn.One,
     );
     // panel.webview.html = this.sidebar.getSidebarContent(
