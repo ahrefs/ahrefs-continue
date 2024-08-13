@@ -424,7 +424,7 @@ const commandsMap: (
     },
     "ahrefs-continue.hideInlineTip": () => {
       vscode.workspace
-        .getConfiguration("continue")
+        .getConfiguration("ahrefs-continue")
         .update("showInlineTip", false, vscode.ConfigurationTarget.Global);
     },
 
@@ -547,7 +547,7 @@ const commandsMap: (
     "ahrefs-continue.toggleTabAutocompleteEnabled": () => {
       captureCommandTelemetry("toggleTabAutocompleteEnabled");
 
-      const config = vscode.workspace.getConfiguration("continue");
+      const config = vscode.workspace.getConfiguration("ahrefs-continue");
       const enabled = config.get("enableTabAutocomplete");
       const pauseOnBattery = config.get<boolean>(
         "pauseTabAutocompleteOnBattery",

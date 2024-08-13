@@ -120,7 +120,7 @@ export function getStatusBarStatus(): StatusBarStatus | undefined {
 
 export function monitorBatteryChanges(battery: Battery): vscode.Disposable {
   return battery.onChangeAC((acConnected: boolean) => {
-    const config = vscode.workspace.getConfiguration("continue");
+    const config = vscode.workspace.getConfiguration("ahrefs-continue");
     const enabled = config.get<boolean>("enableTabAutocomplete");
     if (!!enabled) {
       const pauseOnBattery = config.get<boolean>(
