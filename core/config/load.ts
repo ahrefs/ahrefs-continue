@@ -40,6 +40,7 @@ import { fetchwithRequestOptions } from "../util/fetchWithOptions.js";
 import { copyOf } from "../util/index.js";
 import mergeJson from "../util/merge.js";
 import {
+    editConfigJson,
   getConfigJsPath,
   getConfigJsPathForRemote,
   getConfigJsonPath,
@@ -621,6 +622,8 @@ async function loadFullConfigNode(
 ): Promise<ContinueConfig> {
   // Serialized config
   let serialized = await loadSerializedConfig(workspaceConfigs, ideSettings, ideType);
+
+  editConfigJson((config) => serialized)
 
   // Convert serialized to intermediate config
   let intermediate = await serializedToIntermediateConfig(serialized, ide);
