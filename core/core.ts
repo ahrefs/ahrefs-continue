@@ -535,7 +535,7 @@ export class Core {
         case "apiKeys":
           editConfigJsonCallback = setupApiKeysMode;
           break;
-
+        
         case "default":
           editConfigJsonCallback = (config) => config;
           break

@@ -622,7 +622,7 @@ async function loadFullConfigNode(
 ): Promise<ContinueConfig> {
   // Serialized config
   let serialized = await loadSerializedConfig(workspaceConfigs, ideSettings, ideType);
-
+  
   editConfigJson((config) => serialized)
 
   // Convert serialized to intermediate config

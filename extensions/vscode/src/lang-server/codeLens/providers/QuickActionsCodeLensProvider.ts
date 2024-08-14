@@ -124,10 +124,10 @@ export class QuickActionsCodeLensProvider implements vscode.CodeLensProvider {
 
     return filteredSmybols?.flatMap(({ range }) => {
         const commands: vscode.Command[] = this.customQuickActionsConfig
-        ? this.getCustomCommands(range, this.customQuickActionsConfig)
-        : this.getDefaultCommands(range);
-
-      return commands.map((command) => new vscode.CodeLens(range, command));
+          ? this.getCustomCommands(range, this.customQuickActionsConfig)
+          : this.getDefaultCommands(range);
+          
+        return commands.map((command) => new vscode.CodeLens(range, command));
       }) ?? [];
   }
 }
