@@ -30,7 +30,7 @@ function Onboarding() {
   const ideMessenger = useContext(IdeMessengerContext);
 
   const [hasSignedIntoGh, setHasSignedIntoGh] = useState(false);
-  const [selectedOnboardingMode, setSlectedOnboardingMode] = useState<
+  const [selectedOnboardingMode, setSelectedOnboardingMode] = useState<
     OnboardingMode | undefined
   >(undefined);
 
@@ -52,7 +52,7 @@ function Onboarding() {
 
     switch (selectedOnboardingMode) {
       case "local":
-        completeOnboarding();
+        navigate("/localOnboarding");
         break;
 
       case "apiKeys":
@@ -62,6 +62,10 @@ function Onboarding() {
       case "freeTrial":
         completeOnboarding();
         break;
+    
+      case "default":
+        completeOnboarding();
+        break
 
       default:
         break;
@@ -79,8 +83,8 @@ function Onboarding() {
 
       <div className="flex flex-col gap-6 pb-8 pt-4">
         <Div
-          selected={selectedOnboardingMode === "local"}
-          onClick={() => setSlectedOnboardingMode("local")}
+          selected={selectedOnboardingMode === "default"}
+          onClick={() => setSelectedOnboardingMode("default")}
         >
           <h3>
             <ComputerDesktopIcon

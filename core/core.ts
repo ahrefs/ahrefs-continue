@@ -536,6 +536,10 @@ export class Core {
           editConfigJsonCallback = setupApiKeysMode;
           break;
 
+        case "default":
+          editConfigJsonCallback = (config) => config;
+          break
+
         default:
           console.error(`Invalid mode: ${mode}`);
           editConfigJsonCallback = (config) => config;

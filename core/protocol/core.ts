@@ -133,7 +133,8 @@ export type ToCoreFromIdeOrWebviewProtocol = {
         | "custom"
         | "freeTrial"
         | "localAfterFreeTrial"
-        | "bestExperience";
+        | "bestExperience"
+        | "default";
     },
     void,
   ];
