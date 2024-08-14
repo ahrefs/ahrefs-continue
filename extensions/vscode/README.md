@@ -1,5 +1,3 @@
-> 🎉 **Tab autocomplete now available in pre-release (experimental)**
-
 <h1 align="center">Ahrefs-Continue</h1>
 
 <div align="center">
