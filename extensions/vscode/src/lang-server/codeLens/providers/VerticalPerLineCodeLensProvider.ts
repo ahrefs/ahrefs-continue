@@ -49,12 +49,12 @@ export class VerticalPerLineCodeLensProvider
         codeLenses.push(
           new vscode.CodeLens(range, {
             title: `Accept All (${getMetaKeyLabel()}⇧↩)`,
-            command: "continue.acceptDiff",
+            command: "ahrefs-continue.acceptDiff",
             arguments: [filepath, i],
           }),
           new vscode.CodeLens(range, {
             title: `Reject All (${getMetaKeyLabel()}⇧⌫)`,
-            command: "continue.rejectDiff",
+            command: "ahrefs-continue.rejectDiff",
             arguments: [filepath, i],
           }),
         );

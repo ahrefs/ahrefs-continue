@@ -30,7 +30,7 @@ export function subscribeToVSCodeQuickActionsSettings(listener: Function) {
 export function toggleQuickActions() {
   const curStatus = quickActionsEnabledStatus();
 
-  getContinueWorkspaceConfig().update(ENABLE_QUICK_ACTIONS_KEY, curStatus);
+  getContinueWorkspaceConfig().update(ENABLE_QUICK_ACTIONS_KEY, !curStatus);
 }
 
 export function quickActionsEnabledStatus() {
@@ -72,12 +72,12 @@ export class QuickActionsCodeLensProvider implements vscode.CodeLensProvider {
       return sendToChat
         ? {
             title,
-            command: "continue.customQuickActionSendToChat",
+            command: "ahrefs-continue.customQuickActionSendToChat",
             arguments: [prompt, range],
           }
         : {
             title,
-            command: "continue.customQuickActionStreamInlineEdit",
+            command: "ahrefs-continue.customQuickActionStreamInlineEdit",
             arguments: [prompt, range],
           };
     });
@@ -85,13 +85,13 @@ export class QuickActionsCodeLensProvider implements vscode.CodeLensProvider {
 
   getDefaultCommands(range: vscode.Range): vscode.Command[] {
     const explain: vscode.Command = {
-      command: "continue.defaultQuickActionExplain",
+      command: "ahrefs-continue.defaultQuickActionExplain",
       title: "Explain",
       arguments: [range],
     };
 
     const comment: vscode.Command = {
-      command: "continue.defaultQuickActionDocstring",
+      command: "ahrefs-continue.defaultQuickActionDocstring",
       title: "Docstring",
       arguments: [range],
     };
