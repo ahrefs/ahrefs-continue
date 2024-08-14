@@ -14,6 +14,7 @@ import axios from 'axios';
 const EXTENSION_ID = 'ahrefs.ahrefs-continue';
 const CURRENT_VERSION = vscode.extensions.getExtension(EXTENSION_ID)?.packageJSON.version;
 
+// TODO: THe URL does not work
 async function checkForExtensionUpdate() {
     try {
         const response = await axios.get(`https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery`, {
@@ -52,7 +53,7 @@ function notifyUpdateAvailable(latestVersion: string) {
 
 export async function activateExtension(context: vscode.ExtensionContext) {
   // Add necessary files
-  checkForExtensionUpdate();
+//   checkForExtensionUpdate();
   getTsConfigPath();
   getContinueRcPath();
 
