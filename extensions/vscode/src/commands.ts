@@ -25,6 +25,7 @@ import { VerticalPerLineDiffManager } from "./diff/verticalPerLine/manager";
 import { QuickEdit } from "./quickEdit/QuickEdit";
 import { Battery } from "./util/battery";
 import type { VsCodeWebviewProtocol } from "./webviewProtocol";
+import { toggleQuickActions } from "./lang-server/codeLens/providers/QuickActionsCodeLensProvider";
 
 let fullScreenPanel: vscode.WebviewPanel | undefined;
 
@@ -688,6 +689,9 @@ const commandsMap: (
         Telemetry.capture("saveChatSession", {});
         sidebar.webviewProtocol.request("sendSessionChatHistory", undefined);
     },
+    "ahrefs-continue.toggleQuickActions": () => {
+        toggleQuickActions();
+    }
   };
 };
 
