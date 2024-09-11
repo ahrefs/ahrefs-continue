@@ -26,6 +26,7 @@ import { QuickEdit } from "./quickEdit/QuickEdit";
 import { Battery } from "./util/battery";
 import type { VsCodeWebviewProtocol } from "./webviewProtocol";
 import { toggleQuickActions } from "./lang-server/codeLens/providers/QuickActionsCodeLensProvider";
+import { registerAllCodeLensProviders } from "./lang-server/codeLens";
 
 let fullScreenPanel: vscode.WebviewPanel | undefined;
 
@@ -691,6 +692,14 @@ const commandsMap: (
     },
     "ahrefs-continue.toggleQuickActions": () => {
         toggleQuickActions();
+        configHandler.loadConfig().then((config) => {
+            registerAllCodeLensProviders(
+                extensionContext,
+                diffManager,
+                verticalDiffManager.filepathToCodeLens,
+                config
+            );
+        });
     }
   };
 };
