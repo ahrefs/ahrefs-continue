@@ -193,6 +193,30 @@ export class VsCodeExtension {
 
     registerDebugTracker(this.sidebar.webviewProtocol, this.ide);
 
+    // Listen for file saving - use global file watcher so that changes
+    // from outside the window are also caught
+    fs.watchFile(getConfigJsonPath(), { interval: 1000 }, async (stats) => {
+        const currentModifiedTime = stats.mtimeMs;
+        const now = Date.now();
+
+        // Check if the file was modified within the last 1.5 seconds
+        if (currentModifiedTime <= now - 1500 && currentModifiedTime <= now) {
+            console.log("config json");
+            await this.configHandler.reloadConfig();
+        }
+    });
+    
+    let previousModifiedConfigTsTime: number | null = null;
+    fs.watchFile(getConfigTsPath(), { interval: 1000 }, (stats) => {
+        const currentModifiedTime = stats.mtimeMs;
+        const now = Date.now();
+
+        // Check if the file was modified within the last 1.5 seconds
+        if (currentModifiedTime <= now - 1500 && currentModifiedTime <= now) {
+            console.log("ts config")
+            this.configHandler.reloadConfig();
+        }
+    });
     vscode.workspace.onDidSaveTextDocument((event) => {
       // Listen for file changes in the workspace
       const filepath = event.uri.fsPath;
