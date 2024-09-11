@@ -99,6 +99,30 @@ export class QuickActionsCodeLensProvider implements vscode.CodeLensProvider {
     return [explain, comment];
   }
 
+  async getTopLevelAndChildrenSymbols(uri: vscode.Uri) {
+    const topLevelSymbols = await vscode.commands.executeCommand<
+      Array<vscode.DocumentSymbol> | undefined
+    >("vscode.executeDocumentSymbolProvider", uri);
+
+    if (!topLevelSymbols) {
+      return [];
+    }
+
+    const childrenSymbols = topLevelSymbols.flatMap(
+      (symbol) => symbol.children,
+    );
+
+    const symbols = [...topLevelSymbols, ...childrenSymbols];
+
+    const filteredSmybols = symbols?.filter(
+      (symbol) =>
+        QuickActionsCodeLensProvider.quickActionSymbolKinds.includes(symbol.kind) &&
+        !symbol.range.isSingleLine,
+    );
+
+    return filteredSmybols;
+  }
+
   async provideCodeLenses(
     document: vscode.TextDocument,
   ): Promise<vscode.CodeLens[]> {
@@ -114,20 +138,14 @@ export class QuickActionsCodeLensProvider implements vscode.CodeLensProvider {
       return [];
     }
 
-    const symbols = await vscode.commands.executeCommand<
-      Array<vscode.DocumentSymbol>
-    >("vscode.executeDocumentSymbolProvider", document.uri);
-
-    const filteredSmybols = symbols?.filter((def) =>
-      QuickActionsCodeLensProvider.quickActionSymbolKinds.includes(def.kind),
-    );
-
-    return filteredSmybols?.flatMap(({ range }) => {
-        const commands: vscode.Command[] = this.customQuickActionsConfig
+    const symbols = await this.getTopLevelAndChildrenSymbols(document.uri);
+    
+    return symbols.flatMap(({ range }) => {
+        const commands: vscode.Command[] = !!this.customQuickActionsConfig
           ? this.getCustomCommands(range, this.customQuickActionsConfig)
           : this.getDefaultCommands(range);
-          
+  
         return commands.map((command) => new vscode.CodeLens(range, command));
-      }) ?? [];
+      });
   }
 }
